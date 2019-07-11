@@ -1,0 +1,48 @@
+﻿<Window x:Class="SMS_EMAIL_PLC.Messages_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SMS_EMAIL_PLC"
+        mc:Ignorable="d"
+        Closing="MessagesWindow_Closing"
+        Title="Messages_Window" Height="450" Width="500">
+
+    <Viewbox StretchDirection="Both" Stretch="Uniform">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid Height="450" Width="500">
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="Number_Panel" Orientation="Vertical" Width="50">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="NR"  HorizontalAlignment="Center" Height="20"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="Description_Panel" Width="200">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="Opis" HorizontalAlignment="Center" Height="20"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="Messages_Panel" Width = "150">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="Wiadomości" HorizontalAlignment="Center" Height="20"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Name="RemoveButtons_Panel" Width="70">
+                        <Button Content="dodaj" Click="AddButton_Click" Height="23"/>
+                    </StackPanel>
+                    <Button Content="DBG" Click="dbg_Click" Height="20" VerticalAlignment="Top"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Viewbox>
+
+</Window>

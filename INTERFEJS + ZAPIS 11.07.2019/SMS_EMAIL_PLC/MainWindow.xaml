@@ -1,0 +1,81 @@
+﻿<Window x:Class="SMS_EMAIL_PLC.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SMS_EMAIL_PLC"
+        mc:Ignorable="d"
+        Closing="MainWindow_Closing"
+        Title="MainWindow" Height="450" Width="800">
+    <Viewbox StretchDirection="Both" Stretch="Uniform">
+        <Grid Background="Gainsboro" Height="450" Width="840">
+
+            <StackPanel>
+
+                <StackPanel Name="Windows_Panel" Orientation="Horizontal">
+
+                    <Button Name="users_button" Content="użytkownicy" Click="Users_Click" Width="100" Height="25" FontSize="15"/>
+                    <Button Name="messages_button" Content="wiadomości" Click="Messages_Click" Width="100" Height="25" FontSize="15"/>
+                    <Button Name="configure_button" Content="konfiguracja" Click="Configure_Click" Width="100" Height="25" FontSize="15"/>
+                    <Button Name="save_settings_button" Content="zapisz ustawienia" Click="Save_Settings_Click" Width="120" Height="25" FontSize="15"/>
+                    <Button Name="load_settings_button" Content="wczytaj ustawienia" Click="Load_Settings_Click" Width="130" Height="25" FontSize="15"/>
+                    <Button Width="50" Content="messages" Click="dbgmsgs_Click"/>
+
+                </StackPanel>
+                <TextBlock Height="10"/>
+
+                <StackPanel Orientation="Horizontal" Name="driver_properties">
+                    <TextBlock Text="PLC: " FontSize="20" />
+                    <TextBox Name = "type_box" Width="150" Text="typ" TextAlignment="Center" FontSize="15" />
+                    <TextBox Name = "ip_box" Width="150" Text="ip" TextAlignment="Center" FontSize="15"/>
+                    <TextBox Name = "slot_box" Width="75" Text = "slot" TextAlignment="Center" FontSize="15"/>
+                    <TextBox Name = "rack_box" Width="75" Text = "rack" TextAlignment="Center" FontSize="15"/>
+
+                    <Button Width ="100" Content="POŁĄCZ" Click="Connect_Click"/>
+
+                    <TextBlock Text="Status:" FontSize="20"/>
+                    <TextBlock Width="10"/>
+                    <TextBlock Name="plc_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Database: " FontSize="20"/>
+                    <TextBox Text="login" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Login_Box"/>
+                    <PasswordBox PasswordChar="*" Width="100" VerticalAlignment="Center" FontSize="15" Name="Password_Box"/>
+                    <TextBox Text="baza" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Base_Box"/>
+                    <TextBox Text="adres serwera" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="DBServer_Box"/>
+                    <Button Width="100" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
+
+                    <TextBlock Text="Status:" FontSize="20"/>
+                    <TextBlock Width="10"/>
+                    <TextBlock Name="sql_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
+                    
+                </StackPanel>
+
+                <StackPanel Name="Statusy">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Email Status:" FontSize="18"/>
+                        <TextBlock Width="8"/>
+                        <TextBlock Name="email_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="SMS Status:" FontSize="18"/>
+                        <TextBlock Width="15"/>
+                        <TextBlock Name="sms_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="status aplikacji:" FontSize="18"/>
+                        <TextBlock Width="10" FontSize="18"/>
+                        <TextBlock Name="app_status_text" Text="Wyłączona" FontSize="18" Foreground="DimGray"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Name="last_message_panel">
+                    <TextBlock HorizontalAlignment="Center" Text="ostatnia wiadomość:" FontSize="20"/>
+                    <TextBlock Name="last_message_text" HorizontalAlignment="Center" Text="dane... data..." FontSize="15" Foreground="DimGray"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Grid>
+    </Viewbox>
+</Window>
