@@ -86,6 +86,13 @@ namespace SMS_EMAIL_PLC
             users = new List<User>();
         }
 
+        public void Clear_Configuration()
+        {
+            foreach (User user in users)
+                configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+        }
+
+
         public void Add_User(User user)
         {
             users.Add(user);

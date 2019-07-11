@@ -187,7 +187,8 @@ namespace SMS_EMAIL_PLC
             RemoveButtons_Panel.Children.RemoveAt(it);
         }
 
-        private void Save(object sender, ExecutedRoutedEventArgs e)
+
+        void Save_Users()
         {
             foreach (User user in Singleton.Instance.users)
             {
@@ -216,7 +217,6 @@ namespace SMS_EMAIL_PLC
 
             for (int i = 1; i < ID_Panel.Children.Count; i++)
             {
-
                 string id = ((TextBox)ID_Panel.Children[i]).Text;
                 string name = ((TextBox)Name_Panel.Children[i]).Text;
                 string phone_number = ((TextBox)PhoneNumber_Panel.Children[i]).Text;
@@ -225,13 +225,22 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.Add_User(new User(id, name, phone_number, email));
             }
             Singleton.Instance.configuration_window.Add_Users();
+        }
+
+
+        private void Save(object sender, ExecutedRoutedEventArgs e)
+        {
+            Save_Users();
             System.Windows.MessageBox.Show("zapisano pomyślnie!");
             e.Handled = true;
         }
 
         private void LoadDatabase_Click(Object sender, EventArgs e)
         {
-
+            Singleton.Instance.sql_manager.Load_Users();
+            Save_Users();
+            Singleton.Instance.Clear_Configuration();
+            Singleton.Instance.configuration_window.Refresh();
         }
     }
 }

@@ -133,10 +133,6 @@ namespace SMS_EMAIL_PLC
                     Singleton.Instance.Set_Message(msg.Key, msg.Value);
                 }
 
-                //foreach(KeyValuePair<string,Message> msg in Singleton.Instance.messages)
-                //   System.Windows.MessageBox.Show($"mesages[{msg.Key}]: " + Singleton.Instance.messages[msg.Key].sms + ", " + Singleton.Instance.messages[msg.Key].email + "\n");
-                //Singleton.Instance.Clear_Config();
-
                 Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
  
                 foreach (User user in Singleton.Instance.users)
@@ -169,6 +165,5 @@ namespace SMS_EMAIL_PLC
         {
             Singleton.Instance.msgs_dbg();
         }
-
     }
 }
