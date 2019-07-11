@@ -16,6 +16,7 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace SMS_EMAIL_PLC
 {
@@ -69,26 +70,41 @@ namespace SMS_EMAIL_PLC
             try
             {
                 IFormatter formatter = new BinaryFormatter();
-                Stream stream = new FileStream("save.dat", FileMode.Create, FileAccess.Write);
 
-                formatter.Serialize(stream, Singleton.Instance.users.Count);
-                formatter.Serialize(stream, Singleton.Instance.messages.Count);
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                bool? result = saveFileDialog.ShowDialog();
 
-                foreach (User user in Singleton.Instance.users)
-                    formatter.Serialize(stream, user);
+                saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.RestoreDirectory = true;
 
-                foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                Stream stream;
+
+                if (result == true)
                 {
-                    formatter.Serialize(stream, msg.Key);
-                    formatter.Serialize(stream, msg.Value);
-                }
+                    if ((stream = saveFileDialog.OpenFile()) != null)
+                    {
+                        formatter.Serialize(stream, Singleton.Instance.users.Count);
+                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
 
-                foreach (User user in Singleton.Instance.users)
-                {
-                    foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                        formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()][msg.Key]);
+                        foreach (User user in Singleton.Instance.users)
+                            formatter.Serialize(stream, user);
+
+                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                        {
+                            formatter.Serialize(stream, msg.Key);
+                            formatter.Serialize(stream, msg.Value);
+                        }
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                                formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()][msg.Key]);
+                        }
+                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        stream.Close();
+                    }
                 }
-                System.Windows.MessageBox.Show("zapisano pomyślnie!");
             }
             catch (Exception ex)
             {
@@ -102,57 +118,75 @@ namespace SMS_EMAIL_PLC
             try
             {
                 IFormatter formatter = new BinaryFormatter();
-                FileStream stream = new FileStream("save.dat", FileMode.Open, FileAccess.Read);
 
-                int users_count = (int)formatter.Deserialize(stream);
-                int msgs_count = (int)formatter.Deserialize(stream);
 
-                Singleton.Instance.Clear_Users();
+                OpenFileDialog openFileDialog = new OpenFileDialog();
 
-                for (int i = 0; i < users_count; i++)
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+                bool? result = openFileDialog.ShowDialog();
+
+                Stream stream;
+
+                if (result == true)
                 {
-                    User user = (User)formatter.Deserialize(stream);
-                    Singleton.Instance.Add_User(user);
-                }
-
-                Singleton.Instance.Clear_Messages();
-
-                Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
-
-                for (int i = 0; i < msgs_count; i++)
-                {
-                    string key = (string)formatter.Deserialize(stream);
-                    Message new_msg = (Message)formatter.Deserialize(stream);
-                    new_msgs[key] = new_msg;
-                }
-
-                Thread.Sleep(200);
-
-                foreach(KeyValuePair<string, Message> msg in new_msgs)
-                {
-                    Singleton.Instance.Set_Message(msg.Key, msg.Value);
-                }
-
-                Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
- 
-                foreach (User user in Singleton.Instance.users)
-                {
-                    Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-                }
-                
-
-                foreach (User user in Singleton.Instance.users)
-                {
-                    foreach (KeyValuePair<string, Message> msg in new_msgs)
+                    if ((stream = openFileDialog.OpenFile()) != null)
                     {
-                        Configuration load = (Configuration)formatter.Deserialize(stream);
-                        Singleton.Instance.Add_To_Config(user.Get_ID(), msg.Key, load);
+
+                        int users_count = (int)formatter.Deserialize(stream);
+                        int msgs_count = (int)formatter.Deserialize(stream);
+
+                        Singleton.Instance.Clear_Users();
+
+                        for (int i = 0; i < users_count; i++)
+                        {
+                            User user = (User)formatter.Deserialize(stream);
+                            Singleton.Instance.Add_User(user);
+                        }
+
+                        Singleton.Instance.Clear_Messages();
+
+                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
+
+                        for (int i = 0; i < msgs_count; i++)
+                        {
+                            string key = (string)formatter.Deserialize(stream);
+                            Message new_msg = (Message)formatter.Deserialize(stream);
+                            new_msgs[key] = new_msg;
+                        }
+
+                        Thread.Sleep(200);
+
+                        foreach (KeyValuePair<string, Message> msg in new_msgs)
+                        {
+                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
+                        }
+
+                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                        }
+
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            foreach (KeyValuePair<string, Message> msg in new_msgs)
+                            {
+                                Configuration load = (Configuration)formatter.Deserialize(stream);
+                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg.Key, load);
+                            }
+                        }
+
+                        Add_Lines_To_Windows(new_msgs);
+
+                        System.Windows.MessageBox.Show("wczytano pomyślnie");
                     }
                 }
-
-                Add_Lines_To_Windows(new_msgs);
-
-                System.Windows.MessageBox.Show("wczytano pomyślnie");
+                
 
             }
             catch (Exception ex)

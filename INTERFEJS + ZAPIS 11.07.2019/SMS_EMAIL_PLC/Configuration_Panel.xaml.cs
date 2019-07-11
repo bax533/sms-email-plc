@@ -89,6 +89,7 @@ namespace SMS_EMAIL_PLC
                 string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
                 Singleton.Instance.configuration[user_id][msg_id] = config;
             }
+            this.Close();
         }
     }
 }
