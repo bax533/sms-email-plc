@@ -9,6 +9,89 @@ using System.Windows.Threading;
 
 namespace SMS_EMAIL_PLC
 {
+    [Serializable]
+    public class Message
+    {
+        public string sms;
+        public string email;
+        public Message(string sms, string email)
+        {
+            this.sms = sms;
+            this.email = email;
+        }
+        public Message()
+        {
+            sms = "";
+            email = "";
+        }
+    }
+
+
+    [Serializable]
+    public class Configuration
+    {
+        public bool sms_up;
+        public bool email_up;
+        public bool sms_down;
+        public bool email_down;
+        public Configuration(bool sms_up, bool email_up, bool sms_down, bool email_down)
+        {
+            this.sms_up = sms_up;
+            this.email_up = email_up;
+            this.sms_down = sms_down;
+            this.email_down = email_down;
+        }
+        public Configuration()
+        {
+            this.sms_up = false;
+            this.email_up = false;
+            this.sms_down = false;
+            this.email_down = false;
+        }
+    }
+
+    [Serializable]
+    class User
+    {
+        string id;
+        string name;
+        string phone_number;
+        string email;
+        public User(string id, string name, string phone_number, string email)
+        {
+            this.id = id;
+            this.name = name;
+            this.phone_number = phone_number;
+            this.email = email;
+        }
+
+        override
+        public string ToString()
+        {
+            return id + " " + name + " " + phone_number + " " + email;
+        }
+
+        public string Get_ID()
+        {
+            return id;
+        }
+
+        public string Get_Name()
+        {
+            return name;
+        }
+
+        public string Get_Number()
+        {
+            return phone_number;
+        }
+
+        public string Get_Email()
+        {
+            return email;
+        }
+    }
+
     class Singleton
     {
         private DispatcherTimer timer = new DispatcherTimer();
@@ -26,7 +109,7 @@ namespace SMS_EMAIL_PLC
         public Driver_Window driver_window = new Driver_Window();
 
         public List<User> users = new List<User>();
-        
+        public Dictionary<string, Message> messages = new Dictionary<string, Message>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
 
 
@@ -238,8 +321,6 @@ namespace SMS_EMAIL_PLC
             }
             System.Windows.MessageBox.Show(ret);
         }
-
-        public Dictionary<string, Message> messages = new Dictionary<string, Message>();
 
         public void Set_Message(string key, Message msg)
         {

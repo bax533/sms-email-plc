@@ -19,54 +19,47 @@ namespace SMS_EMAIL_PLC
 {
     public partial class Driver_Window : Window
     {
-
-        DispatcherTimer timer = new DispatcherTimer();
-
         public Driver_Window()
         {
             InitializeComponent();
-           // SetTimer(1000);
         }
 
         private void Save(Object sender, EventArgs e)
         {
             if (Singleton.Instance.plc_manager.connected)
             {
-                try
+                if (Singleton.Instance.plc_manager.connected)
                 {
-                    string dbw2 = DBW2_changeBox.Text;
-                    int val_dbw2 = Int16.Parse(dbw2);
-                    Singleton.Instance.plc_manager.Set_Int_Value("DB80.DBW2", val_dbw2);                    
+                    for (int i = 1; i < Adresses_Panel.Children.Count; i++)
+                    {
+                        try
+                        {
+                            string adres = ((TextBox)Adresses_Panel.Children[i]).Text;
+                            string val = ((TextBox)Changes_Panel.Children[i]).Text;
+                            Singleton.Instance.plc_manager.Set_Int_Value(adres, Int16.Parse(val));
+                        }
+                        catch (Exception ex)
+                        { }
+                    }
                 }
-                catch(Exception ex)
-                { }
-
-                try
-                {
-                    string dbw0 = DBW0_changeBox.Text;
-                    int val_dbw0 = Int16.Parse(dbw0);
-                    Singleton.Instance.plc_manager.Set_Int_Value("DB80.DBW0", val_dbw0);
-                }
-                catch(Exception ex)
-                { }
             }
-        }
-
-        private void SetTimer(int interval)
-        {
-            timer.Interval = new TimeSpan(0, 0, 1);
-            //timer.Tick += new EventHandler(OnTimedEvent);
-            timer.Start();
         }
 
         public void OnTimedEvent()
         {
             if(Singleton.Instance.plc_manager.connected)
             { 
-                DBW0_box.Text = Singleton.Instance.plc_manager.Get_Int_Value("DB80.DBW0").ToString();
-                DBW2_box.Text = Singleton.Instance.plc_manager.Get_Int_Value("DB80.DBW2").ToString();
+                for(int i=1; i<Adresses_Panel.Children.Count; i++)
+                {
+                    try
+                    {
+                        string adres = ((TextBox)Adresses_Panel.Children[i]).Text;
+                        ((TextBox)Values_Panel.Children[i]).Text = Singleton.Instance.plc_manager.Get_Int_Value(adres).ToString();
+                    }
+                    catch(Exception ex)
+                    { }
+                }
             }
-            
         }
 
 
@@ -76,24 +69,46 @@ namespace SMS_EMAIL_PLC
             Singleton.Instance.driver_window.Visibility = Visibility.Collapsed;
         }
 
-        public void Set_0(string x)
+        public void Add_Line(string name)
         {
-            try
-            {
-                DBW0_box.Text = x;
-            }
-            catch(Exception ex)
-            { }
+            TextBox NameBox = new TextBox();
+            NameBox.Text = name;
+            NameBox.Width = 100;
+            NameBox.Height = 20;
+            NameBox.FontSize = 15;
+            NameBox.TextAlignment = TextAlignment.Center;
+            Adresses_Panel.Children.Add(NameBox);
+
+            TextBox ValueBox = new TextBox();
+            ValueBox.IsReadOnly = true;
+            ValueBox.Text = "";
+            ValueBox.Width = 100;
+            ValueBox.Height = 20;
+            ValueBox.FontSize = 15;
+            ValueBox.TextAlignment = TextAlignment.Center;
+            Values_Panel.Children.Add(ValueBox);
+
+            TextBox ChangeBox = new TextBox();
+            ChangeBox.Text = "-";
+            ChangeBox.Width = 100;
+            ChangeBox.Height = 20;
+            ChangeBox.FontSize = 15;
+            ChangeBox.TextAlignment = TextAlignment.Center;
+            Changes_Panel.Children.Add(ChangeBox);
         }
 
-        public void Set_2(string x)
+        public string Get_Dialog(string starting)
         {
-            try
-            {
-                DBW2_box.Text = x;
-            }
-            catch(Exception ex)
-            { }
+            SMS_Dialog dialog = new SMS_Dialog(starting);
+            dialog.ShowDialog();
+            return dialog.Result;
         }
+
+        private void AddButton_Click(Object sender, EventArgs e)
+        {
+            string adres = Get_Dialog("");
+            Add_Line(adres);
+        }
+
     }
 }

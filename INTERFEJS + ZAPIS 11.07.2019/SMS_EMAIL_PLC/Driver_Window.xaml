@@ -22,20 +22,17 @@
     
     <Grid>
         <StackPanel Orientation="Horizontal">
-            <StackPanel Width="100">
-                <TextBlock Text="numer komórki"/>
-                <TextBlock Text="DB80.DBW0"/>
-                <TextBlock Text="DB80.DBW2"/>
+            <StackPanel Width="100" Name="Adresses_Panel">
+                <TextBlock Text="nazwa komórki"/>
             </StackPanel>
-            <StackPanel Width="100">
+            <StackPanel Width="100" Name="Values_Panel">
                 <TextBlock Text="wartości"/>
-                <TextBox Name="DBW0_box" Text="-" HorizontalAlignment="Center" Width="100"/>
-                <TextBox Name="DBW2_box" Text="-" HorizontalAlignment="Center" Width="100"/>
+            </StackPanel>
+            <StackPanel Name="Changes_Panel" Width="100">
+                <TextBlock Text="zmiana wartości"/>
             </StackPanel>
             <StackPanel>
-                <TextBlock Text="zmiana wartości"/>
-                <TextBox Name="DBW0_changeBox" Text="-" Width="100"/>
-                <TextBox Name="DBW2_changeBox" Text="-" Width="100"/>
+                <Button Content="dodaj komórkę" Height="15" Click="AddButton_Click" FontSize="10"/>
             </StackPanel>
 
 
