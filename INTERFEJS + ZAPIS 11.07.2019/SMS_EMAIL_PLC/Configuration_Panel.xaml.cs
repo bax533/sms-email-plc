@@ -29,10 +29,10 @@ namespace SMS_EMAIL_PLC
         {
             foreach(KeyValuePair<string, Message> msg in Singleton.Instance.messages)
             {
-                bool already = false;
+                bool already_in = false;
                 if (config.ContainsKey(msg.Key))
                 {
-                    already = true;
+                    already_in = true;
                 }
 
                 TextBlock idBlock = new TextBlock();
@@ -43,7 +43,7 @@ namespace SMS_EMAIL_PLC
                 ID_Panel.Children.Add(idBlock);
 
                 CheckBox sms_upBox = new CheckBox();
-                if (already)
+                if (already_in)
                     sms_upBox.IsChecked = (bool)config[msg.Key].sms_up;
                 sms_upBox.Name = "sup" + SMS_UP_Panel.Children.Count;
                 sms_upBox.Height = 20;
@@ -51,7 +51,7 @@ namespace SMS_EMAIL_PLC
                 SMS_UP_Panel.Children.Add(sms_upBox);
 
                 CheckBox sms_downBox = new CheckBox();
-                if(already)
+                if(already_in)
                     sms_downBox.IsChecked = (bool)config[msg.Key].sms_down;
                 sms_downBox.Name = "sdn" + SMS_DOWN_Panel.Children.Count;
                 sms_downBox.Height = 20;
@@ -59,7 +59,7 @@ namespace SMS_EMAIL_PLC
                 SMS_DOWN_Panel.Children.Add(sms_downBox);
 
                 CheckBox email_upBox = new CheckBox();
-                if (already)
+                if (already_in)
                     email_upBox.IsChecked = (bool)config[msg.Key].email_up;
                 email_upBox.Name = "eup" + EMAIL_UP_Panel.Children.Count;
                 email_upBox.Height = 20;
@@ -67,7 +67,7 @@ namespace SMS_EMAIL_PLC
                 EMAIL_UP_Panel.Children.Add(email_upBox);
 
                 CheckBox email_downBox = new CheckBox();
-                if (already)
+                if (already_in)
                     email_downBox.IsChecked = (bool)config[msg.Key].email_down;
                 email_downBox.Name = "edn" + EMAIL_DOWN_Panel.Children.Count;
                 email_downBox.Height = 20;

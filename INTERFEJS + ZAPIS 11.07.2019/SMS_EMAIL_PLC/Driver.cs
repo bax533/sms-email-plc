@@ -11,11 +11,13 @@ namespace SMS_EMAIL_PLC
         public string name;
         public int val;
         public bool already_alarmed;
+        public bool already_acknowledged;
         public Driver(string name, int val)
         {
             this.name = name;
             this.val = val;
             already_alarmed = false;
+            already_acknowledged = false;
         }
     }
 }

@@ -185,6 +185,11 @@ namespace SMS_EMAIL_PLC
             PhoneNumber_Panel.Children.RemoveAt(it);
             Email_Panel.Children.RemoveAt(it);
             RemoveButtons_Panel.Children.RemoveAt(it);
+
+            for (int i = it; i < ID_Panel.Children.Count; i++)
+            {
+                ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+            }
         }
 
 

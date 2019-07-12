@@ -118,6 +118,7 @@ namespace SMS_EMAIL_PLC
             string nr = ((TextBox)Number_Panel.Children[it]).Text;
 
             Singleton.Instance.Remove_Message(nr);
+            Singleton.Instance.Remove_From_Configuration(nr);
             //Singleton.Instance.resources.Remove_SMS(nr);
             //Singleton.Instance.resources.Remove_Email(nr);
 

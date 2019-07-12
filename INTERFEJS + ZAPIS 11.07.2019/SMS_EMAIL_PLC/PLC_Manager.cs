@@ -10,7 +10,8 @@ namespace SMS_EMAIL_PLC
 {
     class PLC_Manager
     {
-        public Plc plc = new Plc(CpuType.S7300, "192.168.0.200", 0, 2);
+        public bool connected;
+        public Plc plc;
 
         public bool Load_Plc(string Cputype, string ip, int rack, int slot)
         {

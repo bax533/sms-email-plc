@@ -64,6 +64,9 @@
       <DependentUpon>Configuration_Window.xaml</DependentUpon>
     </Compile>
     <Compile Include="Driver.cs" />
+    <Compile Include="Driver_Window.xaml.cs">
+      <DependentUpon>Driver_Window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Email_Manager.cs" />
     <Compile Include="Messages_Window.xaml.cs">
       <DependentUpon>Messages_Window.xaml</DependentUpon>
@@ -86,6 +89,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Configuration_Window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Driver_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

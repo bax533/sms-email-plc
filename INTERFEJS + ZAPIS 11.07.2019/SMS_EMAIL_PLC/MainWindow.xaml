@@ -19,17 +19,17 @@
                     <Button Name="configure_button" Content="konfiguracja" Click="Configure_Click" Width="100" Height="25" FontSize="15"/>
                     <Button Name="save_settings_button" Content="zapisz ustawienia" Click="Save_Settings_Click" Width="120" Height="25" FontSize="15"/>
                     <Button Name="load_settings_button" Content="wczytaj ustawienia" Click="Load_Settings_Click" Width="130" Height="25" FontSize="15"/>
-                    <Button Width="50" Content="messages" Click="dbgmsgs_Click"/>
+                    <Button Name="Driver_button" Content="sterownik" Click="Driver_Click" Width="100" Height="25" FontSize="15"/>
 
                 </StackPanel>
                 <TextBlock Height="10"/>
 
                 <StackPanel Orientation="Horizontal" Name="driver_properties">
                     <TextBlock Text="PLC: " FontSize="20" />
-                    <TextBox Name = "type_box" Width="150" Text="typ" TextAlignment="Center" FontSize="15" />
-                    <TextBox Name = "ip_box" Width="150" Text="ip" TextAlignment="Center" FontSize="15"/>
-                    <TextBox Name = "slot_box" Width="75" Text = "slot" TextAlignment="Center" FontSize="15"/>
-                    <TextBox Name = "rack_box" Width="75" Text = "rack" TextAlignment="Center" FontSize="15"/>
+                    <TextBox Name = "type_box" Width="150" Text="S7400" TextAlignment="Center" FontSize="15" />
+                    <TextBox Name = "ip_box" Width="150" Text="192.168.1.151" TextAlignment="Center" FontSize="15"/>
+                    <TextBox Name = "slot_box" Width="75" Text = "3" TextAlignment="Center" FontSize="15"/>
+                    <TextBox Name = "rack_box" Width="75" Text = "0" TextAlignment="Center" FontSize="15"/>
 
                     <Button Width ="100" Content="POŁĄCZ" Click="Connect_Click"/>
 
@@ -39,12 +39,12 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Database: " FontSize="20"/>
+                    <TextBlock Text="Baza danych: " FontSize="20"/>
                     <TextBox Text="login" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Login_Box"/>
                     <PasswordBox PasswordChar="*" Width="100" VerticalAlignment="Center" FontSize="15" Name="Password_Box"/>
                     <TextBox Text="baza" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Base_Box"/>
                     <TextBox Text="adres serwera" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="DBServer_Box"/>
-                    <Button Width="100" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
+                    <Button Width="70" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
 
                     <TextBlock Text="Status:" FontSize="20"/>
                     <TextBlock Width="10"/>

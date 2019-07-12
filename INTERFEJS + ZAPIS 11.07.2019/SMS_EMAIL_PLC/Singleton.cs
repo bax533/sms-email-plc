@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace SMS_EMAIL_PLC
 {
     class Singleton
     {
-        private System.Timers.Timer timer;
+        private DispatcherTimer timer = new DispatcherTimer();
 
         public List<Driver> toControl = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
@@ -22,6 +23,7 @@ namespace SMS_EMAIL_PLC
         public Messages_Window messages_window = new Messages_Window();
         public Configuration_Window configuration_window = new Configuration_Window();
         public MainWindow main_window;
+        public Driver_Window driver_window = new Driver_Window();
 
         public List<User> users = new List<User>();
         
@@ -43,33 +45,78 @@ namespace SMS_EMAIL_PLC
 
         public void SetTimer(int interval)
         {
-            timer = new System.Timers.Timer(interval);
-            timer.Elapsed += OnTimedEvent;
-            timer.AutoReset = true;
-            timer.Enabled = true;
+            timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
+            timer.Tick += new EventHandler(OnTimedEvent);
+            timer.Start();
         }
 
-        public void OnTimedEvent(Object source, ElapsedEventArgs e)
+        public void OnTimedEvent(Object source, EventArgs e)
         {
-            foreach (Driver driver in toControl)
+            if (plc_manager.connected)
             {
-                //Console.WriteLine((int)plc_manager.Get_Int_Value(driver.name)+ " = "+ driver.val);
-                try
+                driver_window.OnTimedEvent();
+                foreach (Driver driver in toControl)
                 {
-                    if (plc_manager.Get_Int_Value(driver.name) == driver.val && !driver.already_alarmed)
+                    int value = plc_manager.Get_Int_Value(driver.name);
+                    if (!driver.already_alarmed)
                     {
-                        Console.WriteLine("ALERT " + driver.name);
-                        driver.already_alarmed = true;
+                        if (messages.ContainsKey(value.ToString()))
+                        {
+                            Send_Message(value.ToString(), true);
+                            driver.already_alarmed = true;
+                            driver.already_acknowledged = false;
+                            driver.val = value;
+                        }
                     }
-                    else if (driver.already_alarmed && plc_manager.Get_Int_Value(driver.name) != driver.val)
+                    else if (driver.already_alarmed && !driver.already_acknowledged && (value == 0 || value == 90))
                     {
-                        driver.already_alarmed = false;
-                        Console.WriteLine("KONIEC " + driver.name);
+                        if (messages.ContainsKey(driver.val.ToString()))
+                        {
+                            Send_Message(driver.val.ToString(), false);
+                            driver.already_acknowledged = true;
+                            driver.already_alarmed = false;
+                        }
                     }
+
                 }
-                catch (Exception ex)
+            }
+        }
+
+        public void Send_SMS(string message_id, string number, bool up)
+        {
+            string msg = messages[message_id].sms;
+            if (!up) msg += " powrót";
+            System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
+        }
+
+        public void Send_Email(string message_id, string adress, bool up)
+        {
+            string msg = messages[message_id].email;
+            if (!up) msg += " powrót";
+            System.Windows.MessageBox.Show("Wysłano email na adres: " + adress + " o treści: " + msg);
+        }
+
+
+        void Send_Message(string message_id, bool up)
+        {
+            foreach(User user in users)
+            {
+                if (configuration[user.Get_ID()].ContainsKey(message_id))
                 {
-                    Console.WriteLine(ex.Message);
+                    if (up)
+                    {
+                        if (configuration[user.Get_ID()][message_id].sms_up)
+                            Send_SMS(message_id, user.Get_Number(), up);
+                        if (configuration[user.Get_ID()][message_id].email_up)
+                            Send_Email(message_id, user.Get_Email(), up);
+                    }
+                    else
+                    {
+                        if (configuration[user.Get_ID()][message_id].sms_down)
+                            Send_SMS(message_id, user.Get_Number(), up);
+                        if (configuration[user.Get_ID()][message_id].email_down)
+                            Send_Email(message_id, user.Get_Email(), up);
+                    }
                 }
             }
         }
@@ -140,6 +187,14 @@ namespace SMS_EMAIL_PLC
         }
 
         
+        public void Remove_From_Configuration(string key)
+        {
+            foreach(User user in users)
+            {
+                if (configuration[user.Get_ID()].ContainsKey(key))
+                    configuration[user.Get_ID()].Remove(key);
+            }
+        }
 
         public void Remove_Message(string key)
         {

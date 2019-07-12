@@ -23,6 +23,10 @@ namespace SMS_EMAIL_PLC
             InitializeComponent();
             Singleton.Instance.main_window = this;
             Singleton.Instance.SetTimer(500);
+            Driver driver1 = new Driver("DB80.DBW0", 121);
+            Driver driver2 = new Driver("DB80.DBW2", 122);
+            Singleton.Instance.toControl.Add(driver1);
+            Singleton.Instance.toControl.Add(driver2);
         }
 
         void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -41,6 +45,7 @@ namespace SMS_EMAIL_PLC
             }
             catch(Exception ex)
             { }
+            
             System.Windows.Application.Current.Shutdown();
         }
 

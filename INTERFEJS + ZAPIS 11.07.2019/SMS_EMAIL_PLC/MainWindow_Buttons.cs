@@ -32,9 +32,15 @@ namespace SMS_EMAIL_PLC
                 int rack = Int16.Parse(rack_box.Text);
 
                 if (Singleton.Instance.plc_manager.Load_Plc(type, ip, rack, slot))
+                {
                     plc_status_text.Text = "połączono";
+                    Singleton.Instance.plc_manager.connected = true;
+                }
                 else
+                {
                     plc_status_text.Text = "nie połączono";
+                    Singleton.Instance.plc_manager.connected = false;
+                }
             }
             catch(Exception ex)
             {
@@ -63,6 +69,11 @@ namespace SMS_EMAIL_PLC
         private void Configure_Click(object sender, EventArgs e)
         {
             Singleton.Instance.configuration_window.Visibility = Visibility.Visible;
+        }
+
+        private void Driver_Click(Object sender, EventArgs e)
+        {
+            Singleton.Instance.driver_window.Visibility = Visibility.Visible;
         }
 
         private void Save_Settings_Click(Object sender, EventArgs e)
@@ -122,7 +133,7 @@ namespace SMS_EMAIL_PLC
 
                 OpenFileDialog openFileDialog = new OpenFileDialog();
 
-                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.InitialDirectory = "c:\\Users\\Szymon\\Desktop";
                 openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
@@ -193,11 +204,6 @@ namespace SMS_EMAIL_PLC
             {
                 System.Windows.MessageBox.Show(ex.Message);
             }
-        }
-
-        private void dbgmsgs_Click(Object sender, EventArgs e)
-        {
-            Singleton.Instance.msgs_dbg();
         }
     }
 }
