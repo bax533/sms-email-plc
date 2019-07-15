@@ -30,14 +30,16 @@ namespace SMS_EMAIL_PLC
                 string ip = ip_box.Text;
                 int slot = Int16.Parse(slot_box.Text);
                 int rack = Int16.Parse(rack_box.Text);
-
+                plc_status_text.Foreground = Brushes.Black;
                 if (Singleton.Instance.plc_manager.Load_Plc(type, ip, rack, slot))
                 {
                     plc_status_text.Text = "połączono";
+                    plc_status_text.Background = Brushes.Green;
                     Singleton.Instance.plc_manager.connected = true;
                 }
                 else
                 {
+                    plc_status_text.Background = Brushes.Red;
                     plc_status_text.Text = "nie połączono";
                     Singleton.Instance.plc_manager.connected = false;
                 }

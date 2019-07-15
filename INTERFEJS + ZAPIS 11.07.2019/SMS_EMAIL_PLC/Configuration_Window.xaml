@@ -36,7 +36,6 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <Button Click="dbg_Click" Height="30" VerticalAlignment="Bottom" Content="DBG"/>
             </Grid>
             
         </ScrollViewer>

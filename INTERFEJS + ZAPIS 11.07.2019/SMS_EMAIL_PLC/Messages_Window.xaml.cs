@@ -109,7 +109,7 @@ namespace SMS_EMAIL_PLC
             removeButton.Click += RemoveButton_Click;
             RemoveButtons_Panel.Children.Add(removeButton);
         }
-        
+
         private void RemoveButton_Click(object sender, EventArgs e)
         {
             Button thisButton = (Button)sender;
@@ -147,6 +147,12 @@ namespace SMS_EMAIL_PLC
         private void dbg_Click(Object sender, EventArgs e)
         {
             Singleton.Instance.msgs_dbg();
+        }
+
+        private void LoadBase_Click(Object sender, EventArgs e)
+        {
+            Singleton.Instance.Clear_Configuration();
+            Singleton.Instance.sql_manager.Load_Messages();
         }
     }
 }

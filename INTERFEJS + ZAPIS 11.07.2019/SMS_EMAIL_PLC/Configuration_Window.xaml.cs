@@ -60,11 +60,6 @@ namespace SMS_EMAIL_PLC
             panel.Show();
         }
 
-        private void dbg_Click(Object sender, EventArgs e)
-        {
-            Singleton.Instance.config_dbg();
-        }
-
         public void Add_Line(string user_id, string username)
         {
             TextBlock idBlock = new TextBlock();

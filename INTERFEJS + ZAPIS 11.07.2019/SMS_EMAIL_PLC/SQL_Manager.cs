@@ -84,5 +84,43 @@ namespace SMS_EMAIL_PLC
             { }
         }
 
+        public void Load_Messages()
+        {
+            try
+            {
+                Singleton.Instance.Clear_Messages();
+                Singleton.Instance.messages_window.Window_Clear();
+
+                cmd.CommandText = "select * from messages_table";
+                cmd.Connection = cnn;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string msg_id = reader["id wiadomości"].ToString();
+                    string description = reader["opis"].ToString();
+                    string sms_text = reader["treść sms"].ToString();
+                    string email_text = reader["treść email"].ToString();
+
+                    Singleton.Instance.messages_window.Add_Line(msg_id, description);
+                    Singleton.Instance.messages[msg_id] = new Message(sms_text, email_text);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+            }
+
+            try
+            {
+                reader.Close();
+            }
+            catch (Exception ex)
+            { }
+        }
+
+
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace SMS_EMAIL_PLC
@@ -95,12 +96,14 @@ namespace SMS_EMAIL_PLC
     class Singleton
     {
         private DispatcherTimer timer = new DispatcherTimer();
+        private DispatcherTimer statusTimer = new DispatcherTimer();
 
         public List<Driver> toControl = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
         public Email_Manager email_manager = new Email_Manager();
         public PLC_Manager plc_manager = new PLC_Manager();
         public SQL_Manager sql_manager = new SQL_Manager();
+
 
         public Users_Window users_window = new Users_Window();
         public Messages_Window messages_window = new Messages_Window();
@@ -135,6 +138,9 @@ namespace SMS_EMAIL_PLC
 
         public void OnTimedEvent(Object source, EventArgs e)
         {
+            
+
+
             if (plc_manager.connected)
             {
                 driver_window.OnTimedEvent();
@@ -165,14 +171,16 @@ namespace SMS_EMAIL_PLC
             }
         }
 
-        public void Send_SMS(string message_id, string number, bool up)
+        private void Send_SMS(string message_id, string number, bool up)
         {
             string msg = messages[message_id].sms;
             if (!up) msg += " powrót";
             System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
+            main_window.last_message_text.Text = "id wiadomości: " + message_id + ", treść: "+msg + ", data: " + System.DateTime.Now.ToString();
+            sms_manager.Send(msg, number);
         }
 
-        public void Send_Email(string message_id, string adress, bool up)
+        private void Send_Email(string message_id, string adress, bool up)
         {
             string msg = messages[message_id].email;
             if (!up) msg += " powrót";
@@ -180,7 +188,7 @@ namespace SMS_EMAIL_PLC
         }
 
 
-        void Send_Message(string message_id, bool up)
+        public void Send_Message(string message_id, bool up)
         {
             foreach(User user in users)
             {
@@ -203,7 +211,6 @@ namespace SMS_EMAIL_PLC
                 }
             }
         }
-
 
         public void Clear_Messages()
         {

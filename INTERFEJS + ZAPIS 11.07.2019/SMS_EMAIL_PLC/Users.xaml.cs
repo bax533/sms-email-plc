@@ -23,12 +23,6 @@ namespace SMS_EMAIL_PLC
             InitializeComponent();
         }
 
-        private void DBG_Click(object sender, EventArgs e)
-        {
-            Singleton.Instance.users_dbg();
-        }
-
-
         void UsersWindow_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;

@@ -31,9 +31,8 @@
                     <RowDefinition Height="50*"/>
                     <RowDefinition Height="369*"/>
                 </Grid.RowDefinitions>
-                
+
                 <StackPanel Orientation="Horizontal" Grid.RowSpan="2" Grid.ColumnSpan="2">
-                    <Button Content="DBG" Click="DBG_Click" Height="100" VerticalAlignment="Top"/>
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
                         <StackPanel Name= "ID_Panel" >
                             <Border BorderThickness="1" BorderBrush="Gray">

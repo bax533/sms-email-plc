@@ -6,11 +6,11 @@
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
         Closing="MessagesWindow_Closing"
-        Title="Messages_Window" Height="450" Width="500">
+        Title="Messages_Window" Height="450" Width="520">
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Height="450" Width="500">
+            <Grid Height="450" Width="520">
                 <StackPanel Orientation="Horizontal">
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
                         <StackPanel Name="Number_Panel" Orientation="Vertical" Width="50">
@@ -39,7 +39,7 @@
                     <StackPanel Name="RemoveButtons_Panel" Width="70">
                         <Button Content="dodaj" Click="AddButton_Click" Height="23"/>
                     </StackPanel>
-                    <Button Content="DBG" Click="dbg_Click" Height="20" VerticalAlignment="Top"/>
+                    <Button Content="z bazy" Click="LoadBase_Click" Width="50" Height="23" VerticalAlignment="Top"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

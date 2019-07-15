@@ -62,7 +62,6 @@ namespace SMS_EMAIL_PLC
             }
         }
 
-
         private void DriverWindow_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
@@ -107,7 +106,19 @@ namespace SMS_EMAIL_PLC
         private void AddButton_Click(Object sender, EventArgs e)
         {
             string adres = Get_Dialog("");
-            Add_Line(adres);
+            Driver driver = new Driver(adres, 0);
+            try
+            {
+                int test = Singleton.Instance.plc_manager.Get_Int_Value(adres);
+
+                Singleton.Instance.toControl.Add(driver);
+                Add_Line(adres);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("niepoprawny adres komórki");
+            }
+            
         }
 
     }

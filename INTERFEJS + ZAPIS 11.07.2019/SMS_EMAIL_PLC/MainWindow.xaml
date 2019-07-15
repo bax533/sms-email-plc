@@ -44,7 +44,7 @@
                     <PasswordBox PasswordChar="*" Width="100" VerticalAlignment="Center" FontSize="15" Name="Password_Box"/>
                     <TextBox Text="baza" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Base_Box"/>
                     <TextBox Text="adres serwera" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="DBServer_Box"/>
-                    <Button Width="70" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
+                    <Button Width="72" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
 
                     <TextBlock Text="Status:" FontSize="20"/>
                     <TextBlock Width="10"/>
@@ -66,7 +66,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="status aplikacji:" FontSize="18"/>
                         <TextBlock Width="10" FontSize="18"/>
-                        <TextBlock Name="app_status_text" Text="Wyłączona" FontSize="18" Foreground="DimGray"/>
+                        <TextBlock Name="app_status_text" Text="-" FontSize="18" Foreground="DimGray"/>
                     </StackPanel>
                 </StackPanel>
 

@@ -5,6 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Threading;
+using GsmComm.GsmCommunication;
+using GsmComm.PduConverter;
 
 namespace SMS_EMAIL_PLC
 {
@@ -13,53 +17,99 @@ namespace SMS_EMAIL_PLC
         private char CtrlZ = (char)26;
         private char CR = (char)13;
 
-        public bool Send(string message, List<string> nrs, SerialPort port, string PIN)
+        private string PIN = "0410";
+        private string port = "COM5";
+
+        DispatcherTimer timer = new DispatcherTimer();
+
+
+        public SMS_Manager()
         {
+            timer.Interval = new TimeSpan(0, 0, 30);
+            timer.Tick += new EventHandler(OnTimedEvent);
+            timer.Start();
+        }
+
+        public void Send(string message, string nr)
+        {
+            GsmCommMain comm = new GsmCommMain(port, 9600, 300);
+            SmsSubmitPdu pdu = new SmsSubmitPdu(message, nr, "");
+
             try
             {
-                if (PIN != "*")
+                comm.Open();
+
+                if (!comm.IsConnected())
                 {
-                    port.WriteLine($"AT+CPIN=\"{PIN}\"" + "\r");
+                    System.Windows.MessageBox.Show("błąd portu");
+                    return;
+                }
+
+                if (comm.GetPinStatus() != PinStatus.Ready) {
+                    comm.EnterPin(PIN);
                     Thread.Sleep(1000);
                 }
-                port.WriteLine("AT+CMGF=1" + "\r");
+
+                //comm.SendMessage(pdu);
                 Thread.Sleep(1000);
-                foreach (string nr in nrs)
-                {
-                    port.WriteLine($"AT+CMGS=\"{nr}\"" + CR + message + CtrlZ + "\r");
-                    Thread.Sleep(1000);
-                }
-                return true;
+
+                comm.Close();
             }
             catch (Exception ex)
             {
+                System.Windows.MessageBox.Show(ex.Message);
+                if (comm.IsConnected())
+                    comm.Close();
+                return;
+            }
+
+            // display message if connection is a success.
+            System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
+        }
+
+        private void OnTimedEvent(object sender, EventArgs e)
+        {
+            if (Check_Connection())
+            {
+                Singleton.Instance.main_window.sms_status_text.Text = "GOTOWY";
+                Singleton.Instance.main_window.sms_status_text.Background = Brushes.Green;
+                Singleton.Instance.main_window.sms_status_text.Foreground = Brushes.Black;
+            }
+            else
+            {
+                Singleton.Instance.main_window.sms_status_text.Text = "BRAK";
+                Singleton.Instance.main_window.sms_status_text.Background = Brushes.Red;
+                Singleton.Instance.main_window.sms_status_text.Foreground = Brushes.Black;
+            }
+        }
+
+        public bool Check_Connection()
+        {
+            GsmCommMain comm = new GsmCommMain(port, 9600, 300);
+            try
+            {
+                comm.Open();
+                if (comm.GetPinStatus() != PinStatus.Ready)
+                    comm.EnterPin(PIN);
+
+                if (comm.IsConnected())
+                {
+                    comm.Close();
+                    return true;
+                }
+                else
+                {
+                    if (comm.IsOpen())
+                        comm.Close();
+                    return false;
+                }
+            }
+            catch(Exception ex)
+            {
+                if (comm.IsOpen())
+                    comm.Close();
                 return false;
             }
-        }
-
-        public bool Check_Response(SerialPort port)
-        {
-            string response = port.ReadExisting();
-            char poprz = response[0];
-            foreach (char c in response)
-            {
-                if (poprz == 'O' && c == 'K')
-                    return true;
-                poprz = c;
-            }
-            return false;
-        }
-
-        public bool Check_Status(SerialPort port)
-        {
-            port.WriteLine("AT" + "\r");
-            return Check_Response(port);
-        }
-
-        public bool Check_PIN(SerialPort port)
-        {
-            port.WriteLine("AT+CPIN?" + "\r");
-            return Check_Response(port);
         }
     }
 }
