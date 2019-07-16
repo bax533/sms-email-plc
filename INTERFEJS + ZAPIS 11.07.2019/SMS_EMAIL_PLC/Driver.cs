@@ -9,13 +9,11 @@ namespace SMS_EMAIL_PLC
     internal class Driver
     {
         public string name;
-        public int val;
         public bool already_alarmed;
         public bool already_acknowledged;
-        public Driver(string name, int val)
+        public Driver(string name)
         {
             this.name = name;
-            this.val = val;
             already_alarmed = false;
             already_acknowledged = false;
         }

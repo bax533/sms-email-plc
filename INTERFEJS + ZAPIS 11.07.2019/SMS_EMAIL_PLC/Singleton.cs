@@ -98,7 +98,8 @@ namespace SMS_EMAIL_PLC
         private DispatcherTimer timer = new DispatcherTimer();
         private DispatcherTimer statusTimer = new DispatcherTimer();
 
-        public List<Driver> toControl = new List<Driver>();
+        public List<Driver> toControlUP = new List<Driver>();
+        public List<Driver> toControlDown = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
         public Email_Manager email_manager = new Email_Manager();
         public PLC_Manager plc_manager = new PLC_Manager();
@@ -114,7 +115,7 @@ namespace SMS_EMAIL_PLC
         public List<User> users = new List<User>();
         public Dictionary<string, Message> messages = new Dictionary<string, Message>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-
+        public Dictionary<int, bool> already_alarmed = new Dictionary<int, bool>();
 
         public static int Get_Nr_From_Object(Object obj)
         {
@@ -138,35 +139,42 @@ namespace SMS_EMAIL_PLC
 
         public void OnTimedEvent(Object source, EventArgs e)
         {
-            
-
-
             if (plc_manager.connected)
             {
                 driver_window.OnTimedEvent();
-                foreach (Driver driver in toControl)
+                foreach (Driver driver in toControlUP)
                 {
                     int value = plc_manager.Get_Int_Value(driver.name);
-                    if (!driver.already_alarmed)
+
+                    if (!already_alarmed.ContainsKey(value))
+                        already_alarmed[value] = false;
+
+                    if (!already_alarmed[value])
                     {
                         if (messages.ContainsKey(value.ToString()))
                         {
                             Send_Message(value.ToString(), true);
-                            driver.already_alarmed = true;
-                            driver.already_acknowledged = false;
-                            driver.val = value;
+                            already_alarmed[value] = true;
                         }
                     }
-                    else if (driver.already_alarmed && !driver.already_acknowledged && (value == 0 || value == 90))
-                    {
-                        if (messages.ContainsKey(driver.val.ToString()))
-                        {
-                            Send_Message(driver.val.ToString(), false);
-                            driver.already_acknowledged = true;
-                            driver.already_alarmed = false;
-                        }
-                    }
+                }
 
+                foreach (Driver driver in toControlDown)
+                {
+                    int value = plc_manager.Get_Int_Value(driver.name);
+
+                    if (!already_alarmed.ContainsKey(value))
+                        already_alarmed[value] = false;
+
+                    if (already_alarmed[value])
+                    {
+                        if (messages.ContainsKey(value.ToString()))
+                        {
+                            System.Windows.MessageBox.Show("wchodzi");
+                            Send_Message(value.ToString(), false);
+                            already_alarmed[value] = false;
+                        }
+                    }
                 }
             }
         }
@@ -174,7 +182,7 @@ namespace SMS_EMAIL_PLC
         private void Send_SMS(string message_id, string number, bool up)
         {
             string msg = messages[message_id].sms;
-            if (!up) msg += " powrót";
+            if (!up) msg += " powrot";
             System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
             main_window.last_message_text.Text = "id wiadomości: " + message_id + ", treść: "+msg + ", data: " + System.DateTime.Now.ToString();
             sms_manager.Send(msg, number);
@@ -281,8 +289,11 @@ namespace SMS_EMAIL_PLC
         {
             foreach(User user in users)
             {
-                if (configuration[user.Get_ID()].ContainsKey(key))
-                    configuration[user.Get_ID()].Remove(key);
+                if (configuration.ContainsKey(user.Get_ID()))
+                {
+                    if (configuration[user.Get_ID()].ContainsKey(key))
+                        configuration[user.Get_ID()].Remove(key);
+                }
             }
         }
 

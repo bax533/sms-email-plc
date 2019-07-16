@@ -21,21 +21,36 @@
     </Window.InputBindings>
     
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <StackPanel Width="100" Name="Adresses_Panel">
+        <StackPanel Orientation="Horizontal" Name="UP_Panel">
+            <StackPanel Width="100" Name="AdressesUP_Panel">
                 <TextBlock Text="nazwa komórki"/>
             </StackPanel>
-            <StackPanel Width="100" Name="Values_Panel">
+            <StackPanel Width="100" Name="ValuesUP_Panel">
                 <TextBlock Text="wartości"/>
             </StackPanel>
-            <StackPanel Name="Changes_Panel" Width="100">
+            <StackPanel Name="ChangesUP_Panel" Width="100">
                 <TextBlock Text="zmiana wartości"/>
             </StackPanel>
             <StackPanel>
-                <Button Content="dodaj komórkę" Height="15" Click="AddButton_Click" FontSize="10"/>
+                <Button Content="dodaj komórkę" Height="15" Click="AddButtonUP_Click" FontSize="10"/>
             </StackPanel>
-
-
+            <Button Width="50" Click="dbg_Click" Content="DBG" Height="16" VerticalAlignment="Top"/>
         </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Name="DOWN_Panel" VerticalAlignment="Center">
+            <StackPanel Width="100" Name="AdressesDown_Panel">
+                <TextBlock Text="nazwa komórki"/>
+            </StackPanel>
+            <StackPanel Width="100" Name="ValuesDown_Panel">
+                <TextBlock Text="wartości"/>
+            </StackPanel>
+            <StackPanel Name="ChangesDown_Panel" Width="100">
+                <TextBlock Text="zmiana wartości"/>
+            </StackPanel>
+            <StackPanel>
+                <Button Content="dodaj komórkę" Height="15" Click="AddButtonDown_Click" FontSize="10"/>
+            </StackPanel>
+        </StackPanel>
+
     </Grid>
 </Window>

@@ -50,8 +50,8 @@ namespace SMS_EMAIL_PLC
                     Thread.Sleep(1000);
                 }
 
-                //comm.SendMessage(pdu);
-                Thread.Sleep(1000);
+                comm.SendMessage(pdu);
+                //Thread.Sleep(1000);
 
                 comm.Close();
             }
@@ -62,9 +62,7 @@ namespace SMS_EMAIL_PLC
                     comm.Close();
                 return;
             }
-
-            // display message if connection is a success.
-            System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
+            //System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
         }
 
         private void OnTimedEvent(object sender, EventArgs e)
