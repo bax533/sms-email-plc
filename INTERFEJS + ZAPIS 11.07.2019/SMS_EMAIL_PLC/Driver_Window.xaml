@@ -34,7 +34,7 @@
             <StackPanel>
                 <Button Content="dodaj komórkę" Height="15" Click="AddButtonUP_Click" FontSize="10"/>
             </StackPanel>
-            <Button Width="50" Click="dbg_Click" Content="DBG" Height="16" VerticalAlignment="Top"/>
+            <Button Width="50" Click="Dbg_Click" Content="DBG" Height="16" VerticalAlignment="Top"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Name="DOWN_Panel" VerticalAlignment="Center">

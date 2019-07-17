@@ -14,11 +14,8 @@ namespace SMS_EMAIL_PLC
 {
     class SMS_Manager
     {
-        private char CtrlZ = (char)26;
-        private char CR = (char)13;
-
-        private string PIN = "0410";
-        private string port = "COM5";
+        private readonly string PIN = "0410";
+        private readonly string port = "COM5";
 
         DispatcherTimer timer = new DispatcherTimer();
 

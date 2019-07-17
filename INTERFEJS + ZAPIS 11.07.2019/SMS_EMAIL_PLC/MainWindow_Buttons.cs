@@ -121,7 +121,7 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("spróbuj ponownie za chwilę");
+                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
             }
         }
 
@@ -132,13 +132,13 @@ namespace SMS_EMAIL_PLC
             {
                 IFormatter formatter = new BinaryFormatter();
 
-
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-
-                openFileDialog.InitialDirectory = "c:\\Users\\Szymon\\Desktop";
-                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                    Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
                 bool? result = openFileDialog.ShowDialog();
 
                 Stream stream;

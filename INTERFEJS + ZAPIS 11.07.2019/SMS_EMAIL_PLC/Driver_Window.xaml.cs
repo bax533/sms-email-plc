@@ -93,58 +93,70 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Line_Down(string name)
         {
-            TextBox NameBox = new TextBox();
-            NameBox.Text = name;
-            NameBox.Width = 100;
-            NameBox.Height = 20;
-            NameBox.FontSize = 15;
-            NameBox.TextAlignment = TextAlignment.Center;
+            TextBox NameBox = new TextBox()
+            {
+                Text = name,
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             AdressesDown_Panel.Children.Add(NameBox);
 
-            TextBox ValueBox = new TextBox();
-            ValueBox.IsReadOnly = true;
-            ValueBox.Text = "";
-            ValueBox.Width = 100;
-            ValueBox.Height = 20;
-            ValueBox.FontSize = 15;
-            ValueBox.TextAlignment = TextAlignment.Center;
+            TextBox ValueBox = new TextBox
+            {
+                IsReadOnly = true,
+                Text = "",
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             ValuesDown_Panel.Children.Add(ValueBox);
 
-            TextBox ChangeBox = new TextBox();
-            ChangeBox.Text = "-";
-            ChangeBox.Width = 100;
-            ChangeBox.Height = 20;
-            ChangeBox.FontSize = 15;
-            ChangeBox.TextAlignment = TextAlignment.Center;
+            TextBox ChangeBox = new TextBox
+            {
+                Text = "-",
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             ChangesDown_Panel.Children.Add(ChangeBox);
         }
 
 
         public void Add_Line_UP(string name)
         {
-            TextBox NameBox = new TextBox();
-            NameBox.Text = name;
-            NameBox.Width = 100;
-            NameBox.Height = 20;
-            NameBox.FontSize = 15;
-            NameBox.TextAlignment = TextAlignment.Center;
+            TextBox NameBox = new TextBox
+            {
+                Text = name,
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             AdressesUP_Panel.Children.Add(NameBox);
 
-            TextBox ValueBox = new TextBox();
-            ValueBox.IsReadOnly = true;
-            ValueBox.Text = "";
-            ValueBox.Width = 100;
-            ValueBox.Height = 20;
-            ValueBox.FontSize = 15;
-            ValueBox.TextAlignment = TextAlignment.Center;
+            TextBox ValueBox = new TextBox
+            {
+                IsReadOnly = true,
+                Text = "",
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             ValuesUP_Panel.Children.Add(ValueBox);
 
-            TextBox ChangeBox = new TextBox();
-            ChangeBox.Text = "-";
-            ChangeBox.Width = 100;
-            ChangeBox.Height = 20;
-            ChangeBox.FontSize = 15;
-            ChangeBox.TextAlignment = TextAlignment.Center;
+            TextBox ChangeBox = new TextBox
+            {
+                Text = "-",
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             ChangesUP_Panel.Children.Add(ChangeBox);
         }
 
@@ -173,7 +185,7 @@ namespace SMS_EMAIL_PLC
             
         }
 
-        private void dbg_Click(Object sender, EventArgs e)
+        private void Dbg_Click(Object sender, EventArgs e)
         {
             string ret = "";
             foreach(Driver driver in Singleton.Instance.toControlUP)

@@ -41,7 +41,13 @@ namespace SMS_EMAIL_PLC
             }
             catch(Exception ex)
             { }
-            
+            try
+            {
+                Singleton.Instance.plc_manager.plc.Close();
+            }
+            catch (Exception ex)
+            { }
+
             System.Windows.Application.Current.Shutdown();
         }
 
