@@ -42,13 +42,13 @@ namespace SMS_EMAIL_PLC
                     return;
                 }
 
-                if (comm.GetPinStatus() != PinStatus.Ready) {
+                /*if (comm.GetPinStatus() != PinStatus.Ready) {
                     comm.EnterPin(PIN);
                     Thread.Sleep(1000);
-                }
+                }*/
 
                 comm.SendMessage(pdu);
-                //Thread.Sleep(1000);
+                Thread.Sleep(1000);
 
                 comm.Close();
             }

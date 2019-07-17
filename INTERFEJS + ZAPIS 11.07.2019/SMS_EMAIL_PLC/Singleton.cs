@@ -170,7 +170,6 @@ namespace SMS_EMAIL_PLC
                     {
                         if (messages.ContainsKey(value.ToString()))
                         {
-                            System.Windows.MessageBox.Show("wchodzi");
                             Send_Message(value.ToString(), false);
                             already_alarmed[value] = false;
                         }
