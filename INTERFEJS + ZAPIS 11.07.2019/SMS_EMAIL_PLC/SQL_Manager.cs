@@ -28,7 +28,7 @@ namespace SMS_EMAIL_PLC
         }
 
 
-        public void Login(string username, string password, string serveradres, string database)
+        public bool Login(string username, string password, string serveradres, string database)
         {
             string connetionString = null;
             connetionString = $"Server={serveradres};" + $" Database={database};" + $"User Id={ username };" + $"Password = { password }; ";
@@ -43,9 +43,7 @@ namespace SMS_EMAIL_PLC
                 System.Windows.MessageBox.Show(ex.Message);
                 status = false;
             }
-            Singleton.Instance.main_window.sql_status_text.Foreground = Brushes.Black;
-            Singleton.Instance.main_window.sql_status_text.Text = status ? "Połączono" : "Niepołączono";
-            Singleton.Instance.main_window.sql_status_text.Background = status ? Brushes.Green : Brushes.Red;
+            return status;
         }
 
         public void Load_Users()

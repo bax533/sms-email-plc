@@ -20,46 +20,79 @@ using Microsoft.Win32;
 
 namespace SMS_EMAIL_PLC
 {
-    public partial class MainWindow
+    public class My_Toolbar : StackPanel
     {
-        private void Connect_Click(object sender, EventArgs e)
+        Button main_button, users_button, messages_button, configuration_button;
+
+        public My_Toolbar()
         {
-            try
+            this.Orientation = Orientation.Horizontal;
+            main_button = new Button
             {
-                string type = type_box.Text;
-                string ip = ip_box.Text;
-                int slot = Int16.Parse(slot_box.Text);
-                int rack = Int16.Parse(rack_box.Text);
-                plc_status_text.Foreground = Brushes.Black;
-                if (Singleton.Instance.plc_manager.Load_Plc(type, ip, rack, slot))
-                {
-                    plc_status_text.Text = "połączono";
-                    plc_status_text.Background = Brushes.Green;
-                    Singleton.Instance.plc_manager.connected = true;
-                }
-                else
-                {
-                    plc_status_text.Background = Brushes.Red;
-                    plc_status_text.Text = "nie połączono";
-                    Singleton.Instance.plc_manager.connected = false;
-                }
-            }
-            catch(Exception ex)
+                Content = "strona główna",
+                Width = 100,
+                Height = 25,
+                FontSize = 15,
+                Background = Brushes.Azure
+            };
+            main_button.Click += Main_Click;
+            Children.Add(main_button);
+
+            users_button = new Button
             {
-                MessageBox.Show(ex.Message);
-            }
+                Content = "użytkownicy",
+                Width = 100,
+                Height = 25,
+                FontSize = 15,
+                Background = Brushes.Azure
+            };
+            users_button.Click += Users_Click;
+            Children.Add(users_button);
+
+            messages_button = new Button
+            {
+                Content = "wiadomości",
+                Width = 100,
+                Height = 25,
+                FontSize = 15,
+                Background = Brushes.Azure
+            };
+            messages_button.Click += Messages_Click;
+            Children.Add(messages_button);
+
+            configuration_button = new Button
+            {
+                Content = "konfiguracja",
+                Width = 100,
+                Height = 25,
+                FontSize = 15,
+                Background = Brushes.Azure
+            };
+            configuration_button.Click += Configure_Click;
+            Children.Add(configuration_button);
+
         }
 
+        
 
-        private void DatabaseLogin_Click(Object sender, EventArgs e)
+        private void Main_Click(Object sender, RoutedEventArgs e)
         {
-            Singleton.Instance.sql_manager.Login(Login_Box.Text, Password_Box.Password.ToString(), DBServer_Box.Text, Base_Box.Text);
+            Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.configuration_window.Visibility = Visibility.Collapsed;
+
+            if (Singleton.Instance.main_window.Visibility != Visibility.Visible)
+                Singleton.Instance.main_window.Visibility = Visibility.Visible;
+            else
+                Singleton.Instance.users_window.Activate();
         }
-
-
 
         private void Users_Click(object sender, EventArgs e)
         {
+            Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.configuration_window.Visibility = Visibility.Collapsed;
+
             if (Singleton.Instance.users_window.Visibility != Visibility.Visible)
                 Singleton.Instance.users_window.Visibility = Visibility.Visible;
             else
@@ -68,6 +101,10 @@ namespace SMS_EMAIL_PLC
 
         private void Messages_Click(object sender, EventArgs e)
         {
+            Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.configuration_window.Visibility = Visibility.Collapsed;
+
             if (Singleton.Instance.messages_window.Visibility != Visibility.Visible)
                 Singleton.Instance.messages_window.Visibility = Visibility.Visible;
             else
@@ -76,6 +113,10 @@ namespace SMS_EMAIL_PLC
 
         private void Configure_Click(object sender, EventArgs e)
         {
+            Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
+            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+
             if (Singleton.Instance.configuration_window.Visibility != Visibility.Visible)
                 Singleton.Instance.configuration_window.Visibility = Visibility.Visible;
             else
@@ -90,134 +131,6 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.driver_window.Activate();
         }
 
-        private void Save_Settings_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                bool? result = saveFileDialog.ShowDialog();
-
-                saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                saveFileDialog.FilterIndex = 2;
-                saveFileDialog.RestoreDirectory = true;
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = saveFileDialog.OpenFile()) != null)
-                    {
-                        formatter.Serialize(stream, Singleton.Instance.users.Count);
-                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
-
-                        foreach (User user in Singleton.Instance.users)
-                            formatter.Serialize(stream, user);
-
-                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                        {
-                            formatter.Serialize(stream, msg.Key);
-                            formatter.Serialize(stream, msg.Value);
-                        }
-
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                                formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()][msg.Key]);
-                        }
-                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
-                        stream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
-            }
-        }
-
-
-        private void Load_Settings_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                OpenFileDialog openFileDialog = new OpenFileDialog
-                {
-                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                    Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-                bool? result = openFileDialog.ShowDialog();
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = openFileDialog.OpenFile()) != null)
-                    {
-
-                        int users_count = (int)formatter.Deserialize(stream);
-                        int msgs_count = (int)formatter.Deserialize(stream);
-
-                        Singleton.Instance.Clear_Users();
-
-                        for (int i = 0; i < users_count; i++)
-                        {
-                            User user = (User)formatter.Deserialize(stream);
-                            Singleton.Instance.Add_User(user);
-                        }
-
-                        Singleton.Instance.Clear_Messages();
-
-                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
-
-                        for (int i = 0; i < msgs_count; i++)
-                        {
-                            string key = (string)formatter.Deserialize(stream);
-                            Message new_msg = (Message)formatter.Deserialize(stream);
-                            new_msgs[key] = new_msg;
-                        }
-
-                        Thread.Sleep(200);
-
-                        foreach (KeyValuePair<string, Message> msg in new_msgs)
-                        {
-                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
-                        }
-
-                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-                        }
-
-
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            foreach (KeyValuePair<string, Message> msg in new_msgs)
-                            {
-                                Configuration load = (Configuration)formatter.Deserialize(stream);
-                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg.Key, load);
-                            }
-                        }
-
-                        Add_Lines_To_Windows(new_msgs);
-
-                        System.Windows.MessageBox.Show("wczytano pomyślnie");
-                    }
-                }
-                
-
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message);
-            }
-        }
+        
     }
 }

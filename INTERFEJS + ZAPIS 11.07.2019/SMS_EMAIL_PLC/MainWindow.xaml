@@ -6,37 +6,16 @@
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
         Closing="MainWindow_Closing"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        WindowState ="Maximized"
+        >
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid Background="Gainsboro" Height="450" Width="840">
-
+            
+            
             <StackPanel>
-
-                <StackPanel Name="Windows_Panel" Orientation="Horizontal">
-
-                    <Button Name="users_button" Content="użytkownicy" Click="Users_Click" Width="100" Height="25" FontSize="15"/>
-                    <Button Name="messages_button" Content="wiadomości" Click="Messages_Click" Width="100" Height="25" FontSize="15"/>
-                    <Button Name="configure_button" Content="konfiguracja" Click="Configure_Click" Width="100" Height="25" FontSize="15"/>
-                    <Button Name="save_settings_button" Content="zapisz ustawienia" Click="Save_Settings_Click" Width="120" Height="25" FontSize="15"/>
-                    <Button Name="load_settings_button" Content="wczytaj ustawienia" Click="Load_Settings_Click" Width="130" Height="25" FontSize="15"/>
-                    <Button Name="Driver_button" Content="sterownik" Click="Driver_Click" Width="100" Height="25" FontSize="15"/>
-
-                </StackPanel>
+                <StackPanel Name="Toolbar_Panel" Height="25"/>
                 <TextBlock Height="10"/>
-
-                <StackPanel Orientation="Horizontal" Name="driver_properties">
-                    <TextBlock Text="PLC: " FontSize="20" />
-                    <TextBox Name = "type_box" Width="150" Text="S7400" TextAlignment="Center" FontSize="15" />
-                    <TextBox Name = "ip_box" Width="150" Text="192.168.1.151" TextAlignment="Center" FontSize="15"/>
-                    <TextBox Name = "slot_box" Width="75" Text = "3" TextAlignment="Center" FontSize="15"/>
-                    <TextBox Name = "rack_box" Width="75" Text = "0" TextAlignment="Center" FontSize="15"/>
-
-                    <Button Width ="100" Content="POŁĄCZ" Click="Connect_Click"/>
-
-                    <TextBlock Text="Status:" FontSize="20"/>
-                    <TextBlock Width="10"/>
-                    <TextBlock Name="plc_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
-                </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Baza danych: " FontSize="20"/>
@@ -52,6 +31,11 @@
                     
                 </StackPanel>
 
+                <StackPanel Orientation="Horizontal" Name="driver_properties">
+                    <TextBlock Text="PLC: " FontSize="20" />
+                    <TextBlock Name="plc_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
+                </StackPanel>
+                
                 <StackPanel Name="Statusy">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Email Status:" FontSize="18"/>
@@ -74,7 +58,10 @@
                     <TextBlock HorizontalAlignment="Center" Text="ostatnia wiadomość:" FontSize="20"/>
                     <TextBlock Name="last_message_text" HorizontalAlignment="Center" Text="dane... data..." FontSize="15" Foreground="DimGray"/>
                 </StackPanel>
-
+                <TextBlock Margin="10"/>
+                <Button Content="Eksportuj Ustawienia" Click="Save_Settings_Click" Background="LightGray" Height="50"/>
+                <TextBlock Height="10"/>
+                <Button Content="Wczytaj Ustawienie" Click="Load_Settings_Click" Background="LightGray" Height="50"/>
             </StackPanel>
         </Grid>
     </Viewbox>

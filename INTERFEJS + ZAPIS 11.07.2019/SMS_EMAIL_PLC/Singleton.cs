@@ -7,6 +7,7 @@ using System.Timers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.IO;
 
 namespace SMS_EMAIL_PLC
 {
@@ -95,6 +96,9 @@ namespace SMS_EMAIL_PLC
 
     class Singleton
     {
+        private string driverPath = "driver.txt";
+        private int plc_loading_counter = 0, plc_loading_interval = 60; //<- cas w sekundach = interval / 10
+
         private DispatcherTimer timer = new DispatcherTimer();
         private DispatcherTimer statusTimer = new DispatcherTimer();
 
@@ -136,7 +140,7 @@ namespace SMS_EMAIL_PLC
             timer.Start();
         }
 
-        public void OnTimedEvent(Object source, EventArgs e)
+        public void OnTimedEvent(Object source, EventArgs e)//TODO sprawdzanie plc, ujednolicić rozmiar okien
         {
             if (plc_manager.connected)
             {
@@ -174,6 +178,78 @@ namespace SMS_EMAIL_PLC
                         }
                     }
                 }
+            }
+        }
+
+
+        public void Add_Lines_To_Windows(Dictionary<string, Message> msgs)
+        {
+            users_window.Window_Clear();
+            foreach (User user in users)
+                users_window.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
+
+            messages_window.Window_Clear();
+
+            foreach (KeyValuePair<string, Message> msg in msgs)
+            {
+                messages_window.Add_Line(msg.Key, "opis");
+            }
+
+            configuration_window.Refresh();
+        }
+
+
+        private void Connect_To_Plc()
+        {
+            string text="";
+            try
+            {   // Open the text file using a stream reader.
+                using (StreamReader sr = new StreamReader(driverPath))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    text = sr.ReadToEnd();
+                }
+            }
+            catch (IOException e)
+            {
+                main_window.plc_status_text.Text = "NIE POŁĄCZONO";
+                plc_manager.connected = false;
+                main_window.plc_status_text.Background = Brushes.Red;
+                main_window.plc_status_text.Foreground = Brushes.Black;
+                return;
+            }
+            string[] input = new string[4];//0 - typ, 1 - ip, 2 - rack, 3 - slot;
+            int it = 0;//format pliku wejściowego: typ<ip<rack<slot<
+
+
+
+            for (int i=0; i<4; i++)
+            {
+                do
+                {
+                    if(text[it] != '<')
+                        input[i] += text[it];
+                    it++;
+                }
+                while (text[it] != '<');
+            }
+            
+            try
+            {
+                //System.Windows.MessageBox.Show(input[0] + " " + input[1] + " " + input[2] + " " + input[3]);
+                plc_manager.Load_Plc(input[0], input[1], int.Parse(input[2]), int.Parse(input[3]));
+                main_window.plc_status_text.Text = "POŁĄCZONO";
+                plc_manager.connected = true;
+                main_window.plc_status_text.Background = Brushes.LawnGreen;
+                main_window.plc_status_text.Foreground = Brushes.Black;
+                return;
+            }
+            catch(Exception ex)
+            {
+                main_window.plc_status_text.Text = "NIE POŁĄCZONO";
+                plc_manager.connected = false;
+                main_window.plc_status_text.Background = Brushes.Red;
+                main_window.plc_status_text.Foreground = Brushes.Black;
             }
         }
 

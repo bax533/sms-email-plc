@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +26,7 @@ namespace SMS_EMAIL_PLC
         public MainWindow()
         {
             InitializeComponent();
+            Toolbar_Panel.Children.Add(new My_Toolbar());
             Singleton.Instance.main_window = this;
             Singleton.Instance.SetTimer(100);
         }
@@ -47,24 +53,159 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             { }
+            try
+            {
+                Singleton.Instance.sms_manager.Close();
+            }
+            catch(Exception ex)
+            { }
 
             System.Windows.Application.Current.Shutdown();
         }
 
-        public void Add_Lines_To_Windows(Dictionary<string, Message> msgs)
+        
+
+        private void DatabaseLogin_Click(Object sender, EventArgs e)
         {
-            Singleton.Instance.users_window.Window_Clear();
-            foreach (User user in Singleton.Instance.users)
-                Singleton.Instance.users_window.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
+            bool status = Singleton.Instance.sql_manager.Login(Login_Box.Text, Password_Box.Password.ToString(), DBServer_Box.Text, Base_Box.Text);
+            sql_status_text.Foreground = Brushes.Black;
+            sql_status_text.Text = status ? "Połączono" : "Niepołączono";
+            sql_status_text.Background = status ? Brushes.LawnGreen : Brushes.Red;
+        }
 
-            Singleton.Instance.messages_window.Window_Clear();
-
-            foreach (KeyValuePair<string, Message> msg in msgs)
+        private void Save_Settings_Click(Object sender, EventArgs e)
+        {
+            try
             {
-                Singleton.Instance.messages_window.Add_Line(msg.Key, "opis");
-            }
+                IFormatter formatter = new BinaryFormatter();
 
-            Singleton.Instance.configuration_window.Refresh();
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                bool? result = saveFileDialog.ShowDialog();
+
+                saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.RestoreDirectory = true;
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = saveFileDialog.OpenFile()) != null)
+                    {
+                        formatter.Serialize(stream, Singleton.Instance.users.Count);
+                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
+
+                        foreach (User user in Singleton.Instance.users)
+                            formatter.Serialize(stream, user);
+
+                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                        {
+                            formatter.Serialize(stream, msg.Key);
+                            formatter.Serialize(stream, msg.Value);
+                        }
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                                formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()][msg.Key]);
+                        }
+                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        stream.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+            }
+        }
+
+
+        private void Load_Settings_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                    Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+                bool? result = openFileDialog.ShowDialog();
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = openFileDialog.OpenFile()) != null)
+                    {
+
+                        int users_count = (int)formatter.Deserialize(stream);
+                        int msgs_count = (int)formatter.Deserialize(stream);
+
+                        Singleton.Instance.Clear_Users();
+
+                        for (int i = 0; i < users_count; i++)
+                        {
+                            User user = (User)formatter.Deserialize(stream);
+                            Singleton.Instance.Add_User(user);
+                        }
+
+                        Singleton.Instance.Clear_Messages();
+
+                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
+
+                        for (int i = 0; i < msgs_count; i++)
+                        {
+                            string key = (string)formatter.Deserialize(stream);
+                            Message new_msg = (Message)formatter.Deserialize(stream);
+                            new_msgs[key] = new_msg;
+                        }
+
+                        Thread.Sleep(200);
+
+                        foreach (KeyValuePair<string, Message> msg in new_msgs)
+                        {
+                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
+                        }
+
+                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                        }
+
+
+                        foreach (User user in Singleton.Instance.users)
+                        {
+                            foreach (KeyValuePair<string, Message> msg in new_msgs)
+                            {
+                                Configuration load = (Configuration)formatter.Deserialize(stream);
+                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg.Key, load);
+                            }
+                        }
+
+                        Singleton.Instance.Add_Lines_To_Windows(new_msgs);
+
+                        System.Windows.MessageBox.Show("wczytano pomyślnie");
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
-        Title="Configuration_Panel" Height="450" Width="450">
+        Title="Configuration_Panel" Height="450" Width="450"
+        >
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         

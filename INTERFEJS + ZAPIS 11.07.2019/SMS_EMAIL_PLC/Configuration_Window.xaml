@@ -6,35 +6,40 @@
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
         Closing="ConfigurationWindow_Closing"
-        Title="Configuration_Window" Height="450" Width="300">
+        Title="Configuration_Window" Height="450" Width="300"
+        WindowState ="Maximized"
+        >
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Width="300" Height="440">
-                <StackPanel Orientation="Horizontal">
-                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                        <StackPanel Name="ID_Panel" Width="50">
-                            <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="ID" Width="50" TextAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+            <Grid Width="300" Height="440" Background="LightGray">
+                <StackPanel>
+                    <StackPanel Name="Toolbar_Panel" Height="25"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
+                            <StackPanel Name="ID_Panel" Width="50">
+                                <Border BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="ID" Width="50" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
-                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                        <StackPanel Name="Users_Panel" Width="150">
-                            <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="Nazwa Użytkownika" Width="150" TextAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
+                            <StackPanel Name="Users_Panel" Width="150">
+                                <Border BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Nazwa Użytkownika" Width="150" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
 
-                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                        <StackPanel Name="Config_Panel" Width="90">
-                            <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="Wiadomości" Width="90" TextAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
+                            <StackPanel Name="Config_Panel" Width="90">
+                                <Border BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Wiadomości" Width="90" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
             

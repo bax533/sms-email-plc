@@ -18,7 +18,7 @@ namespace SMS_EMAIL_PLC
         private readonly string port = "COM5";
 
         DispatcherTimer timer = new DispatcherTimer();
-
+        GsmCommMain comm = new GsmCommMain("COM5", 9600, 300);
 
         public SMS_Manager()
         {
@@ -29,7 +29,7 @@ namespace SMS_EMAIL_PLC
 
         public void Send(string message, string nr)
         {
-            GsmCommMain comm = new GsmCommMain(port, 9600, 300);
+            
             SmsSubmitPdu pdu = new SmsSubmitPdu(message, nr, "");
 
             try
@@ -50,13 +50,10 @@ namespace SMS_EMAIL_PLC
                 comm.SendMessage(pdu);
                 Thread.Sleep(1000);
 
-                comm.Close();
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.Message);
-                if (comm.IsConnected())
-                    comm.Close();
                 return;
             }
             //System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
@@ -67,7 +64,7 @@ namespace SMS_EMAIL_PLC
             if (Check_Connection())
             {
                 Singleton.Instance.main_window.sms_status_text.Text = "GOTOWY";
-                Singleton.Instance.main_window.sms_status_text.Background = Brushes.Green;
+                Singleton.Instance.main_window.sms_status_text.Background = Brushes.LawnGreen;
                 Singleton.Instance.main_window.sms_status_text.Foreground = Brushes.Black;
             }
             else
@@ -80,31 +77,24 @@ namespace SMS_EMAIL_PLC
 
         public bool Check_Connection()
         {
-            GsmCommMain comm = new GsmCommMain(port, 9600, 300);
-            try
+            if (!comm.IsConnected())
             {
-                comm.Open();
-                if (comm.GetPinStatus() != PinStatus.Ready)
-                    comm.EnterPin(PIN);
-
-                if (comm.IsConnected())
+                try
                 {
-                    comm.Close();
+                    comm.Open();
                     return true;
                 }
-                else
+                catch (Exception ex)
                 {
-                    if (comm.IsOpen())
-                        comm.Close();
                     return false;
                 }
             }
-            catch(Exception ex)
-            {
-                if (comm.IsOpen())
-                    comm.Close();
-                return false;
-            }
+            else return true;
+        }
+
+        public void Close()
+        {
+            comm.Close();
         }
     }
 }

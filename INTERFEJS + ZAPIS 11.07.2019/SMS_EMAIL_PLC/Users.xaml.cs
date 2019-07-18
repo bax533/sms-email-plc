@@ -21,12 +21,39 @@ namespace SMS_EMAIL_PLC
         public Users_Window()
         {
             InitializeComponent();
+            Toolbar_Panel.Children.Add(new My_Toolbar());
         }
 
         void UsersWindow_Closing(object sender, CancelEventArgs e)
         {
-            e.Cancel = true;
-            Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
+            foreach (Window window in Application.Current.Windows)
+                try
+                {
+                    window.Close();
+                }
+                catch (Exception ex)
+                {
+                }
+            try
+            {
+                Singleton.Instance.sql_manager.cnn.Close();
+            }
+            catch (Exception ex)
+            { }
+            try
+            {
+                Singleton.Instance.plc_manager.plc.Close();
+            }
+            catch (Exception ex)
+            { }
+            try
+            {
+                Singleton.Instance.sms_manager.Close();
+            }
+            catch (Exception ex)
+            { }
+
+            System.Windows.Application.Current.Shutdown();
         }
 
         public void Window_Clear()
