@@ -41,42 +41,52 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Line(string id, string name, string phone_number, string email)
         {
-            TextBox IDBox = new TextBox();
-            IDBox.Text = id;
-            IDBox.Width = 50;
-            IDBox.Height = 20;
-            IDBox.FontSize = 15;
-            IDBox.TextAlignment = TextAlignment.Center;
+            TextBox IDBox = new TextBox
+            {
+                Text = id,
+                Width = 50,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             ID_Panel.Children.Add(IDBox);
 
-            TextBox NameBox = new TextBox();
-            NameBox.Text = name;
-            NameBox.Width = 150;
-            NameBox.Height = 20;
-            NameBox.FontSize = 15;
-            NameBox.TextAlignment = TextAlignment.Center;
+            TextBox NameBox = new TextBox
+            {
+                Text = name,
+                Width = 150,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             Name_Panel.Children.Add(NameBox);
 
-            TextBox NrBox = new TextBox();
-            NrBox.Text = phone_number;
-            NrBox.Width = 100;
-            NrBox.Height = 20;
-            NrBox.FontSize = 15;
-            NrBox.TextAlignment = TextAlignment.Center;
+            TextBox NrBox = new TextBox
+            {
+                Text = phone_number,
+                Width = 100,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             PhoneNumber_Panel.Children.Add(NrBox);
 
-            TextBox EmailBox = new TextBox();
-            EmailBox.Text = email;
-            EmailBox.Width = 150;
-            EmailBox.Height = 20;
-            EmailBox.FontSize = 15;
-            EmailBox.TextAlignment = TextAlignment.Center;
+            TextBox EmailBox = new TextBox
+            {
+                Text = email,
+                Width = 150,
+                Height = 20,
+                FontSize = 15,
+                TextAlignment = TextAlignment.Center
+            };
             Email_Panel.Children.Add(EmailBox);
 
-            Button removeButton = new Button();
-            removeButton.Height = 20;
-            removeButton.Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString();
-            removeButton.Content = "-";
+            Button removeButton = new Button
+            {
+                Height = 20,
+                Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString(),
+                Content = "-"
+            };
             removeButton.Click += RemoveButton_Click; 
             RemoveButtons_Panel.Children.Add(removeButton);
         }
@@ -160,4 +170,3 @@ namespace SMS_EMAIL_PLC
         }
     }
 }
-// TEST TEST GITHUB TEST

@@ -48,7 +48,7 @@ namespace SMS_EMAIL_PLC
                 Add_Line(user.Get_ID(), user.Get_Name());
         }
 
-        private void configButton_Click(Object sender, EventArgs e)
+        private void ConfigButton_Click(Object sender, EventArgs e)
         {
             int it = Singleton.Get_Nr_From_Object(sender);
             string user_id = ((TextBlock)ID_Panel.Children[it]).Text;
@@ -62,24 +62,30 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Line(string user_id, string username)
         {
-            TextBlock idBlock = new TextBlock();
-            idBlock.Text = user_id;
-            idBlock.Width = 50;
-            idBlock.Height = 20;
+            TextBlock idBlock = new TextBlock
+            {
+                Text = user_id,
+                Width = 50,
+                Height = 20
+            };
             ID_Panel.Children.Add(idBlock);
 
-            TextBlock userBlock = new TextBlock();
-            userBlock.Text = username;
-            userBlock.Width = 150;
-            userBlock.Height = 20;
+            TextBlock userBlock = new TextBlock
+            {
+                Text = username,
+                Width = 150,
+                Height = 20
+            };
             Users_Panel.Children.Add(userBlock);
 
-            Button configButton = new Button();
-            configButton.Content = "konfiguracja";
-            configButton.Width = 90;
-            configButton.Height = 20;
-            configButton.Name = "cnf" + Config_Panel.Children.Count;
-            configButton.Click += configButton_Click;
+            Button configButton = new Button
+            {
+                Content = "konfiguracja",
+                Width = 90,
+                Height = 20,
+                Name = "cnf" + Config_Panel.Children.Count
+            };
+            configButton.Click += ConfigButton_Click;
             Config_Panel.Children.Add(configButton);
         }
 

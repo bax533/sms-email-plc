@@ -53,29 +53,41 @@ namespace SMS_EMAIL_PLC
 
         private void DatabaseLogin_Click(Object sender, EventArgs e)
         {
-                Singleton.Instance.sql_manager.Login(Login_Box.Text, Password_Box.Password.ToString(), DBServer_Box.Text, Base_Box.Text);
+            Singleton.Instance.sql_manager.Login(Login_Box.Text, Password_Box.Password.ToString(), DBServer_Box.Text, Base_Box.Text);
         }
 
 
 
         private void Users_Click(object sender, EventArgs e)
         {
-            Singleton.Instance.users_window.Visibility = Visibility.Visible;
+            if (Singleton.Instance.users_window.Visibility != Visibility.Visible)
+                Singleton.Instance.users_window.Visibility = Visibility.Visible;
+            else
+                Singleton.Instance.users_window.Activate();
         }
 
         private void Messages_Click(object sender, EventArgs e)
         {
-            Singleton.Instance.messages_window.Visibility = Visibility.Visible;
+            if (Singleton.Instance.messages_window.Visibility != Visibility.Visible)
+                Singleton.Instance.messages_window.Visibility = Visibility.Visible;
+            else
+                Singleton.Instance.messages_window.Activate();
         }
 
         private void Configure_Click(object sender, EventArgs e)
         {
-            Singleton.Instance.configuration_window.Visibility = Visibility.Visible;
+            if (Singleton.Instance.configuration_window.Visibility != Visibility.Visible)
+                Singleton.Instance.configuration_window.Visibility = Visibility.Visible;
+            else
+                Singleton.Instance.configuration_window.Activate();
         }
 
         private void Driver_Click(Object sender, EventArgs e)
         {
-            Singleton.Instance.driver_window.Visibility = Visibility.Visible;
+            if (Singleton.Instance.driver_window.Visibility != Visibility.Visible)
+                Singleton.Instance.driver_window.Visibility = Visibility.Visible;
+            else
+                Singleton.Instance.driver_window.Activate();
         }
 
         private void Save_Settings_Click(Object sender, EventArgs e)

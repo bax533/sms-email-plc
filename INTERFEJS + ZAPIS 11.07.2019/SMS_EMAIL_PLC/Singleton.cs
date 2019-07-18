@@ -54,10 +54,10 @@ namespace SMS_EMAIL_PLC
     [Serializable]
     class User
     {
-        string id;
-        string name;
-        string phone_number;
-        string email;
+        readonly string id;
+        readonly string name;
+        readonly string phone_number;
+        readonly string email;
         public User(string id, string name, string phone_number, string email)
         {
             this.id = id;
@@ -119,11 +119,10 @@ namespace SMS_EMAIL_PLC
 
         public static int Get_Nr_From_Object(Object obj)
         {
-            if(obj is Button)
+            if (obj is Button button)
             {
-                Button button = ((Button)obj);
-                string nr="";
-                for (int i=3; i<button.Name.Length; i++)
+                string nr = "";
+                for (int i = 3; i < button.Name.Length; i++)
                     nr += button.Name[i];
                 return Int16.Parse(nr);
             }
@@ -273,8 +272,10 @@ namespace SMS_EMAIL_PLC
                 messages[number].email = content;
             else
             {
-                messages[number] = new Message();
-                messages[number].email = content;
+                messages[number] = new Message
+                {
+                    email = content
+                };
             }
         }
 
@@ -301,7 +302,7 @@ namespace SMS_EMAIL_PLC
             messages.Remove(key);
         }
 
-        public void users_dbg()
+        public void Users_dbg()
         {
             string ret = "";
             for (int i = 0; i < users.Count; i++)
@@ -314,7 +315,7 @@ namespace SMS_EMAIL_PLC
 
         
 
-        public void config_dbg()
+        public void Config_dbg()
         {
             string ret = "";
             foreach (User user in users)
@@ -356,7 +357,7 @@ namespace SMS_EMAIL_PLC
                 messages[key] = new Message("", "");
         }
 
-        public void msgs_dbg()
+        public void Msgs_dbg()
         {
             string ret = "";
             foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)

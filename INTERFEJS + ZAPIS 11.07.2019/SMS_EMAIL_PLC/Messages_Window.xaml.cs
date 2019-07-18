@@ -68,44 +68,56 @@ namespace SMS_EMAIL_PLC
         {
             Singleton.Instance.Create_Message(nr);
 
-            TextBox NumberBox = new TextBox();
-            NumberBox.IsReadOnly = true;
-            NumberBox.Text = nr;
-            NumberBox.Width = 50;
-            NumberBox.Height = 20;
-            NumberBox.HorizontalAlignment = HorizontalAlignment.Center;
+            TextBox NumberBox = new TextBox
+            {
+                IsReadOnly = true,
+                Text = nr,
+                Width = 50,
+                Height = 20,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
             Number_Panel.Children.Add(NumberBox);
 
-            TextBox DescriptionBox = new TextBox();
-            DescriptionBox.Text = description;
-            DescriptionBox.Width = 200;
-            DescriptionBox.Height = 20;
-            DescriptionBox.TextAlignment = TextAlignment.Center;
+            TextBox DescriptionBox = new TextBox
+            {
+                Text = description,
+                Width = 200,
+                Height = 20,
+                TextAlignment = TextAlignment.Center
+            };
             Description_Panel.Children.Add(DescriptionBox);
 
-            StackPanel Buttons_Panel = new StackPanel();
-            Buttons_Panel.Orientation = Orientation.Horizontal;
-                Button SMS_Button = new Button();
-                SMS_Button.Name = "SMS" + Messages_Panel.Children.Count.ToString();
-                SMS_Button.Content = "SMS";
-                SMS_Button.Height = 20;
-                SMS_Button.Width = 75;
+            StackPanel Buttons_Panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+                Button SMS_Button = new Button
+                {
+                    Name = "SMS" + Messages_Panel.Children.Count.ToString(),
+                    Content = "SMS",
+                    Height = 20,
+                    Width = 75
+                };
                 SMS_Button.Click += SMS_Click;
 
-                Button Email_Button = new Button();
-                Email_Button.Name = "EML" + Messages_Panel.Children.Count.ToString();
-                Email_Button.Content = "Email";
-                Email_Button.Height = 20;
-                Email_Button.Width = 75;
+                Button Email_Button = new Button
+                {
+                    Name = "EML" + Messages_Panel.Children.Count.ToString(),
+                    Content = "Email",
+                    Height = 20,
+                    Width = 75
+                };
                 Email_Button.Click += Email_Click;
-            Buttons_Panel.Children.Add(SMS_Button);
-            Buttons_Panel.Children.Add(Email_Button);
+                Buttons_Panel.Children.Add(SMS_Button);
+                Buttons_Panel.Children.Add(Email_Button);
             Messages_Panel.Children.Add(Buttons_Panel);
 
-            Button removeButton = new Button();
-            removeButton.Height = 20;
-            removeButton.Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString();
-            removeButton.Content = "-";
+            Button removeButton = new Button
+            {
+                Height = 20,
+                Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString(),
+                Content = "-"
+            };
             removeButton.Click += RemoveButton_Click;
             RemoveButtons_Panel.Children.Add(removeButton);
         }
@@ -119,8 +131,6 @@ namespace SMS_EMAIL_PLC
 
             Singleton.Instance.Remove_Message(nr);
             Singleton.Instance.Remove_From_Configuration(nr);
-            //Singleton.Instance.resources.Remove_SMS(nr);
-            //Singleton.Instance.resources.Remove_Email(nr);
 
             Number_Panel.Children.RemoveAt(it);
             Description_Panel.Children.RemoveAt(it);
@@ -144,9 +154,9 @@ namespace SMS_EMAIL_PLC
         }
 
 
-        private void dbg_Click(Object sender, EventArgs e)
+        private void Dbg_Click(Object sender, EventArgs e)
         {
-            Singleton.Instance.msgs_dbg();
+            Singleton.Instance.Msgs_dbg();
         }
 
         private void LoadBase_Click(Object sender, EventArgs e)
