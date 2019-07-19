@@ -6,15 +6,15 @@
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
         Closing="ConfigurationWindow_Closing"
-        Title="Configuration_Window" Height="450" Width="300"
+        Title="Configuration_Window" Height="450" Width="800"
         WindowState ="Maximized"
         >
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Width="300" Height="440" Background="LightGray">
-                <StackPanel>
-                    <StackPanel Name="Toolbar_Panel" Height="25"/>
-                    <StackPanel Orientation="Horizontal">
+            <Grid Width="840" Height="450" Background="LightGray">
+                <StackPanel HorizontalAlignment="Center">
+                    <StackPanel Name="Toolbar_Panel" Height="25" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
                             <StackPanel Name="ID_Panel" Width="50">
                                 <Border BorderThickness="1" BorderBrush="Gray">

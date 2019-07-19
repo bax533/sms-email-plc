@@ -8,9 +8,9 @@
         Title="Input_Dialog" Height="200" Width="400">
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid Height="180" Width="400" Background="LightGray">
-            <StackPanel Width="300">
+            <StackPanel Width="300" VerticalAlignment="Center">
                 <Border BorderThickness="1" BorderBrush="Gray">
-                    <TextBox Name="Input_Box" Height="130" Width="400"/>
+                    <TextBox Name="Input_Box" Height="100" Width="300" TextWrapping="Wrap" AcceptsReturn="True"/>
                 </Border>
                 <Button Content="zapisz" Height="45" Click="Return_Click"/>
             </StackPanel>

@@ -33,6 +33,8 @@ namespace SMS_EMAIL_PLC
 
         void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            Singleton.Instance.application_shutdown = true;
+            Singleton.Instance.Checker_Thread.Abort();
             foreach (Window window in Application.Current.Windows)
                 try
                 {
@@ -79,12 +81,16 @@ namespace SMS_EMAIL_PLC
             {
                 IFormatter formatter = new BinaryFormatter();
 
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "config files (*.cnf)|*.cnf",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+
                 bool? result = saveFileDialog.ShowDialog();
 
-                saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                saveFileDialog.FilterIndex = 2;
-                saveFileDialog.RestoreDirectory = true;
+                
 
                 Stream stream;
 
@@ -130,7 +136,7 @@ namespace SMS_EMAIL_PLC
                 OpenFileDialog openFileDialog = new OpenFileDialog
                 {
                     InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                    Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                    Filter = "config files (*.cnf)|*.cnf",
                     FilterIndex = 2,
                     RestoreDirectory = true
                 };

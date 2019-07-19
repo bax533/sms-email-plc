@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.IO;
+using System.Threading;
 
 namespace SMS_EMAIL_PLC
 {
@@ -96,6 +97,8 @@ namespace SMS_EMAIL_PLC
 
     class Singleton
     {
+        public bool application_shutdown = false;
+
         private string driverPath = "driver.txt";
         private int plc_loading_counter = 0, plc_loading_interval = 60; //<- cas w sekundach = interval / 10
 
@@ -120,6 +123,7 @@ namespace SMS_EMAIL_PLC
         public Dictionary<string, Message> messages = new Dictionary<string, Message>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
         public Dictionary<int, bool> already_alarmed = new Dictionary<int, bool>();
+        public Thread Checker_Thread;
 
         public static int Get_Nr_From_Object(Object obj)
         {
@@ -138,10 +142,13 @@ namespace SMS_EMAIL_PLC
             timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
             timer.Tick += new EventHandler(OnTimedEvent);
             timer.Start();
+            Checker_Thread = new Thread(Status_Checker);
+            Checker_Thread.Start();
         }
 
-        public void OnTimedEvent(Object source, EventArgs e)//TODO sprawdzanie plc, ujednolicić rozmiar okien
+        public void OnTimedEvent(Object source, EventArgs e)
         {
+            Set_Statuses();
             if (plc_manager.connected)
             {
                 driver_window.OnTimedEvent();
@@ -192,74 +199,103 @@ namespace SMS_EMAIL_PLC
 
             foreach (KeyValuePair<string, Message> msg in msgs)
             {
-                messages_window.Add_Line(msg.Key, "opis");
+                messages_window.Add_Line(msg.Key);
             }
 
             configuration_window.Refresh();
         }
 
-
-        private void Connect_To_Plc()
+        private void Set_Statuses()
         {
-            string text="";
-            try
-            {   // Open the text file using a stream reader.
-                using (StreamReader sr = new StreamReader(driverPath))
-                {
-                    // Read the stream to a string, and write the string to the console.
-                    text = sr.ReadToEnd();
-                }
-            }
-            catch (IOException e)
+            if (plc_manager.connected)
             {
-                main_window.plc_status_text.Text = "NIE POŁĄCZONO";
-                plc_manager.connected = false;
-                main_window.plc_status_text.Background = Brushes.Red;
-                main_window.plc_status_text.Foreground = Brushes.Black;
-                return;
-            }
-            string[] input = new string[4];//0 - typ, 1 - ip, 2 - rack, 3 - slot;
-            int it = 0;//format pliku wejściowego: typ<ip<rack<slot<
-
-
-
-            for (int i=0; i<4; i++)
-            {
-                do
-                {
-                    if(text[it] != '<')
-                        input[i] += text[it];
-                    it++;
-                }
-                while (text[it] != '<');
-            }
-            
-            try
-            {
-                //System.Windows.MessageBox.Show(input[0] + " " + input[1] + " " + input[2] + " " + input[3]);
-                plc_manager.Load_Plc(input[0], input[1], int.Parse(input[2]), int.Parse(input[3]));
                 main_window.plc_status_text.Text = "POŁĄCZONO";
-                plc_manager.connected = true;
                 main_window.plc_status_text.Background = Brushes.LawnGreen;
                 main_window.plc_status_text.Foreground = Brushes.Black;
-                return;
             }
-            catch(Exception ex)
+            else
             {
                 main_window.plc_status_text.Text = "NIE POŁĄCZONO";
-                plc_manager.connected = false;
                 main_window.plc_status_text.Background = Brushes.Red;
                 main_window.plc_status_text.Foreground = Brushes.Black;
+            }
+
+            if (sms_manager.connected)
+            {
+                main_window.sms_status_text.Text = "POŁĄCZONO";
+                main_window.sms_status_text.Background = Brushes.LawnGreen;
+                main_window.sms_status_text.Foreground = Brushes.Black;
+            }
+            else
+            {
+                main_window.sms_status_text.Text = "NIE POŁĄCZONO";
+                main_window.sms_status_text.Background = Brushes.Red;
+                main_window.sms_status_text.Foreground = Brushes.Black;
+            }
+        }
+
+
+        private void Status_Checker()
+        {
+            while (!application_shutdown)
+            {
+                string text = "";
+                try
+                {   // Open the text file using a stream reader.
+                    using (StreamReader sr = new StreamReader(driverPath))
+                    {
+                        // Read the stream to a string, and write the string to the console.
+                        text = sr.ReadToEnd();
+                    }
+                }
+                catch (IOException e)
+                {
+                    plc_manager.connected = false;
+                }
+                string[] input = new string[4];//0 - typ, 1 - ip, 2 - rack, 3 - slot;
+                int it = 0;//format pliku wejściowego: typ<ip<rack<slot<
+
+
+
+                for (int i = 0; i < 4; i++)
+                {
+                    do
+                    {
+                        if (text[it] != '<')
+                            input[i] += text[it];
+                        it++;
+                    }
+                    while (text[it] != '<');
+                }
+
+                try
+                {
+                    if (plc_manager.Load_Plc(input[0], input[1], int.Parse(input[2]), int.Parse(input[3])))
+                        plc_manager.connected = true;
+                    else
+                        plc_manager.connected = false;
+                }
+                catch (Exception ex)
+                {
+                    plc_manager.connected = false;
+                }
+
+                sms_manager.Check_Connection();
+
+                Thread.Sleep(5000);
             }
         }
 
         private void Send_SMS(string message_id, string number, bool up)
         {
-            string msg = messages[message_id].sms;
-            if (!up) msg += " powrot";
-            System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
-            main_window.last_message_text.Text = "id wiadomości: " + message_id + ", treść: "+msg + ", data: " + System.DateTime.Now.ToString();
-            sms_manager.Send(msg, number);
+            if (sms_manager.connected)
+            {
+                string msg = messages[message_id].sms;
+                if (!up) msg += " powrot";
+                System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
+                main_window.last_message_text.Text = "id wiadomości: " + message_id + ", treść: " + msg + ", data: " + System.DateTime.Now.ToString();
+                sms_manager.Send(msg, number);
+            }
         }
 
         private void Send_Email(string message_id, string adress, bool up)

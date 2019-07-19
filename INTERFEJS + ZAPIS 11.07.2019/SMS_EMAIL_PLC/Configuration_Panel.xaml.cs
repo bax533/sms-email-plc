@@ -58,7 +58,7 @@ namespace SMS_EMAIL_PLC
                 sms_downBox.HorizontalAlignment = HorizontalAlignment.Center;
                 SMS_DOWN_Panel.Children.Add(sms_downBox);
 
-                CheckBox email_upBox = new CheckBox();
+                /*CheckBox email_upBox = new CheckBox();
                 if (already_in)
                     email_upBox.IsChecked = (bool)config[msg.Key].email_up;
                 email_upBox.Name = "eup" + EMAIL_UP_Panel.Children.Count;
@@ -72,7 +72,7 @@ namespace SMS_EMAIL_PLC
                 email_downBox.Name = "edn" + EMAIL_DOWN_Panel.Children.Count;
                 email_downBox.Height = 20;
                 email_downBox.HorizontalAlignment = HorizontalAlignment.Center;
-                EMAIL_DOWN_Panel.Children.Add(email_downBox);
+                EMAIL_DOWN_Panel.Children.Add(email_downBox);*/
             }
         }
         private void SaveButton_Click(Object sender, EventArgs e)
@@ -81,8 +81,8 @@ namespace SMS_EMAIL_PLC
             {
                 bool sms_up = (bool)((CheckBox)SMS_UP_Panel.Children[it]).IsChecked;
                 bool sms_down = (bool)((CheckBox)SMS_DOWN_Panel.Children[it]).IsChecked;
-                bool email_up = (bool)((CheckBox)EMAIL_UP_Panel.Children[it]).IsChecked;
-                bool email_down = (bool)((CheckBox)EMAIL_DOWN_Panel.Children[it]).IsChecked;
+                bool email_up = false;//(bool)((CheckBox)EMAIL_UP_Panel.Children[it]).IsChecked;
+                bool email_down = false;//(bool)((CheckBox)EMAIL_DOWN_Panel.Children[it]).IsChecked;
 
 
                 Configuration config = new Configuration(sms_up, email_up, sms_down, email_down);

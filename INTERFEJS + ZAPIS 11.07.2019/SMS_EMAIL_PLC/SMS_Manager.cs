@@ -17,14 +17,12 @@ namespace SMS_EMAIL_PLC
         private readonly string PIN = "0410";
         private readonly string port = "COM5";
 
-        DispatcherTimer timer = new DispatcherTimer();
         GsmCommMain comm = new GsmCommMain("COM5", 9600, 300);
+
+        public bool connected = false;
 
         public SMS_Manager()
         {
-            timer.Interval = new TimeSpan(0, 0, 30);
-            timer.Tick += new EventHandler(OnTimedEvent);
-            timer.Start();
         }
 
         public void Send(string message, string nr)
@@ -34,7 +32,8 @@ namespace SMS_EMAIL_PLC
 
             try
             {
-                comm.Open();
+                if(!comm.IsOpen())
+                    comm.Open();
 
                 if (!comm.IsConnected())
                 {
@@ -59,37 +58,22 @@ namespace SMS_EMAIL_PLC
             //System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
         }
 
-        private void OnTimedEvent(object sender, EventArgs e)
-        {
-            if (Check_Connection())
-            {
-                Singleton.Instance.main_window.sms_status_text.Text = "GOTOWY";
-                Singleton.Instance.main_window.sms_status_text.Background = Brushes.LawnGreen;
-                Singleton.Instance.main_window.sms_status_text.Foreground = Brushes.Black;
-            }
-            else
-            {
-                Singleton.Instance.main_window.sms_status_text.Text = "BRAK";
-                Singleton.Instance.main_window.sms_status_text.Background = Brushes.Red;
-                Singleton.Instance.main_window.sms_status_text.Foreground = Brushes.Black;
-            }
-        }
-
-        public bool Check_Connection()
+        public void Check_Connection()
         {
             if (!comm.IsConnected())
             {
                 try
                 {
                     comm.Open();
-                    return true;
+                    connected = true;
                 }
                 catch (Exception ex)
                 {
-                    return false;
+                    connected = false;
                 }
             }
-            else return true;
+            else
+                connected = true;
         }
 
         public void Close()

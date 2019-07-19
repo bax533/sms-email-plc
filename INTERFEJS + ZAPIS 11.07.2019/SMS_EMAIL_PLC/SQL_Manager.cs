@@ -98,11 +98,10 @@ namespace SMS_EMAIL_PLC
                 while (reader.Read())
                 {
                     string msg_id = reader["id wiadomości"].ToString();
-                    string description = reader["opis"].ToString();
                     string sms_text = reader["treść sms"].ToString();
                     string email_text = reader["treść email"].ToString();
 
-                    Singleton.Instance.messages_window.Add_Line(msg_id, description);
+                    Singleton.Instance.messages_window.Add_Line(msg_id);
                     Singleton.Instance.messages[msg_id] = new Message(sms_text, email_text);
                 }
             }

@@ -22,33 +22,17 @@
                     </Border>
 
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_UP_Panel" Width="80">
+                        <StackPanel Name="SMS_UP_Panel" Width="120">
                             <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="SMS UP" TextAlignment="Center" Width="80"/>
+                                <TextBlock Text="SMS przychodzący" TextAlignment="Center" Width="120"/>
                             </Border>
                         </StackPanel>
                     </Border>
 
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_DOWN_Panel" Width="80">
+                        <StackPanel Name="SMS_DOWN_Panel" Width="120">
                             <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="SMS DOWN" TextAlignment="Center" Width="80"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="EMAIL_UP_Panel" Width="80">
-                            <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="Email UP" TextAlignment="Center" Width="80"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="EMAIL_DOWN_Panel" Width="80">
-                            <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="Email DOWN" TextAlignment="Center" Width="80"/>
+                                <TextBlock Text="SMS wychodzący" TextAlignment="Center" Width="120"/>
                             </Border>
                         </StackPanel>
                     </Border>

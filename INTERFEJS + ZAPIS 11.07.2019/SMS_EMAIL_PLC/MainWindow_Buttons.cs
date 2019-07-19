@@ -22,7 +22,7 @@ namespace SMS_EMAIL_PLC
 {
     public class My_Toolbar : StackPanel
     {
-        Button main_button, users_button, messages_button, configuration_button;
+        Button main_button, users_button, messages_button, configuration_button, driver_button;
 
         public My_Toolbar()
         {
@@ -71,6 +71,15 @@ namespace SMS_EMAIL_PLC
             configuration_button.Click += Configure_Click;
             Children.Add(configuration_button);
 
+            driver_button = new Button
+            {
+                Content = "sterownik",
+                Width = 100,
+                Height = 25,
+                FontSize = 15,
+            };
+            driver_button.Click += Driver_Click;
+            Children.Add(driver_button);
         }
 
         

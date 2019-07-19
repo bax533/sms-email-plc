@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +33,9 @@ namespace SMS_EMAIL_PLC
 
         void MessagesWindow_Closing(object sender, CancelEventArgs e)
         {
+            Singleton.Instance.application_shutdown = true;
+            Singleton.Instance.Checker_Thread.Abort();
+
             foreach (Window window in Application.Current.Windows)
                 try
                 {
@@ -71,7 +79,15 @@ namespace SMS_EMAIL_PLC
             string number = ((TextBox)Number_Panel.Children[it]).Text;
             string content = Get_Dialog(Singleton.Instance.Get_SMS(number));
 
-            Singleton.Instance.Set_SMS(number, content);
+            if (content.Length > 160)
+            {
+                System.Windows.MessageBox.Show("przekroczono limit (160 znaków)");
+            }
+            else
+            {
+                ((TextBlock)((StackPanel)Messages_Panel.Children[it]).Children[1]).Text = content;
+                Singleton.Instance.Set_SMS(number, content);
+            }
             //System.Windows.MessageBox.Show(it.ToString());
         }
 
@@ -88,10 +104,10 @@ namespace SMS_EMAIL_PLC
         private void AddButton_Click(object sender, EventArgs e)
         {
             string content = Get_Dialog("podaj numer wiadomości");
-            Add_Line(content, "opis");
+            Add_Line(content);
         }
 
-        public void Add_Line(string nr, string description)
+        public void Add_Line(string nr)
         {
             Singleton.Instance.Create_Message(nr);
 
@@ -104,15 +120,6 @@ namespace SMS_EMAIL_PLC
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             Number_Panel.Children.Add(NumberBox);
-
-            TextBox DescriptionBox = new TextBox
-            {
-                Text = description,
-                Width = 200,
-                Height = 20,
-                TextAlignment = TextAlignment.Center
-            };
-            Description_Panel.Children.Add(DescriptionBox);
 
             StackPanel Buttons_Panel = new StackPanel
             {
@@ -127,16 +134,25 @@ namespace SMS_EMAIL_PLC
                 };
                 SMS_Button.Click += SMS_Click;
 
-                Button Email_Button = new Button
+                TextBlock Message_Block = new TextBlock
+                {
+                    Name = "MSG" + Messages_Panel.Children.Count.ToString(),
+                    Text = Singleton.Instance.messages[nr].sms,
+                    Width = 125,
+                    Height = 20
+                };
+                
+                /*Button Email_Button = new Button
                 {
                     Name = "EML" + Messages_Panel.Children.Count.ToString(),
                     Content = "Email",
                     Height = 20,
                     Width = 75
                 };
-                Email_Button.Click += Email_Click;
+                Email_Button.Click += Email_Click;*/
                 Buttons_Panel.Children.Add(SMS_Button);
-                Buttons_Panel.Children.Add(Email_Button);
+                Buttons_Panel.Children.Add(Message_Block);
+                //Buttons_Panel.Children.Add(Email_Button);
             Messages_Panel.Children.Add(Buttons_Panel);
 
             Button removeButton = new Button
@@ -160,7 +176,7 @@ namespace SMS_EMAIL_PLC
             Singleton.Instance.Remove_From_Configuration(nr);
 
             Number_Panel.Children.RemoveAt(it);
-            Description_Panel.Children.RemoveAt(it);
+            //Description_Panel.Children.RemoveAt(it);
             Messages_Panel.Children.RemoveAt(it);
             RemoveButtons_Panel.Children.RemoveAt(it);
 
@@ -168,14 +184,14 @@ namespace SMS_EMAIL_PLC
             {
                 ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
                 ((Button)((StackPanel)Messages_Panel.Children[i]).Children[0]).Name = "SMS" + i.ToString();
-                ((Button)((StackPanel)Messages_Panel.Children[i]).Children[1]).Name = "EML" + i.ToString();
+               //((Button)((StackPanel)Messages_Panel.Children[i]).Children[1]).Name = "EML" + i.ToString();
             }
         }
 
         public void Window_Clear()
         {
             Number_Panel.Children.RemoveRange(1, Number_Panel.Children.Count - 1);
-            Description_Panel.Children.RemoveRange(1, Description_Panel.Children.Count - 1);
+            //Description_Panel.Children.RemoveRange(1, Description_Panel.Children.Count - 1);
             Messages_Panel.Children.RemoveRange(1, Messages_Panel.Children.Count - 1);
             RemoveButtons_Panel.Children.RemoveRange(1, RemoveButtons_Panel.Children.Count - 1);
         }
@@ -190,6 +206,107 @@ namespace SMS_EMAIL_PLC
         {
             Singleton.Instance.Clear_Configuration();
             Singleton.Instance.sql_manager.Load_Messages();
+        }
+
+        private void SaveButton_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "mes files (*.mes)|*.mes",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+
+                bool? result = saveFileDialog.ShowDialog();
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = saveFileDialog.OpenFile()) != null)
+                    {
+                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
+
+                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                        {
+                            formatter.Serialize(stream, msg.Key);
+                            formatter.Serialize(stream, msg.Value);
+                        }
+
+                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        stream.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+            }
+        }
+
+        private void LoadButton_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                    Filter = "mes files (*.mes)|*.mes",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+                bool? result = openFileDialog.ShowDialog();
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = openFileDialog.OpenFile()) != null)
+                    {
+                        int msgs_count = (int)formatter.Deserialize(stream);
+
+                        Singleton.Instance.Clear_Messages();
+
+                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
+
+                        for (int i = 0; i < msgs_count; i++)
+                        {
+                            string key = (string)formatter.Deserialize(stream);
+                            Message new_msg = (Message)formatter.Deserialize(stream);
+                            new_msgs[key] = new_msg;
+                        }
+
+                        Thread.Sleep(200);
+
+                        foreach (KeyValuePair<string, Message> msg in new_msgs)
+                        {
+                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
+                        }
+
+                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                        Window_Clear();
+                        foreach (KeyValuePair<string, Message> msg in new_msgs)
+                            Add_Line(msg.Key);
+
+
+                        Singleton.Instance.configuration_window.Refresh();
+                        System.Windows.MessageBox.Show("wczytano pomyślnie");
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+            }
         }
     }
 }

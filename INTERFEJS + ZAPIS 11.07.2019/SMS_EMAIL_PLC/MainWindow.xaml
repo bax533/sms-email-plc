@@ -14,7 +14,7 @@
             
             
             <StackPanel>
-                <StackPanel Name="Toolbar_Panel" Height="25"/>
+                <StackPanel Name="Toolbar_Panel" Height="25" HorizontalAlignment="Center"/>
                 <TextBlock Height="10"/>
 
                 <StackPanel Orientation="Horizontal">

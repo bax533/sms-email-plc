@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +30,9 @@ namespace SMS_EMAIL_PLC
 
         void UsersWindow_Closing(object sender, CancelEventArgs e)
         {
+            Singleton.Instance.application_shutdown = true;
+            Singleton.Instance.Checker_Thread.Abort();
+
             foreach (Window window in Application.Current.Windows)
                 try
                 {
@@ -194,6 +201,99 @@ namespace SMS_EMAIL_PLC
             Save_Users();
             Singleton.Instance.Clear_Configuration();
             Singleton.Instance.configuration_window.Refresh();
+        }
+
+        private void SaveButton_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "usr files (*.usr)|*.usr",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+                bool? result = saveFileDialog.ShowDialog();
+
+                
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = saveFileDialog.OpenFile()) != null)
+                    {
+                        formatter.Serialize(stream, Singleton.Instance.users.Count);
+
+                        foreach (User user in Singleton.Instance.users)
+                            formatter.Serialize(stream, user);
+
+                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        stream.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+            }
+        }
+
+        private void LoadButton_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                    Filter = "usr files (*.usr)|*.usr",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+                bool? result = openFileDialog.ShowDialog();
+
+                Stream stream;
+
+                if (result == true)
+                {
+                    if ((stream = openFileDialog.OpenFile()) != null)
+                    {
+
+                        int users_count = (int)formatter.Deserialize(stream);
+                        Singleton.Instance.Clear_Users();
+
+                        for (int i = 0; i < users_count; i++)
+                        {
+                            User user = (User)formatter.Deserialize(stream);
+                            Singleton.Instance.Add_User(user);
+                        }
+
+                        Window_Clear();
+                        foreach (User user in Singleton.Instance.users)
+                            Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
+
+                        System.Windows.MessageBox.Show("wczytano pomyślnie");
+                    }
+                }
+
+                Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+                Singleton.Instance.configuration_window.Refresh();
+
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void SaveSettings_Click(Object sender, EventArgs e)
+        {
+            Save_Users();
         }
     }
 }

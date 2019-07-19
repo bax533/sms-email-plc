@@ -25,6 +25,9 @@ namespace SMS_EMAIL_PLC
 
         void ConfigurationWindow_Closing(object sender, CancelEventArgs e)
         {
+            Singleton.Instance.application_shutdown = true;
+            Singleton.Instance.Checker_Thread.Abort();
+
             foreach (Window window in Application.Current.Windows)
                 try
                 {
