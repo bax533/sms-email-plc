@@ -27,6 +27,7 @@ namespace SMS_EMAIL_PLC
         {
             InitializeComponent();
             Toolbar_Panel.Children.Add(new My_Toolbar());
+            Toolbar_Panel.Children.Add(new TextBlock { Height = 1, Background = Brushes.Black });
             Singleton.Instance.main_window = this;
             Singleton.Instance.SetTimer(100);
         }

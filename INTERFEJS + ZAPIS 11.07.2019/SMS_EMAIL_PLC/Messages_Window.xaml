@@ -15,7 +15,7 @@
             <Grid Height="450" Width="840" Background="LightGray">
 
                 <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Name="Toolbar_Panel" Height="25" HorizontalAlignment="Center"/>
+                    <StackPanel Name="Toolbar_Panel" Height="25"/>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
                         <StackPanel Orientation="Horizontal" Background="LightGray"  MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
                             <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">

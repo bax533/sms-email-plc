@@ -196,12 +196,6 @@ namespace SMS_EMAIL_PLC
             RemoveButtons_Panel.Children.RemoveRange(1, RemoveButtons_Panel.Children.Count - 1);
         }
 
-
-        private void Dbg_Click(Object sender, EventArgs e)
-        {
-            Singleton.Instance.Msgs_dbg();
-        }
-
         private void LoadBase_Click(Object sender, EventArgs e)
         {
             Singleton.Instance.Clear_Configuration();

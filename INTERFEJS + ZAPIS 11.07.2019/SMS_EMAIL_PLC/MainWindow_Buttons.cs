@@ -22,17 +22,22 @@ namespace SMS_EMAIL_PLC
 {
     public class My_Toolbar : StackPanel
     {
-        Button main_button, users_button, messages_button, configuration_button, driver_button;
+        Button main_button, users_button, messages_button, configuration_button, driver_button, dbg_button;
 
         public My_Toolbar()
         {
+            this.HorizontalAlignment = HorizontalAlignment.Center;
             this.Orientation = Orientation.Horizontal;
+
+            int fontsize = 9;
+            int height = 15;
+
             main_button = new Button
             {
                 Content = "strona główna",
                 Width = 100,
-                Height = 25,
-                FontSize = 15,
+                Height = height,
+                FontSize = fontsize,
                 Background = Brushes.Azure
             };
             main_button.Click += Main_Click;
@@ -42,8 +47,8 @@ namespace SMS_EMAIL_PLC
             {
                 Content = "użytkownicy",
                 Width = 100,
-                Height = 25,
-                FontSize = 15,
+                Height = height,
+                FontSize = fontsize,
                 Background = Brushes.Azure
             };
             users_button.Click += Users_Click;
@@ -53,8 +58,8 @@ namespace SMS_EMAIL_PLC
             {
                 Content = "wiadomości",
                 Width = 100,
-                Height = 25,
-                FontSize = 15,
+                Height = height,
+                FontSize = fontsize,
                 Background = Brushes.Azure
             };
             messages_button.Click += Messages_Click;
@@ -64,8 +69,8 @@ namespace SMS_EMAIL_PLC
             {
                 Content = "konfiguracja",
                 Width = 100,
-                Height = 25,
-                FontSize = 15,
+                Height = height,
+                FontSize = fontsize,
                 Background = Brushes.Azure
             };
             configuration_button.Click += Configure_Click;
@@ -75,11 +80,21 @@ namespace SMS_EMAIL_PLC
             {
                 Content = "sterownik",
                 Width = 100,
-                Height = 25,
-                FontSize = 15,
+                Height = height,
+                FontSize = fontsize,
             };
             driver_button.Click += Driver_Click;
             Children.Add(driver_button);
+
+            dbg_button = new Button
+            {
+                Content = "debug",
+                Width = 100,
+                Height = height,
+                FontSize = fontsize,
+            };
+            dbg_button.Click += dbg_Click;
+            Children.Add(dbg_button);
         }
 
         
@@ -140,6 +155,62 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.driver_window.Activate();
         }
 
-        
+
+        public void Users_dbg()
+        {
+            string ret = "";
+            for (int i = 0; i < Singleton.Instance.users.Count; i++)
+            {
+                ret += Singleton.Instance.users[i].ToString() + "\n";
+            }
+            System.Windows.MessageBox.Show(ret);
+        }
+
+
+
+
+        public void Config_dbg()
+        {
+            string ret = "";
+            foreach (User user in Singleton.Instance.users)
+            {
+                ret += user.Get_ID() + ":\n";
+                if (Singleton.Instance.configuration.ContainsKey(user.Get_ID()))
+                {
+                    foreach (KeyValuePair<string, Configuration> config in Singleton.Instance.configuration[user.Get_ID()])
+                    {
+                        bool su, sd, eu, ed;
+                        su = config.Value.sms_up;
+                        sd = config.Value.sms_down;
+                        eu = config.Value.email_up;
+                        ed = config.Value.email_down;
+                        ret += su + " " + sd + " " + eu + " " + ed + "\n";
+                    }
+                }
+                else
+                    Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                ret += "--------------\n";
+            }
+            System.Windows.MessageBox.Show(ret);
+        }
+
+        public void Msgs_dbg()
+        {
+            string ret = "";
+            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+            {
+                //ret += msg.Key + " " + msg.Value.sms + ", " + msg.Value.email + "\n";
+                ret += msg.Key + " " + Singleton.Instance.messages[msg.Key].sms + ", " + Singleton.Instance.messages[msg.Key].email + "\n";
+            }
+            System.Windows.MessageBox.Show(ret);
+        }
+
+        private void dbg_Click(Object sender, EventArgs e)
+        {
+            Users_dbg();
+            Msgs_dbg();
+            Config_dbg();
+        }
+
     }
 }

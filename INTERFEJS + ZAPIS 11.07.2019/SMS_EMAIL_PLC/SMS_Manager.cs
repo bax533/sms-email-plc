@@ -14,8 +14,9 @@ namespace SMS_EMAIL_PLC
 {
     class SMS_Manager
     {
-        private readonly string PIN = "0410";
-        private readonly string port = "COM5";
+        private readonly int baudrate = 9600;
+        private readonly int timeout = 300;
+        public string port = "COM5";
 
         GsmCommMain comm = new GsmCommMain("COM5", 9600, 300);
 
@@ -23,6 +24,7 @@ namespace SMS_EMAIL_PLC
 
         public SMS_Manager()
         {
+
         }
 
         public void Send(string message, string nr)
@@ -58,14 +60,19 @@ namespace SMS_EMAIL_PLC
             //System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
         }
 
-        public void Check_Connection()
+        public void Check_Connection( string port )
         {
+            if (comm.IsOpen())
+                comm.Close();
+            comm = new GsmCommMain(port, baudrate, timeout);
+
             if (!comm.IsConnected())
             {
                 try
                 {
                     comm.Open();
                     connected = true;
+                    return;
                 }
                 catch (Exception ex)
                 {

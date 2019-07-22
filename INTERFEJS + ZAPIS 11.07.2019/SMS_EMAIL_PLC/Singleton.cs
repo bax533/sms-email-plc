@@ -125,6 +125,8 @@ namespace SMS_EMAIL_PLC
         public Dictionary<int, bool> already_alarmed = new Dictionary<int, bool>();
         public Thread Checker_Thread;
 
+        public string port = "";
+
         public static int Get_Nr_From_Object(Object obj)
         {
             if (obj is Button button)
@@ -148,6 +150,7 @@ namespace SMS_EMAIL_PLC
 
         public void OnTimedEvent(Object source, EventArgs e)
         {
+            port = main_window.COM_Box.Text;
             Set_Statuses();
             if (plc_manager.connected)
             {
@@ -280,7 +283,7 @@ namespace SMS_EMAIL_PLC
                     plc_manager.connected = false;
                 }
 
-                sms_manager.Check_Connection();
+                sms_manager.Check_Connection(port);
 
                 Thread.Sleep(5000);
             }
@@ -414,43 +417,7 @@ namespace SMS_EMAIL_PLC
             messages.Remove(key);
         }
 
-        public void Users_dbg()
-        {
-            string ret = "";
-            for (int i = 0; i < users.Count; i++)
-            {
-                ret += users[i].ToString() + "\n";
-            }
-            System.Windows.MessageBox.Show(ret);
-        }
-
-
         
-
-        public void Config_dbg()
-        {
-            string ret = "";
-            foreach (User user in users)
-            {
-                ret += user.Get_ID() + ":\n";
-                if (configuration.ContainsKey(user.Get_ID()))
-                {
-                    foreach (KeyValuePair<string, Configuration> config in configuration[user.Get_ID()])
-                    {
-                        bool su, sd, eu, ed;
-                        su = config.Value.sms_up;
-                        sd = config.Value.sms_down;
-                        eu = config.Value.email_up;
-                        ed = config.Value.email_down;
-                        ret += su + " " + sd + " " + eu + " " + ed + "\n";
-                    }
-                }
-                else
-                    configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-                ret += "--------------\n";
-            }
-            System.Windows.MessageBox.Show(ret);
-        }
 
         public void Set_Message(string key, Message msg)
         {
@@ -469,16 +436,7 @@ namespace SMS_EMAIL_PLC
                 messages[key] = new Message("", "");
         }
 
-        public void Msgs_dbg()
-        {
-            string ret = "";
-            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-            {
-                //ret += msg.Key + " " + msg.Value.sms + ", " + msg.Value.email + "\n";
-                ret += msg.Key + " " + Singleton.Instance.messages[msg.Key].sms + ", " + Singleton.Instance.messages[msg.Key].email + "\n";
-            }
-            System.Windows.MessageBox.Show(ret);
-        }
+        
 
         private static Singleton m_oInstance = null;
 

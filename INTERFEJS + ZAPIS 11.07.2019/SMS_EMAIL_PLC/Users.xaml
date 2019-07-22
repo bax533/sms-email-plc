@@ -25,7 +25,7 @@
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid Height="450" Width="840" Background="LightGray">
             <StackPanel HorizontalAlignment="Center" Height="370" VerticalAlignment="Top">
-                <StackPanel Name="Toolbar_Panel" Height="25" HorizontalAlignment="Center"/>
+                <StackPanel Name="Toolbar_Panel" Height="25"/>
                 <StackPanel>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
                         <StackPanel Orientation="Horizontal" Grid.RowSpan="2" Grid.ColumnSpan="2" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">

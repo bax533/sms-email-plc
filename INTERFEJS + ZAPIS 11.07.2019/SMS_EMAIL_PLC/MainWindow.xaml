@@ -14,7 +14,7 @@
             
             
             <StackPanel>
-                <StackPanel Name="Toolbar_Panel" Height="25" HorizontalAlignment="Center"/>
+                <StackPanel Name="Toolbar_Panel" Height="15"/>
                 <TextBlock Height="10"/>
 
                 <StackPanel Orientation="Horizontal">
@@ -43,6 +43,7 @@
                         <TextBlock Name="email_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
+                        <TextBox Width="50" Name="COM_Box" Text="COM NR" TextAlignment="Center"/>
                         <TextBlock Text="SMS Status:" FontSize="18"/>
                         <TextBlock Width="15"/>
                         <TextBlock Name="sms_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
