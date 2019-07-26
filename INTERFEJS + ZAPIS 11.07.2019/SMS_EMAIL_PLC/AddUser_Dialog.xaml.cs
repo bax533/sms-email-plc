@@ -23,17 +23,25 @@ namespace SMS_EMAIL_PLC
         public AddUser_Dialog()
         {
             InitializeComponent();
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
 
 
         private void AddUser_Dialog_Click(object sender, EventArgs e)
         {
             string id = ID_text.Text;
-            string name = Name_text.Text;
-            string phone_number = Nr_text.Text;
-            string email = Email_text.Text;
-            Singleton.Instance.users_window.Add_Line(id, name, phone_number, email);
-            this.Close();
+            if (!Singleton.Instance.Is_User_ID_Repeated(id))
+            {
+                string name = Name_text.Text;
+                string phone_number = Nr_text.Text;
+                string email = Email_text.Text;
+                Singleton.Instance.users_window.Add_Line(id, name, phone_number, email);
+                Singleton.Instance.Add_User(new User(id, name, phone_number, email));
+                Singleton.Instance.configuration_window.Refresh();
+                this.Close();
+            }
+            else
+                System.Windows.MessageBox.Show("ID nie mogą się powtarzać!");
         }
     }
 }

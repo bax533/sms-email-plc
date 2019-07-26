@@ -19,7 +19,6 @@ using System.Windows.Shapes;
 
 namespace SMS_EMAIL_PLC
 {
-
     public partial class Users_Window : Window
     {
         public Users_Window()
@@ -41,18 +40,7 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                 }
-            try
-            {
-                Singleton.Instance.sql_manager.cnn.Close();
-            }
-            catch (Exception ex)
-            { }
-            try
-            {
-                Singleton.Instance.plc_manager.plc.Close();
-            }
-            catch (Exception ex)
-            { }
+
             try
             {
                 Singleton.Instance.sms_manager.Close();
@@ -75,7 +63,7 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Line(string id, string name, string phone_number, string email)
         {
-            TextBox IDBox = new TextBox
+            TextBlock IDBox = new TextBlock
             {
                 Text = id,
                 Width = 50,
@@ -85,7 +73,7 @@ namespace SMS_EMAIL_PLC
             };
             ID_Panel.Children.Add(IDBox);
 
-            TextBox NameBox = new TextBox
+            TextBlock NameBox = new TextBlock
             {
                 Text = name,
                 Width = 150,
@@ -95,7 +83,7 @@ namespace SMS_EMAIL_PLC
             };
             Name_Panel.Children.Add(NameBox);
 
-            TextBox NrBox = new TextBox
+            TextBlock NrBox = new TextBlock
             {
                 Text = phone_number,
                 Width = 100,
@@ -105,7 +93,7 @@ namespace SMS_EMAIL_PLC
             };
             PhoneNumber_Panel.Children.Add(NrBox);
 
-            TextBox EmailBox = new TextBox
+            TextBlock EmailBox = new TextBlock
             {
                 Text = email,
                 Width = 150,
@@ -129,12 +117,14 @@ namespace SMS_EMAIL_PLC
         {
             AddUser_Dialog dialog = new AddUser_Dialog();
             dialog.Show();
+            
         }
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
             Button thisButton = (Button)sender;
             int it = Singleton.Get_Nr_From_Object(thisButton);
+            string id = ((TextBlock)ID_Panel.Children[it]).Text;
             ID_Panel.Children.RemoveAt(it);
             Name_Panel.Children.RemoveAt(it);
             PhoneNumber_Panel.Children.RemoveAt(it);
@@ -145,7 +135,12 @@ namespace SMS_EMAIL_PLC
             {
                 ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
             }
+            Singleton.Instance.Remove_User(id);
+            Singleton.Instance.Remove_User_From_Configuration(id);
+            Singleton.Instance.configuration_window.Refresh();
         }
+
+
 
 
         void Save_Users()
@@ -161,7 +156,7 @@ namespace SMS_EMAIL_PLC
 
             for (int i = 1; i < ID_Panel.Children.Count; i++) //sprawdzam powtórzenia
             {
-                string id = ((TextBox)ID_Panel.Children[i]).Text;
+                string id = ((TextBlock)ID_Panel.Children[i]).Text;
                 if (visited.ContainsKey(id))
                 {
                     System.Windows.MessageBox.Show("ID nie mogą się powtarzać!");
@@ -177,22 +172,14 @@ namespace SMS_EMAIL_PLC
 
             for (int i = 1; i < ID_Panel.Children.Count; i++)
             {
-                string id = ((TextBox)ID_Panel.Children[i]).Text;
-                string name = ((TextBox)Name_Panel.Children[i]).Text;
-                string phone_number = ((TextBox)PhoneNumber_Panel.Children[i]).Text;
-                string email = ((TextBox)Email_Panel.Children[i]).Text;
+                string id = ((TextBlock)ID_Panel.Children[i]).Text;
+                string name = ((TextBlock)Name_Panel.Children[i]).Text;
+                string phone_number = ((TextBlock)PhoneNumber_Panel.Children[i]).Text;
+                string email = ((TextBlock)Email_Panel.Children[i]).Text;
 
                 Singleton.Instance.Add_User(new User(id, name, phone_number, email));
             }
             Singleton.Instance.configuration_window.Add_Users();
-        }
-
-
-        private void Save(object sender, ExecutedRoutedEventArgs e)
-        {
-            Save_Users();
-            System.Windows.MessageBox.Show("zapisano pomyślnie!");
-            e.Handled = true;
         }
 
         private void LoadDatabase_Click(Object sender, EventArgs e)
@@ -289,11 +276,6 @@ namespace SMS_EMAIL_PLC
             {
                 System.Windows.MessageBox.Show(ex.Message);
             }
-        }
-
-        private void SaveSettings_Click(Object sender, EventArgs e)
-        {
-            Save_Users();
         }
     }
 }

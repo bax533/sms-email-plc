@@ -10,18 +10,6 @@
         WindowState ="Maximized"
         >
 
-    <Window.Resources>
-        <RoutedUICommand x:Key="Save"/>
-    </Window.Resources>
-
-    <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource Save}" Executed="Save"/>
-    </Window.CommandBindings>
-
-    <Window.InputBindings>
-        <KeyBinding Gesture="CTRL+S" Command="{StaticResource Save}"/>
-    </Window.InputBindings>
-
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid Height="450" Width="840" Background="LightGray">
             <StackPanel HorizontalAlignment="Center" Height="370" VerticalAlignment="Top">
@@ -64,7 +52,6 @@
                             <StackPanel Name="RemoveButtons_Panel" Width="80">
                                 <Button Content="dodaj" FontSize="15" Click="AddButton_Click"/>
                             </StackPanel>
-                            <Button Width="60" VerticalAlignment="Top" Click="SaveSettings_Click" Content="zapisz" FontSize="15"/>
                         </StackPanel>
                     </ScrollViewer>
                     

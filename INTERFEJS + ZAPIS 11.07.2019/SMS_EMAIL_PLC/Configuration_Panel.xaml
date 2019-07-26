@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
-        Title="Configuration_Panel" Height="450" Width="450"
+        Title="Configuration_Panel" Height="450" Width="560"
         >
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         
-            <Grid Width="450" Height="450">
+            <Grid Width="600" Height="450">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="400" VerticalAlignment="Top">
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
@@ -22,23 +22,61 @@
                     </Border>
 
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_UP_Panel" Width="120">
+                        <StackPanel Name="SMS_UP_Panel" Width="110">
                             <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="SMS przychodzący" TextAlignment="Center" Width="120"/>
+                                <TextBlock Text="SMS przekroczono" TextAlignment="Center" Width="110"/>
                             </Border>
                         </StackPanel>
                     </Border>
 
                     <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_DOWN_Panel" Width="120">
+                        <StackPanel Name="SMS_DOWN_Panel" Width="80">
                             <Border BorderThickness="1" BorderBrush="Gray">
-                                <TextBlock Text="SMS wychodzący" TextAlignment="Center" Width="120"/>
+                                <TextBlock Text="SMS powrót" TextAlignment="Center" Width="80"/>
                             </Border>
                         </StackPanel>
                     </Border>
+
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="EMAIL_UP_Panel" Width="110">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="EMAIL przekroczono" TextAlignment="Center" Width="110"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="EMAIL_DOWN_Panel" Width="80">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="EMAIL powrót" TextAlignment="Center" Width="80"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
+                        <StackPanel Name="Remove_Panel" Width="70">
+                            <Border BorderThickness="1" BorderBrush="Gray">
+                                <TextBlock Text="usuń" TextAlignment="Center" Width="70"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
             </ScrollViewer>
-            <Button Content="Zapisz" Click="SaveButton_Click" Height="50" VerticalAlignment="Bottom"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <TextBox Name="msgID_AddBox" Width="100" Height="50"/>
+                <TextBlock Width="20"/>
+                <CheckBox Height="50" Name="SMSup_AddBox" VerticalContentAlignment="Center" Content="sms góra"/>
+                <TextBlock Width="20"/>
+                <CheckBox Height="50" Name="SMSdown_AddBox" VerticalContentAlignment="Center" Content="sms powrót"/>
+                <TextBlock Width="20"/>
+                <CheckBox Height="50" Name="EMAILup_AddBox" VerticalContentAlignment="Center" Content="email góra"/>
+                <TextBlock Width="20"/>
+                <CheckBox Height="50" Name="EMAILdown_AddBox" VerticalContentAlignment="Center" Content="email powrót"/>
+                <TextBlock Width="20"/>
+                <Button Content="Zapisz" Height="50" Click="Save_Click"/>
+            </StackPanel>
+            
         </Grid>
     </Viewbox>
 </Window>

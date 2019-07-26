@@ -44,18 +44,8 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                 }
-            try
-            {
-                Singleton.Instance.sql_manager.cnn.Close();
-            }
-            catch (Exception ex)
-            { }
-            try
-            {
-                Singleton.Instance.plc_manager.plc.Close();
-            }
-            catch (Exception ex)
-            { }
+
+
             try
             {
                 Singleton.Instance.sms_manager.Close();
@@ -65,7 +55,7 @@ namespace SMS_EMAIL_PLC
 
             System.Windows.Application.Current.Shutdown();
         }
-
+        
         public string Get_Dialog(string starting)
         {
             SMS_Dialog dialog = new SMS_Dialog(starting);
@@ -77,17 +67,17 @@ namespace SMS_EMAIL_PLC
         {
             int it = Singleton.Get_Nr_From_Object(sender);
             string number = ((TextBox)Number_Panel.Children[it]).Text;
-            string content = Get_Dialog(Singleton.Instance.Get_SMS(number));
+            //string content = Get_Dialog(Singleton.Instance.Get_SMS(number));
 
-            if (content.Length > 160)
+            /*if (content.Length > 160)
             {
                 System.Windows.MessageBox.Show("przekroczono limit (160 znaków)");
             }
             else
             {
                 ((TextBlock)((StackPanel)Messages_Panel.Children[it]).Children[1]).Text = content;
-                Singleton.Instance.Set_SMS(number, content);
-            }
+               // Singleton.Instance.Set_SMS(number, content);
+            }*/
             //System.Windows.MessageBox.Show(it.ToString());
         }
 
@@ -95,9 +85,9 @@ namespace SMS_EMAIL_PLC
         {
             int it = Singleton.Get_Nr_From_Object(sender);
             string number = ((TextBox)Number_Panel.Children[it]).Text;
-            string content = Get_Dialog(Singleton.Instance.Get_Email(number));
+            //string content = Get_Dialog(Singleton.Instance.Get_Email(number));
 
-            Singleton.Instance.Set_Email(number, content);
+            //Singleton.Instance.Set_Email(number, content);
             //System.Windows.MessageBox.Show(it.ToString());
         }
 
@@ -109,7 +99,7 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Line(string nr)
         {
-            Singleton.Instance.Create_Message(nr);
+           // Singleton.Instance.Create_Message(nr);
 
             TextBox NumberBox = new TextBox
             {
@@ -137,19 +127,19 @@ namespace SMS_EMAIL_PLC
                 TextBlock Message_Block = new TextBlock
                 {
                     Name = "MSG" + Messages_Panel.Children.Count.ToString(),
-                    Text = Singleton.Instance.messages[nr].sms,
+                    //Text = Singleton.Instance.messages[nr].sms,
                     Width = 125,
                     Height = 20
                 };
                 
-                /*Button Email_Button = new Button
+                Button Email_Button = new Button
                 {
                     Name = "EML" + Messages_Panel.Children.Count.ToString(),
                     Content = "Email",
                     Height = 20,
                     Width = 75
                 };
-                Email_Button.Click += Email_Click;*/
+                Email_Button.Click += Email_Click;
                 Buttons_Panel.Children.Add(SMS_Button);
                 Buttons_Panel.Children.Add(Message_Block);
                 //Buttons_Panel.Children.Add(Email_Button);
@@ -172,8 +162,8 @@ namespace SMS_EMAIL_PLC
 
             string nr = ((TextBox)Number_Panel.Children[it]).Text;
 
-            Singleton.Instance.Remove_Message(nr);
-            Singleton.Instance.Remove_From_Configuration(nr);
+            //Singleton.Instance.Remove_Message(nr);
+            Singleton.Instance.Remove_Msg_From_Configuration(nr);
 
             Number_Panel.Children.RemoveAt(it);
             //Description_Panel.Children.RemoveAt(it);
@@ -223,13 +213,13 @@ namespace SMS_EMAIL_PLC
                 {
                     if ((stream = saveFileDialog.OpenFile()) != null)
                     {
-                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
+                       // formatter.Serialize(stream, Singleton.Instance.messages.Count);
 
-                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+                        /*foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
                         {
                             formatter.Serialize(stream, msg.Key);
                             formatter.Serialize(stream, msg.Value);
-                        }
+                        }*/
 
                         System.Windows.MessageBox.Show("zapisano pomyślnie!");
                         stream.Close();
@@ -280,7 +270,7 @@ namespace SMS_EMAIL_PLC
 
                         foreach (KeyValuePair<string, Message> msg in new_msgs)
                         {
-                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
+                            //Singleton.Instance.Set_Message(msg.Key, msg.Value);
                         }
 
                         Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();

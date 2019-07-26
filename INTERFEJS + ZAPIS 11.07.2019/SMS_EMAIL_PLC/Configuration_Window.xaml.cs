@@ -36,18 +36,7 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                 }
-            try
-            {
-                Singleton.Instance.sql_manager.cnn.Close();
-            }
-            catch (Exception ex)
-            { }
-            try
-            {
-                Singleton.Instance.plc_manager.plc.Close();
-            }
-            catch (Exception ex)
-            { }
+
             try
             {
                 Singleton.Instance.sms_manager.Close();

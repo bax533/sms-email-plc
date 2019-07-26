@@ -54,10 +54,10 @@ namespace SMS_EMAIL_PLC
                 }
                 catch (Exception ex)
                 {
-                    if (ex is S7.Net.PlcException)
-                        Console.WriteLine("invalid IP");
+                    /*if (ex is S7.Net.PlcException)
+                        System.Windows.MessageBox.Show("invalid IP");
                     else
-                        Console.WriteLine("coś poszło nie tak");
+                        System.Windows.MessageBox.Show(ex.Message);*/
                     return false;
                 }
                 if (plc.IsConnected) return true;

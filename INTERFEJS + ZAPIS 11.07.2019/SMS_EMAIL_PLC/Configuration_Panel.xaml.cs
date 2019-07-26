@@ -27,69 +27,136 @@ namespace SMS_EMAIL_PLC
 
         void Add_Lines(Dictionary<string, Configuration> config)
         {
-            foreach(KeyValuePair<string, Message> msg in Singleton.Instance.messages)
+            foreach(KeyValuePair<string, Configuration> cnf in config)
             {
-                bool already_in = false;
-                if (config.ContainsKey(msg.Key))
-                {
-                    already_in = true;
-                }
+                string msg_id = cnf.Key;
 
-                TextBlock idBlock = new TextBlock();
-                idBlock.Text = msg.Key;
-                idBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                idBlock.Width = 100;
-                idBlock.Height = 20;
+                TextBlock idBlock = new TextBlock
+                {
+                    Text = msg_id,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Width = 100,
+                    Height = 20
+                };
                 ID_Panel.Children.Add(idBlock);
 
-                CheckBox sms_upBox = new CheckBox();
-                if (already_in)
-                    sms_upBox.IsChecked = (bool)config[msg.Key].sms_up;
-                sms_upBox.Name = "sup" + SMS_UP_Panel.Children.Count;
-                sms_upBox.Height = 20;
-                sms_upBox.HorizontalAlignment = HorizontalAlignment.Center;
+                CheckBox sms_upBox = new CheckBox
+                {
+                    IsChecked = cnf.Value.sms_up,
+                    Name = "sup" + SMS_UP_Panel.Children.Count,
+                    Height = 20,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    IsHitTestVisible = false,
+                    Focusable = false
+                };
                 SMS_UP_Panel.Children.Add(sms_upBox);
 
-                CheckBox sms_downBox = new CheckBox();
-                if(already_in)
-                    sms_downBox.IsChecked = (bool)config[msg.Key].sms_down;
-                sms_downBox.Name = "sdn" + SMS_DOWN_Panel.Children.Count;
-                sms_downBox.Height = 20;
-                sms_downBox.HorizontalAlignment = HorizontalAlignment.Center;
+                CheckBox sms_downBox = new CheckBox
+                {
+                    IsChecked = cnf.Value.sms_down,
+                    Name = "sdn" + SMS_DOWN_Panel.Children.Count,
+                    Height = 20,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    IsHitTestVisible = false,
+                    Focusable = false
+                };
                 SMS_DOWN_Panel.Children.Add(sms_downBox);
 
-                /*CheckBox email_upBox = new CheckBox();
-                if (already_in)
-                    email_upBox.IsChecked = (bool)config[msg.Key].email_up;
-                email_upBox.Name = "eup" + EMAIL_UP_Panel.Children.Count;
-                email_upBox.Height = 20;
-                email_upBox.HorizontalAlignment = HorizontalAlignment.Center;
+
+                CheckBox email_upBox = new CheckBox
+                {
+                    IsChecked = cnf.Value.email_up,
+                    Name = "eup" + EMAIL_UP_Panel.Children.Count,
+                    Height = 20,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    IsHitTestVisible = false,
+                    Focusable = false
+                };
                 EMAIL_UP_Panel.Children.Add(email_upBox);
 
-                CheckBox email_downBox = new CheckBox();
-                if (already_in)
-                    email_downBox.IsChecked = (bool)config[msg.Key].email_down;
-                email_downBox.Name = "edn" + EMAIL_DOWN_Panel.Children.Count;
-                email_downBox.Height = 20;
-                email_downBox.HorizontalAlignment = HorizontalAlignment.Center;
-                EMAIL_DOWN_Panel.Children.Add(email_downBox);*/
+                CheckBox email_downBox = new CheckBox
+                {
+                    IsChecked = cnf.Value.email_down,
+                    Name = "edn" + EMAIL_DOWN_Panel.Children.Count,
+                    Height = 20,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    IsHitTestVisible = false,
+                    Focusable = false
+                };
+                EMAIL_DOWN_Panel.Children.Add(email_downBox);
+
+
+                Button removeButton = new Button
+                {
+                    Height = 20,
+                    Name = "rmv" + Remove_Panel.Children.Count.ToString(),
+                    Content = "-"
+                };
+                removeButton.Click += RemoveButton_Click;
+                Remove_Panel.Children.Add(removeButton);
             }
         }
-        private void SaveButton_Click(Object sender, EventArgs e)
+
+        private void RemoveButton_Click(object sender, EventArgs e)
         {
-            for (int it = 1; it < ID_Panel.Children.Count; it++)
+            Button thisButton = (Button)sender;
+            int it = Singleton.Get_Nr_From_Object(thisButton);
+            string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
+            ID_Panel.Children.RemoveAt(it);
+            SMS_UP_Panel.Children.RemoveAt(it);
+            SMS_DOWN_Panel.Children.RemoveAt(it);
+            EMAIL_UP_Panel.Children.RemoveAt(it);
+            EMAIL_DOWN_Panel.Children.RemoveAt(it);
+            Remove_Panel.Children.RemoveAt(it);
+
+            for (int i = it; i < ID_Panel.Children.Count; i++)
             {
-                bool sms_up = (bool)((CheckBox)SMS_UP_Panel.Children[it]).IsChecked;
-                bool sms_down = (bool)((CheckBox)SMS_DOWN_Panel.Children[it]).IsChecked;
-                bool email_up = false;//(bool)((CheckBox)EMAIL_UP_Panel.Children[it]).IsChecked;
-                bool email_down = false;//(bool)((CheckBox)EMAIL_DOWN_Panel.Children[it]).IsChecked;
-
-
-                Configuration config = new Configuration(sms_up, email_up, sms_down, email_down);
-                string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
-                Singleton.Instance.configuration[user_id][msg_id] = config;
+                ((Button)Remove_Panel.Children[i]).Name = "rmv" + i.ToString();
             }
-            this.Close();
+            Singleton.Instance.configuration[user_id].Remove(msg_id);
+            Refresh();
+        }
+
+        private void Save_Click(Object sender, EventArgs e)
+        {
+            if (Singleton.Instance.configuration.ContainsKey(user_id))
+            {
+                string msg_id = msgID_AddBox.Text;
+                bool sms_up = (bool)SMSup_AddBox.IsChecked;
+                bool sms_down = (bool)SMSdown_AddBox.IsChecked;
+
+                bool email_up = (bool)EMAILup_AddBox.IsChecked;
+                bool email_down = (bool)EMAILdown_AddBox.IsChecked;
+
+                for (int i = 1; i < ID_Panel.Children.Count; i++)
+                {
+                    if (((TextBlock)ID_Panel.Children[i]).Text.Equals(msg_id))
+                    {
+                        System.Windows.MessageBox.Show("najpierw usuń tą wiadomość użytkownikowi!");
+                        return;
+                    }
+                }
+
+                Singleton.Instance.configuration[user_id][msg_id] = new Configuration(sms_up, email_up, sms_down, email_down);
+                this.Refresh();
+            }
+        }
+
+        private void Window_Clear()
+        {
+            ID_Panel.Children.RemoveRange(1, ID_Panel.Children.Count - 1);
+            SMS_UP_Panel.Children.RemoveRange(1, SMS_UP_Panel.Children.Count - 1);
+            SMS_DOWN_Panel.Children.RemoveRange(1, SMS_DOWN_Panel.Children.Count - 1);
+            EMAIL_UP_Panel.Children.RemoveRange(1, EMAIL_UP_Panel.Children.Count - 1);
+            EMAIL_DOWN_Panel.Children.RemoveRange(1, EMAIL_DOWN_Panel.Children.Count - 1);
+            Remove_Panel.Children.RemoveRange(1, Remove_Panel.Children.Count - 1);
+        }
+
+        public void Refresh()
+        {
+            Window_Clear();
+            if(Singleton.Instance.configuration.ContainsKey(user_id))
+                Add_Lines(Singleton.Instance.configuration[user_id]);
         }
     }
 }

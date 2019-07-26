@@ -62,6 +62,10 @@ namespace SMS_EMAIL_PLC
 
         public void Check_Connection( string port )
         {
+
+            if (port.Length < 4)
+                return;
+
             if (comm.IsOpen())
                 comm.Close();
             comm = new GsmCommMain(port, baudrate, timeout);

@@ -84,7 +84,7 @@ namespace SMS_EMAIL_PLC
 
         public void Load_Messages()
         {
-            try
+            /*try
             {
                 Singleton.Instance.Clear_Messages();
                 Singleton.Instance.messages_window.Window_Clear();
@@ -115,7 +115,7 @@ namespace SMS_EMAIL_PLC
                 reader.Close();
             }
             catch (Exception ex)
-            { }
+            { }*/
         }
 
 

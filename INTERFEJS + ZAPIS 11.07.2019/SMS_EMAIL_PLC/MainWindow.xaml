@@ -28,14 +28,9 @@
                     <TextBlock Text="Status:" FontSize="20"/>
                     <TextBlock Width="10"/>
                     <TextBlock Name="sql_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
-                    
+
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Name="driver_properties">
-                    <TextBlock Text="PLC: " FontSize="20" />
-                    <TextBlock Name="plc_status_text" Text="nie połączono" FontSize="20" Width="143" Foreground="DimGray"/>
-                </StackPanel>
-                
                 <StackPanel Name="Statusy">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Email Status:" FontSize="18"/>

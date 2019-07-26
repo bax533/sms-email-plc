@@ -9,23 +9,22 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using System.IO;
 using System.Threading;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SMS_EMAIL_PLC
 {
     [Serializable]
     public class Message
     {
-        public string sms;
-        public string email;
-        public Message(string sms, string email)
+        public string id;
+        public string text;
+        public string status;
+        public Message(string id, string text, string status)
         {
-            this.sms = sms;
-            this.email = email;
-        }
-        public Message()
-        {
-            sms = "";
-            email = "";
+            this.id = id;
+            this.text = text;
+            this.status = status;
         }
     }
 
@@ -98,9 +97,9 @@ namespace SMS_EMAIL_PLC
     class Singleton
     {
         public bool application_shutdown = false;
+        string last_message = "";
 
-        private string driverPath = "driver.txt";
-        private int plc_loading_counter = 0, plc_loading_interval = 60; //<- cas w sekundach = interval / 10
+        private string filePath = "settings.txt";
 
         private DispatcherTimer timer = new DispatcherTimer();
         private DispatcherTimer statusTimer = new DispatcherTimer();
@@ -109,23 +108,38 @@ namespace SMS_EMAIL_PLC
         public List<Driver> toControlDown = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
         public Email_Manager email_manager = new Email_Manager();
-        public PLC_Manager plc_manager = new PLC_Manager();
+        //public PLC_Manager plc_manager = new PLC_Manager();
         public SQL_Manager sql_manager = new SQL_Manager();
 
 
         public Users_Window users_window = new Users_Window();
-        public Messages_Window messages_window = new Messages_Window();
+        //public Messages_Window messages_window = new Messages_Window();
         public Configuration_Window configuration_window = new Configuration_Window();
         public MainWindow main_window;
-        public Driver_Window driver_window = new Driver_Window();
+        //public Driver_Window driver_window = new Driver_Window();
 
         public List<User> users = new List<User>();
-        public Dictionary<string, Message> messages = new Dictionary<string, Message>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
         public Dictionary<int, bool> already_alarmed = new Dictionary<int, bool>();
         public Thread Checker_Thread;
+        public Thread Alarm_Thread;
+
+        private Queue<Message> messages = new Queue<Message>();
 
         public string port = "";
+
+        public static bool IsFileReady(string filename)
+        {
+            try
+            {
+                using (FileStream inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None))
+                    return inputStream.Length > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         public static int Get_Nr_From_Object(Object obj)
         {
@@ -139,90 +153,171 @@ namespace SMS_EMAIL_PLC
             return 0;
         }
 
-        public void SetTimer(int interval)
+        public void Set_Start(int interval)
         {
+            using (StreamReader sr = new StreamReader("settings.txt"))
+            {
+                try
+                {
+                    filePath = sr.ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show("BŁĄD WCZYTYWANIA USTAWIEŃ!", "FATAL ERROR");
+                }
+
+                try
+                {
+                    Load_Settings("default.cnf");
+                }
+                catch(Exception ex)
+                { }
+            }
+
             timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
             timer.Tick += new EventHandler(OnTimedEvent);
             timer.Start();
+
             Checker_Thread = new Thread(Status_Checker);
             Checker_Thread.Start();
+
+            Alarm_Thread = new Thread(Alarm);
+            Alarm_Thread.Start();
         }
 
         public void OnTimedEvent(Object source, EventArgs e)
         {
             port = main_window.COM_Box.Text;
             Set_Statuses();
-            if (plc_manager.connected)
+            Send_Messages();
+        }
+
+
+
+        private void Alarm()
+        {
+            while (!application_shutdown)
             {
-                driver_window.OnTimedEvent();
-                foreach (Driver driver in toControlUP)
+                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                try
                 {
-                    int value = plc_manager.Get_Int_Value(driver.name);
+                    while (!IsFileReady(filePath) && !application_shutdown)
+                    { }
+                    if (application_shutdown)
+                        return;
 
-                    if (!already_alarmed.ContainsKey(value))
-                        already_alarmed[value] = false;
-
-                    if (!already_alarmed[value])
+                    using (StreamReader sr = new StreamReader(filePath))
                     {
-                        if (messages.ContainsKey(value.ToString()))
+                        string ln;
+                        while ((ln = sr.ReadLine()) != null)
                         {
-                            Send_Message(value.ToString(), true);
-                            already_alarmed[value] = true;
+                            
+                            if (ln.Equals(""))
+                                continue;
+
+                            int symbols = 0;
+                            for (int i = 0; i < ln.Length; i++)
+                                if (ln[i] == '<')
+                                    symbols++;
+                            if (symbols != 3)
+                                continue;
+
+                            string[] data = new string[3];  //0 - msg_id, 1 - treść, 2 - status;
+                            int it = 0;                     //format pliku wejściowego: id<treść<status<
+
+                            try
+                            {
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    do
+                                    {
+                                        if (it < ln.Length && ln[it] != '<')
+                                            data[i] += ln[it];
+                                        it++;
+                                    }
+                                    while (it < ln.Length && ln[it] != '<');
+                                }
+                                messages.Enqueue(new Message(data[0], data[1], data[2]));
+                            }
+                            catch(Exception ex)
+                            { }
                         }
+                        sr.Close();
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(filePath))
+                    {
+                        outputFile.WriteLine("");
+                        outputFile.Close();
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                Thread.Sleep(10000);
+            }
+        }
+
+        public void Load_Settings(string path)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = File.Open(path, FileMode.Open);
+
+                int users_count = (int)formatter.Deserialize(stream);
+
+                Clear_Users();
+
+                for (int i = 0; i < users_count; i++)
+                {
+                    User user = (User)formatter.Deserialize(stream);
+                    Add_User(user);
+                }
+
+                configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                foreach (User user in users)
+                {
+                    configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                }
+
+
+                foreach (User user in users)
+                {
+                    int n = (int)formatter.Deserialize(stream);
+                    for (int i = 0; i < n; i++)
+                    {
+                        string msg_id = (string)formatter.Deserialize(stream);
+                        Configuration load = (Configuration)formatter.Deserialize(stream);
+                        Add_To_Config(user.Get_ID(), msg_id, load);
                     }
                 }
 
-                foreach (Driver driver in toControlDown)
-                {
-                    int value = plc_manager.Get_Int_Value(driver.name);
+                Add_Lines_To_Windows();
 
-                    if (!already_alarmed.ContainsKey(value))
-                        already_alarmed[value] = false;
-
-                    if (already_alarmed[value])
-                    {
-                        if (messages.ContainsKey(value.ToString()))
-                        {
-                            Send_Message(value.ToString(), false);
-                            already_alarmed[value] = false;
-                        }
-                    }
-                }
+                System.Windows.MessageBox.Show("wczytano pomyślnie");
+                   
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
             }
         }
 
 
-        public void Add_Lines_To_Windows(Dictionary<string, Message> msgs)
+
+        public void Add_Lines_To_Windows()
         {
             users_window.Window_Clear();
             foreach (User user in users)
                 users_window.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
-
-            messages_window.Window_Clear();
-
-            foreach (KeyValuePair<string, Message> msg in msgs)
-            {
-                messages_window.Add_Line(msg.Key);
-            }
 
             configuration_window.Refresh();
         }
 
         private void Set_Statuses()
         {
-            if (plc_manager.connected)
-            {
-                main_window.plc_status_text.Text = "POŁĄCZONO";
-                main_window.plc_status_text.Background = Brushes.LawnGreen;
-                main_window.plc_status_text.Foreground = Brushes.Black;
-            }
-            else
-            {
-                main_window.plc_status_text.Text = "NIE POŁĄCZONO";
-                main_window.plc_status_text.Background = Brushes.Red;
-                main_window.plc_status_text.Foreground = Brushes.Black;
-            }
-
             if (sms_manager.connected)
             {
                 main_window.sms_status_text.Text = "POŁĄCZONO";
@@ -242,92 +337,60 @@ namespace SMS_EMAIL_PLC
         {
             while (!application_shutdown)
             {
-                string text = "";
-                try
-                {   // Open the text file using a stream reader.
-                    using (StreamReader sr = new StreamReader(driverPath))
-                    {
-                        // Read the stream to a string, and write the string to the console.
-                        text = sr.ReadToEnd();
-                    }
-                }
-                catch (IOException e)
-                {
-                    plc_manager.connected = false;
-                }
-                string[] input = new string[4];//0 - typ, 1 - ip, 2 - rack, 3 - slot;
-                int it = 0;//format pliku wejściowego: typ<ip<rack<slot<
-
-
-
-                for (int i = 0; i < 4; i++)
-                {
-                    do
-                    {
-                        if (text[it] != '<')
-                            input[i] += text[it];
-                        it++;
-                    }
-                    while (text[it] != '<');
-                }
-
-                try
-                {
-                    if (plc_manager.Load_Plc(input[0], input[1], int.Parse(input[2]), int.Parse(input[3])))
-                        plc_manager.connected = true;
-                    else
-                        plc_manager.connected = false;
-                }
-                catch (Exception ex)
-                {
-                    plc_manager.connected = false;
-                }
-
                 sms_manager.Check_Connection(port);
 
                 Thread.Sleep(5000);
             }
         }
 
-        private void Send_SMS(string message_id, string number, bool up)
+        private void Send_SMS(string msg, string number)
         {
-            if (sms_manager.connected)
-            {
-                string msg = messages[message_id].sms;
-                if (!up) msg += " powrot";
+            //if (sms_manager.connected)
+            //{
                 System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
-                main_window.last_message_text.Text = "id wiadomości: " + message_id + ", treść: " + msg + ", data: " + System.DateTime.Now.ToString();
-                sms_manager.Send(msg, number);
-            }
+                last_message = "treść: " + msg + ", data: " + System.DateTime.Now.ToString();
+                //sms_manager.Send(msg, number);
+            //}
         }
 
-        private void Send_Email(string message_id, string adress, bool up)
+        private void Send_Email(string msg, string adress)
         {
-            string msg = messages[message_id].email;
-            if (!up) msg += " powrót";
             System.Windows.MessageBox.Show("Wysłano email na adres: " + adress + " o treści: " + msg);
         }
 
 
-        public void Send_Message(string message_id, bool up)
+        public void Send_Messages()
         {
-            foreach(User user in users)
+            while (messages.Count > 0)
             {
-                if (configuration[user.Get_ID()].ContainsKey(message_id))
+                Message peek = messages.Dequeue();
+                string message_id = peek.id;
+                string message_text = peek.text;
+                string status = peek.status;
+
+                bool up = status.Equals("2") ? false : true;
+
+                foreach (User user in users)
                 {
-                    if (up)
+                    if (configuration.ContainsKey(user.Get_ID()))
                     {
-                        if (configuration[user.Get_ID()][message_id].sms_up)
-                            Send_SMS(message_id, user.Get_Number(), up);
-                        if (configuration[user.Get_ID()][message_id].email_up)
-                            Send_Email(message_id, user.Get_Email(), up);
-                    }
-                    else
-                    {
-                        if (configuration[user.Get_ID()][message_id].sms_down)
-                            Send_SMS(message_id, user.Get_Number(), up);
-                        if (configuration[user.Get_ID()][message_id].email_down)
-                            Send_Email(message_id, user.Get_Email(), up);
+                        if (configuration[user.Get_ID()].ContainsKey(message_id))
+                        {
+                            if (up)
+                            {
+                                if (configuration[user.Get_ID()][message_id].sms_up)
+                                    Send_SMS(message_text, user.Get_Number());
+                                if (configuration[user.Get_ID()][message_id].email_up)
+                                    Send_Email(message_text, user.Get_Email());
+                            }
+                            else
+                            {
+                                if (configuration[user.Get_ID()][message_id].sms_down)
+                                    Send_SMS(message_text, user.Get_Number());
+                                if (configuration[user.Get_ID()][message_id].email_down)
+                                    Send_Email(message_text, user.Get_Email());
+                            }
+                        }
                     }
                 }
             }
@@ -363,44 +426,18 @@ namespace SMS_EMAIL_PLC
             configuration[user_id][key] = config;
         }
 
-
-        public void Set_SMS(string number, string content)
+        public bool Is_User_ID_Repeated(string id)
         {
-            if (messages.ContainsKey(number))
-                messages[number].sms = content;
-            else
+            foreach(User user in users)
             {
-                messages[number] = new Message(content, "");
-                //messages[number].sms = content;
+                if (user.Get_ID() == id)
+                    return true;
             }
+            return false;
         }
 
-        public string Get_SMS(string nr)
-        {
 
-            return messages[nr].sms;
-        }
-
-        public void Set_Email(string number, string content)
-        {
-            if (messages.ContainsKey(number))
-                messages[number].email = content;
-            else
-            {
-                messages[number] = new Message
-                {
-                    email = content
-                };
-            }
-        }
-
-        public string Get_Email(string nr)
-        {
-            return messages[nr].email;
-        }
-
-        
-        public void Remove_From_Configuration(string key)
+        public void Remove_Msg_From_Configuration(string key)
         {
             foreach(User user in users)
             {
@@ -412,31 +449,25 @@ namespace SMS_EMAIL_PLC
             }
         }
 
-        public void Remove_Message(string key)
+        public void Remove_User_From_Configuration(string user_id)
         {
-            messages.Remove(key);
-        }
-
-        
-
-        public void Set_Message(string key, Message msg)
-        {
-            if (messages.ContainsKey(key))
-                messages[key] = msg;
-            else
+            if(configuration.ContainsKey(user_id))
             {
-                messages[key] = new Message();
-                messages[key] = msg;
+                configuration.Remove(user_id);
             }
         }
 
-        public void Create_Message(string key)
+        public void Remove_User(string user_id)
         {
-            if(!messages.ContainsKey(key))
-                messages[key] = new Message("", "");
+            for(int i=0; i<users.Count; i++)
+            {
+                if (users[i].Get_ID() == user_id)
+                {
+                    users.RemoveAt(i);
+                    return;
+                }
+            }
         }
-
-        
 
         private static Singleton m_oInstance = null;
 

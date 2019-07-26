@@ -23,7 +23,6 @@ namespace SMS_EMAIL_PLC
     public class My_Toolbar : StackPanel
     {
         Button main_button, users_button, messages_button, configuration_button, driver_button, dbg_button;
-
         public My_Toolbar()
         {
             this.HorizontalAlignment = HorizontalAlignment.Center;
@@ -54,7 +53,7 @@ namespace SMS_EMAIL_PLC
             users_button.Click += Users_Click;
             Children.Add(users_button);
 
-            messages_button = new Button
+            /*messages_button = new Button
             {
                 Content = "wiadomości",
                 Width = 100,
@@ -63,7 +62,7 @@ namespace SMS_EMAIL_PLC
                 Background = Brushes.Azure
             };
             messages_button.Click += Messages_Click;
-            Children.Add(messages_button);
+            Children.Add(messages_button);*/
 
             configuration_button = new Button
             {
@@ -76,7 +75,7 @@ namespace SMS_EMAIL_PLC
             configuration_button.Click += Configure_Click;
             Children.Add(configuration_button);
 
-            driver_button = new Button
+            /*driver_button = new Button
             {
                 Content = "sterownik",
                 Width = 100,
@@ -84,7 +83,7 @@ namespace SMS_EMAIL_PLC
                 FontSize = fontsize,
             };
             driver_button.Click += Driver_Click;
-            Children.Add(driver_button);
+            Children.Add(driver_button);*/
 
             dbg_button = new Button
             {
@@ -102,7 +101,7 @@ namespace SMS_EMAIL_PLC
         private void Main_Click(Object sender, RoutedEventArgs e)
         {
             Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
-            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+            //Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
             Singleton.Instance.configuration_window.Visibility = Visibility.Collapsed;
 
             if (Singleton.Instance.main_window.Visibility != Visibility.Visible)
@@ -114,7 +113,7 @@ namespace SMS_EMAIL_PLC
         private void Users_Click(object sender, EventArgs e)
         {
             Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
-            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+            //Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
             Singleton.Instance.configuration_window.Visibility = Visibility.Collapsed;
 
             if (Singleton.Instance.users_window.Visibility != Visibility.Visible)
@@ -123,7 +122,7 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.users_window.Activate();
         }
 
-        private void Messages_Click(object sender, EventArgs e)
+        /*private void Messages_Click(object sender, EventArgs e)
         {
             Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
             Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
@@ -133,13 +132,13 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.messages_window.Visibility = Visibility.Visible;
             else
                 Singleton.Instance.messages_window.Activate();
-        }
+        }*/
 
         private void Configure_Click(object sender, EventArgs e)
         {
             Singleton.Instance.main_window.Visibility = Visibility.Collapsed;
             Singleton.Instance.users_window.Visibility = Visibility.Collapsed;
-            Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
+            //Singleton.Instance.messages_window.Visibility = Visibility.Collapsed;
 
             if (Singleton.Instance.configuration_window.Visibility != Visibility.Visible)
                 Singleton.Instance.configuration_window.Visibility = Visibility.Visible;
@@ -149,10 +148,10 @@ namespace SMS_EMAIL_PLC
 
         private void Driver_Click(Object sender, EventArgs e)
         {
-            if (Singleton.Instance.driver_window.Visibility != Visibility.Visible)
+            /*if (Singleton.Instance.driver_window.Visibility != Visibility.Visible)
                 Singleton.Instance.driver_window.Visibility = Visibility.Visible;
             else
-                Singleton.Instance.driver_window.Activate();
+                Singleton.Instance.driver_window.Activate();*/
         }
 
 
@@ -194,21 +193,9 @@ namespace SMS_EMAIL_PLC
             System.Windows.MessageBox.Show(ret);
         }
 
-        public void Msgs_dbg()
-        {
-            string ret = "";
-            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-            {
-                //ret += msg.Key + " " + msg.Value.sms + ", " + msg.Value.email + "\n";
-                ret += msg.Key + " " + Singleton.Instance.messages[msg.Key].sms + ", " + Singleton.Instance.messages[msg.Key].email + "\n";
-            }
-            System.Windows.MessageBox.Show(ret);
-        }
-
         private void dbg_Click(Object sender, EventArgs e)
         {
             Users_dbg();
-            Msgs_dbg();
             Config_dbg();
         }
 

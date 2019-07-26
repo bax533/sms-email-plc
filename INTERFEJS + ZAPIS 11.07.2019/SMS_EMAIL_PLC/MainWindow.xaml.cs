@@ -27,15 +27,16 @@ namespace SMS_EMAIL_PLC
         {
             InitializeComponent();
             Toolbar_Panel.Children.Add(new My_Toolbar());
-            Toolbar_Panel.Children.Add(new TextBlock { Height = 1, Background = Brushes.Black });
             Singleton.Instance.main_window = this;
-            Singleton.Instance.SetTimer(100);
+            Singleton.Instance.Set_Start(5000);
+            this.Activate();
         }
 
         void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             Singleton.Instance.application_shutdown = true;
             Singleton.Instance.Checker_Thread.Abort();
+            
             foreach (Window window in Application.Current.Windows)
                 try
                 {
@@ -44,18 +45,6 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                 }
-            try
-            {
-                Singleton.Instance.sql_manager.cnn.Close();
-            }
-            catch(Exception ex)
-            { }
-            try
-            {
-                Singleton.Instance.plc_manager.plc.Close();
-            }
-            catch (Exception ex)
-            { }
             try
             {
                 Singleton.Instance.sms_manager.Close();
@@ -100,21 +89,20 @@ namespace SMS_EMAIL_PLC
                     if ((stream = saveFileDialog.OpenFile()) != null)
                     {
                         formatter.Serialize(stream, Singleton.Instance.users.Count);
-                        formatter.Serialize(stream, Singleton.Instance.messages.Count);
 
                         foreach (User user in Singleton.Instance.users)
                             formatter.Serialize(stream, user);
 
-                        foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                        {
-                            formatter.Serialize(stream, msg.Key);
-                            formatter.Serialize(stream, msg.Value);
-                        }
 
                         foreach (User user in Singleton.Instance.users)
                         {
-                            foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                                formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()][msg.Key]);
+                            formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()].Count);
+                            foreach (KeyValuePair<string, Configuration> cnf in Singleton.Instance.configuration[user.Get_ID()])
+                            {
+                                formatter.Serialize(stream, cnf.Key);
+                                formatter.Serialize(stream, cnf.Value);
+                            }
+                                
                         }
                         System.Windows.MessageBox.Show("zapisano pomyślnie!");
                         stream.Close();
@@ -123,10 +111,10 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+                System.Windows.MessageBox.Show(ex.Message);
             }
         }
-
+        
 
         private void Load_Settings_Click(Object sender, EventArgs e)
         {
@@ -151,7 +139,6 @@ namespace SMS_EMAIL_PLC
                     {
 
                         int users_count = (int)formatter.Deserialize(stream);
-                        int msgs_count = (int)formatter.Deserialize(stream);
 
                         Singleton.Instance.Clear_Users();
 
@@ -159,24 +146,6 @@ namespace SMS_EMAIL_PLC
                         {
                             User user = (User)formatter.Deserialize(stream);
                             Singleton.Instance.Add_User(user);
-                        }
-
-                        Singleton.Instance.Clear_Messages();
-
-                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
-
-                        for (int i = 0; i < msgs_count; i++)
-                        {
-                            string key = (string)formatter.Deserialize(stream);
-                            Message new_msg = (Message)formatter.Deserialize(stream);
-                            new_msgs[key] = new_msg;
-                        }
-
-                        Thread.Sleep(200);
-
-                        foreach (KeyValuePair<string, Message> msg in new_msgs)
-                        {
-                            Singleton.Instance.Set_Message(msg.Key, msg.Value);
                         }
 
                         Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
@@ -189,14 +158,16 @@ namespace SMS_EMAIL_PLC
 
                         foreach (User user in Singleton.Instance.users)
                         {
-                            foreach (KeyValuePair<string, Message> msg in new_msgs)
+                            int n = (int)formatter.Deserialize(stream);
+                            for (int i = 0; i<n; i++)
                             {
+                                string msg_id = (string)formatter.Deserialize(stream);
                                 Configuration load = (Configuration)formatter.Deserialize(stream);
-                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg.Key, load);
+                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg_id, load);
                             }
                         }
 
-                        Singleton.Instance.Add_Lines_To_Windows(new_msgs);
+                        Singleton.Instance.Add_Lines_To_Windows();
 
                         System.Windows.MessageBox.Show("wczytano pomyślnie");
                     }
