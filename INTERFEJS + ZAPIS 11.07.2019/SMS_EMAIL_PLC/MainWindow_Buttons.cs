@@ -23,36 +23,34 @@ namespace SMS_EMAIL_PLC
     public class My_Toolbar : StackPanel
     {
         Button main_button, users_button, messages_button, configuration_button, driver_button, dbg_button;
+
         public My_Toolbar()
         {
             this.HorizontalAlignment = HorizontalAlignment.Center;
-            this.Orientation = Orientation.Horizontal;
-
-            int fontsize = 9;
+            int fontsize = 12;
             int height = 15;
+            int width = 120;
+            Thickness thickness = new Thickness(0, 3, 0, 0);
 
             main_button = new Button
             {
                 Content = "strona główna",
-                Width = 100,
-                Height = height,
+                Width = width,
                 FontSize = fontsize,
-                Background = Brushes.Azure
+                Margin = thickness
             };
             main_button.Click += Main_Click;
             Children.Add(main_button);
 
             users_button = new Button
             {
-                Content = "użytkownicy",
-                Width = 100,
-                Height = height,
+                Content = "odbiorcy",
+                Width = width,
                 FontSize = fontsize,
-                Background = Brushes.Azure
+                Margin = thickness
             };
             users_button.Click += Users_Click;
             Children.Add(users_button);
-
             /*messages_button = new Button
             {
                 Content = "wiadomości",
@@ -67,14 +65,12 @@ namespace SMS_EMAIL_PLC
             configuration_button = new Button
             {
                 Content = "konfiguracja",
-                Width = 100,
-                Height = height,
+                Width = width,
                 FontSize = fontsize,
-                Background = Brushes.Azure
+                Margin = thickness
             };
             configuration_button.Click += Configure_Click;
             Children.Add(configuration_button);
-
             /*driver_button = new Button
             {
                 Content = "sterownik",
@@ -88,12 +84,11 @@ namespace SMS_EMAIL_PLC
             dbg_button = new Button
             {
                 Content = "debug",
-                Width = 100,
-                Height = height,
+                Width = width,
                 FontSize = fontsize,
+                Margin = thickness
             };
             dbg_button.Click += dbg_Click;
-            Children.Add(dbg_button);
         }
 
         

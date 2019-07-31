@@ -5,48 +5,91 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
+        Foreground="WhiteSmoke"
+        Background="#373737"
         Closing="MessagesWindow_Closing"
         Title="Messages_Window" Height="450" Width="800"
         WindowState ="Maximized"
         >
 
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#4d4d4d" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="4" Background="{TemplateBinding Background}">
+                            <Grid>
+                                <Path x:Name="PathIcon" Width="15" Height="25" Stretch="Fill" Fill="White" HorizontalAlignment="Left" Margin="17,0,0,0" />
+                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" />
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E59400" />
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter TargetName="PathIcon" Property="Fill" Value="Black" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="OrangeRed" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
+
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Height="450" Width="840" Background="LightGray">
-
-                <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Name="Toolbar_Panel" Height="25"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
-                        <StackPanel Orientation="Horizontal" Background="LightGray"  MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                                <StackPanel Name="Number_Panel" Orientation="Vertical" Width="50">
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="NR"  HorizontalAlignment="Center" Height="20"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-
-
-
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="1" DockPanel.Dock="Top">
-                                <StackPanel Name="Messages_Panel" Width = "200">
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="Wiadomości" HorizontalAlignment="Center" Height="20"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-
-                            <StackPanel Name="RemoveButtons_Panel" Width="70">
-                                <Button Content="dodaj" Click="AddButton_Click" Height="23"/>
-                            </StackPanel>
+            <Grid Height="450" Width="840">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="5,0,0,0" Width="150">
+                        <StackPanel Name="Toolbar_Panel"/>
+                        
+                        <StackPanel Name="windowToolbar_Panel" HorizontalAlignment="Center">
+                            <TextBlock Height="2" Background="#1a1a1a" Margin="0,5,0,5"/>
+                            <Button Name="SaveUsers_Button" Click="SaveButton_Click" Height="20" Width="120" Content="eksportuj" Margin="0,0,0,5" FontSize="12"/>
+                            <Button Name="LoadUsers_Button" Click="LoadButton_Click" Height="20" Width="120" Content="importuj" Margin="0,0,0,5" FontSize="12"/>
+                            <Button Content="wczytaj z bazy" Click="LoadBase_Click" Height="20" Width="120" VerticalAlignment="Top" FontSize="12"/>
                         </StackPanel>
-                    </ScrollViewer>
-                </StackPanel>
+                    </StackPanel>
+                    <TextBlock Width="5" Background="#1a1a1a" Margin="5,0,10,0" />
 
-                <StackPanel Orientation="Horizontal" Width="300" Height="30" VerticalAlignment="Bottom">
-                    <Button Name="SaveUsers_Button" Click="SaveButton_Click" Height="30" Width="100" Content="eksportuj"/>
-                    <Button Name="LoadUsers_Button" Click="LoadButton_Click" Height="30" Width="100" Content="importuj"/>
-                    <Button Content="wczytaj z bazy" Click="LoadBase_Click" Height="30" VerticalAlignment="Top" Width="100"/>
+                    <StackPanel HorizontalAlignment="Center" Margin="150, 40, 0 , 0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
+                            <StackPanel Orientation="Horizontal" Background="#555555"  MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name="Number_Panel" Orientation="Vertical" Width="50">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="NR"  HorizontalAlignment="Center" Height="20"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name="Messages_Panel" Width = "200">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="Wiadomości" HorizontalAlignment="Center" Height="20"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel Name="RemoveButtons_Panel" Width="70">
+                                    <Button Content="dodaj" Click="AddButton_Click" Height="23"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

@@ -8,60 +8,118 @@
         Closing="UsersWindow_Closing"
         Title="Users" Height="450" Width="800"
         WindowState ="Maximized"
+        Foreground="WhiteSmoke"
+        Background="#373737"
         >
 
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#4d4d4d" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="4" Background="{TemplateBinding Background}">
+                            <Grid>
+                                <Path x:Name="PathIcon" Width="15" Height="25" Stretch="Fill" Fill="White" HorizontalAlignment="Left" Margin="17,0,0,0" />
+                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" />
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E59400" />
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter TargetName="PathIcon" Property="Fill" Value="Black" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="OrangeRed" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
+
     <Viewbox StretchDirection="Both" Stretch="Uniform">
-        <Grid Height="450" Width="840" Background="LightGray">
-            <StackPanel HorizontalAlignment="Center" Height="370" VerticalAlignment="Top">
-                <StackPanel Name="Toolbar_Panel" Height="25"/>
-                <StackPanel>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
-                        <StackPanel Orientation="Horizontal" Grid.RowSpan="2" Grid.ColumnSpan="2" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
-                            
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                                <StackPanel Name= "ID_Panel" >
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="ID" FontSize="15" Width="50" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
+        <Grid Height="450" Width="840">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="5,0,0,0" Height="450" VerticalAlignment="Bottom" Width="150">
+                    <StackPanel Name="Toolbar_Panel"/>
+                    <StackPanel Name="windowToolbar_Panel" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                        <TextBlock Height="2" Background="#1a1a1a" Margin="0,5,0,5"/>
+                        <Button Name="SaveUsers_Button" Click="SaveButton_Click" Content="eksportuj" Margin="0, 0, 0, 5" Width="120"
+                        ToolTipService.InitialShowDelay="1000" 
+                        ToolTipService.BetweenShowDelay="10000" 
+                        ToolTip="Eksportuj użytkowników do pliku"/>
 
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                                <StackPanel Name= "Name_Panel">
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="NAZWA" FontSize="15" Width="150" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                                <StackPanel Name= "PhoneNumber_Panel">
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="NUMER" FontSize="15" Width="100" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-
-                            <Border CornerRadius="2" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
-                                <StackPanel Name= "Email_Panel">
-                                    <Border BorderThickness="1" BorderBrush="Gray">
-                                        <TextBlock Text="EMAIL" FontSize="15" Width="140" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-                            <StackPanel Name="RemoveButtons_Panel" Width="80">
-                                <Button Content="dodaj" FontSize="15" Click="AddButton_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ScrollViewer>
-                    
+                        <Button Name="LoadUsers_Button" Click="LoadButton_Click"  Content="importuj" Margin="0, 0, 0, 5" Width="120"
+                        ToolTipService.InitialShowDelay="1000" 
+                        ToolTipService.BetweenShowDelay="10000" 
+                        ToolTip="Wczytaj użytkowników z pliku"/>
+                        <Button Content="wczytaj z bazy" Click="LoadDatabase_Click"  VerticalAlignment="Top" Margin="0, 0, 0, 5" Width="120"
+                        ToolTipService.InitialShowDelay="1000" 
+                        ToolTipService.BetweenShowDelay="10000" 
+                        ToolTip="Wczytaj użytkowników z Bazy SQL"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+                <TextBlock Width="5" Background="#1a1a1a" Margin="5,0,70,0" />
 
-            <StackPanel Orientation="Horizontal" Width="300" Height="30" VerticalAlignment="Bottom">
-                <Button Name="SaveUsers_Button" Click="SaveButton_Click" Height="30" Width="100" Content="eksportuj"/>
-                <Button Name="LoadUsers_Button" Click="LoadButton_Click" Height="30" Width="100" Content="importuj"/>
-                <Button Content="wczytaj z bazy" Click="LoadDatabase_Click" Height="30" VerticalAlignment="Top" Width="100"/>
+                <StackPanel HorizontalAlignment="Center" Height="370" VerticalAlignment="Top" Margin="0, 30, 0,0">
+
+                    <StackPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
+                            <StackPanel Orientation="Horizontal" Grid.RowSpan="2" Grid.ColumnSpan="2" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
+
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name= "ID_Panel" >
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="ID" FontSize="15" Width="50" TextAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name= "Name_Panel">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="NAZWA" FontSize="15" Width="150" TextAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name= "PhoneNumber_Panel">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="NUMER" FontSize="15" Width="100" TextAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                                    <StackPanel Name= "Email_Panel">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <TextBlock Text="EMAIL" FontSize="15" Width="140" TextAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <StackPanel Name="RemoveButtons_Panel" Width="80">
+                                    <Button Content="dodaj" FontSize="15" Click="AddButton_Click" ToolTipService.InitialShowDelay="5000" 
+                                    ToolTipService.BetweenShowDelay="10000" 
+                                    ToolTip="dodaj użytkownika"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Viewbox>

@@ -11,6 +11,7 @@ using System.IO;
 using System.Threading;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows;
 
 namespace SMS_EMAIL_PLC
 {
@@ -96,6 +97,7 @@ namespace SMS_EMAIL_PLC
 
     class Singleton
     {
+        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         public bool application_shutdown = false;
         string last_message = "";
 
@@ -124,9 +126,19 @@ namespace SMS_EMAIL_PLC
         public Thread Checker_Thread;
         public Thread Alarm_Thread;
 
+        public string password = "admin1";
+        public bool Admin = true;
+
         private Queue<Message> messages = new Queue<Message>();
 
         public string port = "";
+
+        public static string Get_Dialog(string starting)
+        {
+            SMS_Dialog dialog = new SMS_Dialog(starting);
+            dialog.ShowDialog();
+            return dialog.Result;
+        }
 
         public static bool IsFileReady(string filename)
         {
@@ -153,9 +165,39 @@ namespace SMS_EMAIL_PLC
             return 0;
         }
 
+        public void Close_Application()
+        {
+            application_shutdown = true;
+            Checker_Thread.Abort();
+
+            foreach (Window window in Application.Current.Windows)
+                try
+                {
+                    window.Close();
+                }
+                catch (Exception ex)
+                {
+                }
+            try
+            {
+                sms_manager.Close();
+            }
+            catch (Exception ex)
+            { }
+
+            System.Windows.Application.Current.Shutdown();
+        }
+
+
+        public void ChangePassword(string newPassword)
+        {
+            password = newPassword;
+        }
+
+
         public void Set_Start(int interval)
         {
-            using (StreamReader sr = new StreamReader("settings.txt"))
+            using (StreamReader sr = new StreamReader(Path.Combine(docPath, "SMS_EMAIL_PLC\\settings.txt")))
             {
                 try
                 {
@@ -168,7 +210,7 @@ namespace SMS_EMAIL_PLC
 
                 try
                 {
-                    Load_Settings("default.cnf");
+                    Load_Settings(Path.Combine(docPath, "SMS_EMAIL_PLC\\default.cnf"));
                 }
                 catch(Exception ex)
                 { }
@@ -361,6 +403,23 @@ namespace SMS_EMAIL_PLC
         }
 
 
+        void Log_Msg(Message msg)
+        {
+            
+            try
+            {
+                //while (!IsFileReady(Path.Combine(docPath,"DEBUG_LOG.txt")) && !application_shutdown)
+                //{ }
+                //if (application_shutdown)
+                  //  return;
+                File.AppendAllText(Path.Combine(docPath, "SMS_EMAIL_PLC\\DEBUG_LOG.txt"), msg.id + " " + msg.text + Environment.NewLine);
+            }
+            catch(Exception ex)
+            {
+
+            }
+        }
+
         public void Send_Messages()
         {
             while (messages.Count > 0)
@@ -369,6 +428,8 @@ namespace SMS_EMAIL_PLC
                 string message_id = peek.id;
                 string message_text = peek.text;
                 string status = peek.status;
+
+                Log_Msg(peek);
 
                 bool up = status.Equals("2") ? false : true;
 

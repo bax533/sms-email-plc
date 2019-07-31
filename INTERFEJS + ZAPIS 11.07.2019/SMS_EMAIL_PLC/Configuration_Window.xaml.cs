@@ -25,26 +25,7 @@ namespace SMS_EMAIL_PLC
 
         void ConfigurationWindow_Closing(object sender, CancelEventArgs e)
         {
-            Singleton.Instance.application_shutdown = true;
-            Singleton.Instance.Checker_Thread.Abort();
-
-            foreach (Window window in Application.Current.Windows)
-                try
-                {
-                    window.Close();
-                }
-                catch (Exception ex)
-                {
-                }
-
-            try
-            {
-                Singleton.Instance.sms_manager.Close();
-            }
-            catch (Exception ex)
-            { }
-
-            System.Windows.Application.Current.Shutdown();
+            Singleton.Instance.Close_Application();
         }
 
         public void Clear_Window()

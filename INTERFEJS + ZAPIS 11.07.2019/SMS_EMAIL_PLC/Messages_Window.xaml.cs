@@ -33,34 +33,7 @@ namespace SMS_EMAIL_PLC
 
         void MessagesWindow_Closing(object sender, CancelEventArgs e)
         {
-            Singleton.Instance.application_shutdown = true;
-            Singleton.Instance.Checker_Thread.Abort();
-
-            foreach (Window window in Application.Current.Windows)
-                try
-                {
-                    window.Close();
-                }
-                catch (Exception ex)
-                {
-                }
-
-
-            try
-            {
-                Singleton.Instance.sms_manager.Close();
-            }
-            catch (Exception ex)
-            { }
-
-            System.Windows.Application.Current.Shutdown();
-        }
-        
-        public string Get_Dialog(string starting)
-        {
-            SMS_Dialog dialog = new SMS_Dialog(starting);
-            dialog.ShowDialog();
-            return dialog.Result;
+            Singleton.Instance.Close_Application();
         }
 
         private void SMS_Click(object sender, EventArgs e)
@@ -93,7 +66,7 @@ namespace SMS_EMAIL_PLC
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            string content = Get_Dialog("podaj numer wiadomości");
+            string content = Singleton.Get_Dialog("podaj numer wiadomości");
             Add_Line(content);
         }
 
@@ -157,25 +130,30 @@ namespace SMS_EMAIL_PLC
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            Button thisButton = (Button)sender;
-            int it = Singleton.Get_Nr_From_Object(thisButton);
-
-            string nr = ((TextBox)Number_Panel.Children[it]).Text;
-
-            //Singleton.Instance.Remove_Message(nr);
-            Singleton.Instance.Remove_Msg_From_Configuration(nr);
-
-            Number_Panel.Children.RemoveAt(it);
-            //Description_Panel.Children.RemoveAt(it);
-            Messages_Panel.Children.RemoveAt(it);
-            RemoveButtons_Panel.Children.RemoveAt(it);
-
-            for (int i = it; i < Number_Panel.Children.Count; i++)
+            if (Singleton.Instance.Admin)
             {
-                ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
-                ((Button)((StackPanel)Messages_Panel.Children[i]).Children[0]).Name = "SMS" + i.ToString();
-               //((Button)((StackPanel)Messages_Panel.Children[i]).Children[1]).Name = "EML" + i.ToString();
+                Button thisButton = (Button)sender;
+                int it = Singleton.Get_Nr_From_Object(thisButton);
+
+                string nr = ((TextBox)Number_Panel.Children[it]).Text;
+
+                //Singleton.Instance.Remove_Message(nr);
+                Singleton.Instance.Remove_Msg_From_Configuration(nr);
+
+                Number_Panel.Children.RemoveAt(it);
+                //Description_Panel.Children.RemoveAt(it);
+                Messages_Panel.Children.RemoveAt(it);
+                RemoveButtons_Panel.Children.RemoveAt(it);
+
+                for (int i = it; i < Number_Panel.Children.Count; i++)
+                {
+                    ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                    ((Button)((StackPanel)Messages_Panel.Children[i]).Children[0]).Name = "SMS" + i.ToString();
+                    //((Button)((StackPanel)Messages_Panel.Children[i]).Children[1]).Name = "EML" + i.ToString();
+                }
             }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
         public void Window_Clear()

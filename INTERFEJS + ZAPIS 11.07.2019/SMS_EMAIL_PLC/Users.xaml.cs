@@ -29,26 +29,7 @@ namespace SMS_EMAIL_PLC
 
         void UsersWindow_Closing(object sender, CancelEventArgs e)
         {
-            Singleton.Instance.application_shutdown = true;
-            Singleton.Instance.Checker_Thread.Abort();
-
-            foreach (Window window in Application.Current.Windows)
-                try
-                {
-                    window.Close();
-                }
-                catch (Exception ex)
-                {
-                }
-
-            try
-            {
-                Singleton.Instance.sms_manager.Close();
-            }
-            catch (Exception ex)
-            { }
-
-            System.Windows.Application.Current.Shutdown();
+            Singleton.Instance.Close_Application();
         }
 
         public void Window_Clear()
@@ -115,29 +96,38 @@ namespace SMS_EMAIL_PLC
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            AddUser_Dialog dialog = new AddUser_Dialog();
-            dialog.Show();
-            
+            if (Singleton.Instance.Admin)
+            {
+                AddUser_Dialog dialog = new AddUser_Dialog();
+                dialog.Show();
+            }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            Button thisButton = (Button)sender;
-            int it = Singleton.Get_Nr_From_Object(thisButton);
-            string id = ((TextBlock)ID_Panel.Children[it]).Text;
-            ID_Panel.Children.RemoveAt(it);
-            Name_Panel.Children.RemoveAt(it);
-            PhoneNumber_Panel.Children.RemoveAt(it);
-            Email_Panel.Children.RemoveAt(it);
-            RemoveButtons_Panel.Children.RemoveAt(it);
-
-            for (int i = it; i < ID_Panel.Children.Count; i++)
+            if (Singleton.Instance.Admin)
             {
-                ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                Button thisButton = (Button)sender;
+                int it = Singleton.Get_Nr_From_Object(thisButton);
+                string id = ((TextBlock)ID_Panel.Children[it]).Text;
+                ID_Panel.Children.RemoveAt(it);
+                Name_Panel.Children.RemoveAt(it);
+                PhoneNumber_Panel.Children.RemoveAt(it);
+                Email_Panel.Children.RemoveAt(it);
+                RemoveButtons_Panel.Children.RemoveAt(it);
+
+                for (int i = it; i < ID_Panel.Children.Count; i++)
+                {
+                    ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                }
+                Singleton.Instance.Remove_User(id);
+                Singleton.Instance.Remove_User_From_Configuration(id);
+                Singleton.Instance.configuration_window.Refresh();
             }
-            Singleton.Instance.Remove_User(id);
-            Singleton.Instance.Remove_User_From_Configuration(id);
-            Singleton.Instance.configuration_window.Refresh();
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
 
@@ -184,10 +174,15 @@ namespace SMS_EMAIL_PLC
 
         private void LoadDatabase_Click(Object sender, EventArgs e)
         {
-            Singleton.Instance.sql_manager.Load_Users();
-            Save_Users();
-            Singleton.Instance.Clear_Configuration();
-            Singleton.Instance.configuration_window.Refresh();
+            if (Singleton.Instance.Admin)
+            {
+                Singleton.Instance.sql_manager.Load_Users();
+                Save_Users();
+                Singleton.Instance.Clear_Configuration();
+                Singleton.Instance.configuration_window.Refresh();
+            }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
         private void SaveButton_Click(Object sender, EventArgs e)
@@ -230,52 +225,57 @@ namespace SMS_EMAIL_PLC
 
         private void LoadButton_Click(Object sender, EventArgs e)
         {
-            try
+            if (Singleton.Instance.Admin)
             {
-                IFormatter formatter = new BinaryFormatter();
-
-                OpenFileDialog openFileDialog = new OpenFileDialog
+                try
                 {
-                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                    Filter = "usr files (*.usr)|*.usr",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-                bool? result = openFileDialog.ShowDialog();
+                    IFormatter formatter = new BinaryFormatter();
 
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = openFileDialog.OpenFile()) != null)
+                    OpenFileDialog openFileDialog = new OpenFileDialog
                     {
+                        InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                        Filter = "usr files (*.usr)|*.usr",
+                        FilterIndex = 2,
+                        RestoreDirectory = true
+                    };
+                    bool? result = openFileDialog.ShowDialog();
 
-                        int users_count = (int)formatter.Deserialize(stream);
-                        Singleton.Instance.Clear_Users();
+                    Stream stream;
 
-                        for (int i = 0; i < users_count; i++)
+                    if (result == true)
+                    {
+                        if ((stream = openFileDialog.OpenFile()) != null)
                         {
-                            User user = (User)formatter.Deserialize(stream);
-                            Singleton.Instance.Add_User(user);
+
+                            int users_count = (int)formatter.Deserialize(stream);
+                            Singleton.Instance.Clear_Users();
+
+                            for (int i = 0; i < users_count; i++)
+                            {
+                                User user = (User)formatter.Deserialize(stream);
+                                Singleton.Instance.Add_User(user);
+                            }
+
+                            Window_Clear();
+                            foreach (User user in Singleton.Instance.users)
+                                Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
+
+                            System.Windows.MessageBox.Show("wczytano pomyślnie");
                         }
-
-                        Window_Clear();
-                        foreach (User user in Singleton.Instance.users)
-                            Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
-
-                        System.Windows.MessageBox.Show("wczytano pomyślnie");
                     }
+
+                    Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+                    Singleton.Instance.configuration_window.Refresh();
+
+
                 }
-
-                Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-                Singleton.Instance.configuration_window.Refresh();
-
-
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message);
-            }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
     }
 }

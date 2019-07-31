@@ -34,25 +34,7 @@ namespace SMS_EMAIL_PLC
 
         void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            Singleton.Instance.application_shutdown = true;
-            Singleton.Instance.Checker_Thread.Abort();
-            
-            foreach (Window window in Application.Current.Windows)
-                try
-                {
-                    window.Close();
-                }
-                catch (Exception ex)
-                {
-                }
-            try
-            {
-                Singleton.Instance.sms_manager.Close();
-            }
-            catch(Exception ex)
-            { }
-
-            System.Windows.Application.Current.Shutdown();
+            Singleton.Instance.Close_Application();
         }
 
         
@@ -118,72 +100,97 @@ namespace SMS_EMAIL_PLC
 
         private void Load_Settings_Click(Object sender, EventArgs e)
         {
-            try
+            if (Singleton.Instance.Admin)
             {
-                IFormatter formatter = new BinaryFormatter();
-
-                OpenFileDialog openFileDialog = new OpenFileDialog
+                try
                 {
-                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                    Filter = "config files (*.cnf)|*.cnf",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-                bool? result = openFileDialog.ShowDialog();
+                    IFormatter formatter = new BinaryFormatter();
 
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = openFileDialog.OpenFile()) != null)
+                    OpenFileDialog openFileDialog = new OpenFileDialog
                     {
+                        InitialDirectory = "c:\\Users\\Szymon\\Desktop",
+                        Filter = "config files (*.cnf)|*.cnf",
+                        FilterIndex = 2,
+                        RestoreDirectory = true
+                    };
+                    bool? result = openFileDialog.ShowDialog();
 
-                        int users_count = (int)formatter.Deserialize(stream);
+                    Stream stream;
 
-                        Singleton.Instance.Clear_Users();
-
-                        for (int i = 0; i < users_count; i++)
+                    if (result == true)
+                    {
+                        if ((stream = openFileDialog.OpenFile()) != null)
                         {
-                            User user = (User)formatter.Deserialize(stream);
-                            Singleton.Instance.Add_User(user);
-                        }
 
-                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+                            int users_count = (int)formatter.Deserialize(stream);
 
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-                        }
+                            Singleton.Instance.Clear_Users();
 
-
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            int n = (int)formatter.Deserialize(stream);
-                            for (int i = 0; i<n; i++)
+                            for (int i = 0; i < users_count; i++)
                             {
-                                string msg_id = (string)formatter.Deserialize(stream);
-                                Configuration load = (Configuration)formatter.Deserialize(stream);
-                                Singleton.Instance.Add_To_Config(user.Get_ID(), msg_id, load);
+                                User user = (User)formatter.Deserialize(stream);
+                                Singleton.Instance.Add_User(user);
                             }
+
+                            Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                            foreach (User user in Singleton.Instance.users)
+                            {
+                                Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                            }
+
+
+                            foreach (User user in Singleton.Instance.users)
+                            {
+                                int n = (int)formatter.Deserialize(stream);
+                                for (int i = 0; i < n; i++)
+                                {
+                                    string msg_id = (string)formatter.Deserialize(stream);
+                                    Configuration load = (Configuration)formatter.Deserialize(stream);
+                                    Singleton.Instance.Add_To_Config(user.Get_ID(), msg_id, load);
+                                }
+                            }
+
+                            Singleton.Instance.Add_Lines_To_Windows();
+
+                            System.Windows.MessageBox.Show("wczytano pomyślnie");
                         }
-
-                        Singleton.Instance.Add_Lines_To_Windows();
-
-                        System.Windows.MessageBox.Show("wczytano pomyślnie");
                     }
                 }
-
-
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+        }
+
+        private void Credential_Click(object sender, RoutedEventArgs e)
+        {
+            if(Credential_Box.Password == Singleton.Instance.password)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Instance.Admin = true;
+                CredentialStatus_Block.Text = "Administrator";
+                CredentialStatus_Block.Foreground = Brushes.PaleGoldenrod;
+            }
+            else
+            {
+                Singleton.Instance.Admin = false;
+                CredentialStatus_Block.Text = "Gość";
+                CredentialStatus_Block.Foreground = Brushes.DarkGray;
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ChangePassword_Click(Object sender, EventArgs e)
         {
-
+            if (Singleton.Instance.Admin)
+            {
+                string newPassword = Singleton.Get_Dialog("tu wpisz nowe hasło");
+                Singleton.Instance.ChangePassword(newPassword);
+            }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
     }
 }

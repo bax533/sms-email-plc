@@ -99,47 +99,57 @@ namespace SMS_EMAIL_PLC
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            Button thisButton = (Button)sender;
-            int it = Singleton.Get_Nr_From_Object(thisButton);
-            string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
-            ID_Panel.Children.RemoveAt(it);
-            SMS_UP_Panel.Children.RemoveAt(it);
-            SMS_DOWN_Panel.Children.RemoveAt(it);
-            EMAIL_UP_Panel.Children.RemoveAt(it);
-            EMAIL_DOWN_Panel.Children.RemoveAt(it);
-            Remove_Panel.Children.RemoveAt(it);
-
-            for (int i = it; i < ID_Panel.Children.Count; i++)
+            if (Singleton.Instance.Admin)
             {
-                ((Button)Remove_Panel.Children[i]).Name = "rmv" + i.ToString();
+                Button thisButton = (Button)sender;
+                int it = Singleton.Get_Nr_From_Object(thisButton);
+                string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
+                ID_Panel.Children.RemoveAt(it);
+                SMS_UP_Panel.Children.RemoveAt(it);
+                SMS_DOWN_Panel.Children.RemoveAt(it);
+                EMAIL_UP_Panel.Children.RemoveAt(it);
+                EMAIL_DOWN_Panel.Children.RemoveAt(it);
+                Remove_Panel.Children.RemoveAt(it);
+
+                for (int i = it; i < ID_Panel.Children.Count; i++)
+                {
+                    ((Button)Remove_Panel.Children[i]).Name = "rmv" + i.ToString();
+                }
+                Singleton.Instance.configuration[user_id].Remove(msg_id);
+                Refresh();
             }
-            Singleton.Instance.configuration[user_id].Remove(msg_id);
-            Refresh();
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
         private void Save_Click(Object sender, EventArgs e)
         {
-            if (Singleton.Instance.configuration.ContainsKey(user_id))
+            if (Singleton.Instance.Admin)
             {
-                string msg_id = msgID_AddBox.Text;
-                bool sms_up = (bool)SMSup_AddBox.IsChecked;
-                bool sms_down = (bool)SMSdown_AddBox.IsChecked;
-
-                bool email_up = (bool)EMAILup_AddBox.IsChecked;
-                bool email_down = (bool)EMAILdown_AddBox.IsChecked;
-
-                for (int i = 1; i < ID_Panel.Children.Count; i++)
+                if (Singleton.Instance.configuration.ContainsKey(user_id))
                 {
-                    if (((TextBlock)ID_Panel.Children[i]).Text.Equals(msg_id))
-                    {
-                        System.Windows.MessageBox.Show("najpierw usuń tą wiadomość użytkownikowi!");
-                        return;
-                    }
-                }
+                    string msg_id = msgID_AddBox.Text;
+                    bool sms_up = (bool)SMSup_AddBox.IsChecked;
+                    bool sms_down = (bool)SMSdown_AddBox.IsChecked;
 
-                Singleton.Instance.configuration[user_id][msg_id] = new Configuration(sms_up, email_up, sms_down, email_down);
-                this.Refresh();
+                    bool email_up = (bool)EMAILup_AddBox.IsChecked;
+                    bool email_down = (bool)EMAILdown_AddBox.IsChecked;
+
+                    for (int i = 1; i < ID_Panel.Children.Count; i++)
+                    {
+                        if (((TextBlock)ID_Panel.Children[i]).Text.Equals(msg_id))
+                        {
+                            System.Windows.MessageBox.Show("najpierw usuń tą wiadomość użytkownikowi!");
+                            return;
+                        }
+                    }
+
+                    Singleton.Instance.configuration[user_id][msg_id] = new Configuration(sms_up, email_up, sms_down, email_down);
+                    this.Refresh();
+                }
             }
+            else
+                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
         }
 
         private void Window_Clear()
