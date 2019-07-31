@@ -15,20 +15,19 @@ namespace SMS_EMAIL_PLC
         SmtpClient smtp;
         public Email_Manager()
         {
-            smtp = new SmtpClient("smtp.gmail.com");
+            smtp = new SmtpClient("mail.pro-control.pl");//995, 465
         }
 
-        public bool Send(List<string> adresses, string subject, string message)
+        public bool Send(string adress, string subject, string message)
         {
             MailMessage mail = new MailMessage();
 
-            smtp.Port = 587;
-            smtp.Credentials = new System.Net.NetworkCredential("alert.notifier.pc@gmail.com", "procontrol");
+            smtp.Credentials = new System.Net.NetworkCredential("temail@pro-control.pl", "pro1$0control");
             smtp.EnableSsl = true;
 
-            mail.From = new MailAddress("alert.notifier.pc@gmail.com");
-            foreach (string email_adress in adresses)
-                mail.To.Add(email_adress);
+            mail.From = new MailAddress("temail@pro-control.pl");
+            
+            mail.To.Add(adress);
             mail.Subject = subject;
             mail.Body = message;
 

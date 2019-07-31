@@ -99,7 +99,7 @@ namespace SMS_EMAIL_PLC
         public bool application_shutdown = false;
         string last_message = "";
 
-        private string filePath = "settings.txt";
+        private string filePath = "";
 
         private DispatcherTimer timer = new DispatcherTimer();
         private DispatcherTimer statusTimer = new DispatcherTimer();
@@ -198,7 +198,7 @@ namespace SMS_EMAIL_PLC
         {
             while (!application_shutdown)
             {
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                //string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 try
                 {
                     while (!IsFileReady(filePath) && !application_shutdown)
@@ -225,6 +225,7 @@ namespace SMS_EMAIL_PLC
                             string[] data = new string[3];  //0 - msg_id, 1 - treść, 2 - status;
                             int it = 0;                     //format pliku wejściowego: id<treść<status<
 
+                            
                             try
                             {
                                 for (int i = 0; i < 3; i++)
@@ -296,7 +297,7 @@ namespace SMS_EMAIL_PLC
 
                 Add_Lines_To_Windows();
 
-                System.Windows.MessageBox.Show("wczytano pomyślnie");
+                //System.Windows.MessageBox.Show("wczytano pomyślnie");
                    
             }
             catch (Exception ex)
@@ -356,6 +357,7 @@ namespace SMS_EMAIL_PLC
         private void Send_Email(string msg, string adress)
         {
             System.Windows.MessageBox.Show("Wysłano email na adres: " + adress + " o treści: " + msg);
+            email_manager.Send(adress, "ALERT", msg);
         }
 
 
