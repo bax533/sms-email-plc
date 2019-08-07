@@ -101,25 +101,28 @@ namespace SMS_EMAIL_PLC
         {
             if (Singleton.Instance.Admin)
             {
-                Button thisButton = (Button)sender;
-                int it = Singleton.Get_Nr_From_Object(thisButton);
-                string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
-                ID_Panel.Children.RemoveAt(it);
-                SMS_UP_Panel.Children.RemoveAt(it);
-                SMS_DOWN_Panel.Children.RemoveAt(it);
-                EMAIL_UP_Panel.Children.RemoveAt(it);
-                EMAIL_DOWN_Panel.Children.RemoveAt(it);
-                Remove_Panel.Children.RemoveAt(it);
-
-                for (int i = it; i < ID_Panel.Children.Count; i++)
+                if (Singleton.Show_MessageBox("Czy napewno chcesz usunąć tą wiadomość?", true))
                 {
-                    ((Button)Remove_Panel.Children[i]).Name = "rmv" + i.ToString();
+                    Button thisButton = (Button)sender;
+                    int it = Singleton.Get_Nr_From_Object(thisButton);
+                    string msg_id = ((TextBlock)ID_Panel.Children[it]).Text;
+                    ID_Panel.Children.RemoveAt(it);
+                    SMS_UP_Panel.Children.RemoveAt(it);
+                    SMS_DOWN_Panel.Children.RemoveAt(it);
+                    EMAIL_UP_Panel.Children.RemoveAt(it);
+                    EMAIL_DOWN_Panel.Children.RemoveAt(it);
+                    Remove_Panel.Children.RemoveAt(it);
+
+                    for (int i = it; i < ID_Panel.Children.Count; i++)
+                    {
+                        ((Button)Remove_Panel.Children[i]).Name = "rmv" + i.ToString();
+                    }
+                    Singleton.Instance.configuration[user_id].Remove(msg_id);
+                    Refresh();
                 }
-                Singleton.Instance.configuration[user_id].Remove(msg_id);
-                Refresh();
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
 
         private void Save_Click(Object sender, EventArgs e)
@@ -139,7 +142,7 @@ namespace SMS_EMAIL_PLC
                     {
                         if (((TextBlock)ID_Panel.Children[i]).Text.Equals(msg_id))
                         {
-                            System.Windows.MessageBox.Show("najpierw usuń tą wiadomość użytkownikowi!");
+                            Singleton.Show_MessageBox("najpierw usuń tą wiadomość użytkownikowi!");
                             return;
                         }
                     }
@@ -149,7 +152,7 @@ namespace SMS_EMAIL_PLC
                 }
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
 
         private void Window_Clear()

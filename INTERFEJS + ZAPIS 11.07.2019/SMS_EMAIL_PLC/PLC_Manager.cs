@@ -55,9 +55,9 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                     /*if (ex is S7.Net.PlcException)
-                        System.Windows.MessageBox.Show("invalid IP");
+                        Singleton.Show_MessageBox("invalid IP");
                     else
-                        System.Windows.MessageBox.Show(ex.Message);*/
+                        Singleton.Show_MessageBox(ex.Message);*/
                     return false;
                 }
                 if (plc.IsConnected) return true;

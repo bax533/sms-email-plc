@@ -12,6 +12,7 @@ using System.Threading;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
+using System.ComponentModel;
 
 namespace SMS_EMAIL_PLC
 {
@@ -110,15 +111,12 @@ namespace SMS_EMAIL_PLC
         public List<Driver> toControlDown = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
         public Email_Manager email_manager = new Email_Manager();
-        //public PLC_Manager plc_manager = new PLC_Manager();
         public SQL_Manager sql_manager = new SQL_Manager();
 
-
-        public Users_Window users_window = new Users_Window();
-        //public Messages_Window messages_window = new Messages_Window();
-        public Configuration_Window configuration_window = new Configuration_Window();
         public MainWindow main_window;
-        //public Driver_Window driver_window = new Driver_Window();
+        public Users_Page users_page = new Users_Page();
+        public Configuration_Page configuration_page = new Configuration_Page();
+        public Status_Page status_page = new Status_Page();
 
         public List<User> users = new List<User>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
@@ -127,11 +125,31 @@ namespace SMS_EMAIL_PLC
         public Thread Alarm_Thread;
 
         public string password = "admin1";
-        public bool Admin = true;
+        public string backup_password = "95FPTM7XTXVD";
+        public bool Admin = false;
 
         private Queue<Message> messages = new Queue<Message>();
 
-        public string port = "";
+        public string port = "COM1";
+
+        
+
+        public static void Show_MessageBox(string text)
+        {
+            MyMessageBox messageBox = new MyMessageBox(text);
+            messageBox.Show();
+        }
+        public static void Show_MessageBox(string text, string title)
+        {
+            MyMessageBox messageBox = new MyMessageBox(text, title);
+            messageBox.Show();
+        }
+        public static bool Show_MessageBox(string text, bool bol)
+        {
+            MyYesNoBox yesnoBox = new MyYesNoBox(text);
+            yesnoBox.ShowDialog();
+            return yesnoBox.Result;
+        }
 
         public static string Get_Dialog(string starting)
         {
@@ -167,10 +185,14 @@ namespace SMS_EMAIL_PLC
 
         public void Close_Application()
         {
-            application_shutdown = true;
-            Checker_Thread.Abort();
+            Save_Settings_With_Password();
+            lock (Instance)
+            {
+                application_shutdown = true;
+            }
 
             foreach (Window window in Application.Current.Windows)
+            {
                 try
                 {
                     window.Close();
@@ -178,6 +200,8 @@ namespace SMS_EMAIL_PLC
                 catch (Exception ex)
                 {
                 }
+            }
+
             try
             {
                 sms_manager.Close();
@@ -185,9 +209,48 @@ namespace SMS_EMAIL_PLC
             catch (Exception ex)
             { }
 
+            Thread thread = new Thread(() =>
+            {
+                Wait_Dialog w = new Wait_Dialog("zamykanie");
+                w.Show();
+
+                w.Closed += (sender2, e2) =>
+                w.Dispatcher.InvokeShutdown();
+
+                System.Windows.Threading.Dispatcher.Run();
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+
+            Thread.Sleep(5000);
+
+            thread.Abort();
+
+            try
+            {
+                Checker_Thread.Abort();
+            }
+            catch(Exception ex)
+            { }
             System.Windows.Application.Current.Shutdown();
         }
 
+        public void Clear_PageToolbar(int page)
+        {
+            main_window.PageToolbar_Panel.Children.RemoveRange(1, main_window.PageToolbar_Panel.Children.Count);
+            ToolTip tol = new ToolTip();
+            switch(page)
+            {
+                case 1:
+                    status_page.AddToolbarButtons();
+                    break;
+                case 2:
+                    users_page.AddToolbarButtons();
+                    break;
+            }
+        }
 
         public void ChangePassword(string newPassword)
         {
@@ -197,7 +260,7 @@ namespace SMS_EMAIL_PLC
 
         public void Set_Start(int interval)
         {
-            using (StreamReader sr = new StreamReader(Path.Combine(docPath, "SMS_EMAIL_PLC\\settings.txt")))
+            using (StreamReader sr = new StreamReader("settings.txt"))
             {
                 try
                 {
@@ -205,12 +268,12 @@ namespace SMS_EMAIL_PLC
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show("BŁĄD WCZYTYWANIA USTAWIEŃ!", "FATAL ERROR");
+                    Singleton.Show_MessageBox("BŁĄD WCZYTYWANIA USTAWIEŃ!", "FATAL ERROR");
                 }
 
                 try
                 {
-                    Load_Settings(Path.Combine(docPath, "SMS_EMAIL_PLC\\default.cnf"));
+                    Load_Settings_With_Password(Path.Combine("default.cnf"));
                 }
                 catch(Exception ex)
                 { }
@@ -229,7 +292,6 @@ namespace SMS_EMAIL_PLC
 
         public void OnTimedEvent(Object source, EventArgs e)
         {
-            port = main_window.COM_Box.Text;
             Set_Statuses();
             Send_Messages();
         }
@@ -301,12 +363,48 @@ namespace SMS_EMAIL_PLC
             }
         }
 
-        public void Load_Settings(string path)
+        public void Save_Settings_With_Password()
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                Stream stream = File.Open(Path.Combine(docPath, "SMS_EMAIL_PLC\\default.cnf"), FileMode.Open);
+
+                formatter.Serialize(stream, password);
+                formatter.Serialize(stream, users.Count);
+
+                foreach (User user in users)
+                    formatter.Serialize(stream, user);
+
+
+                foreach (User user in users)
+                {
+                    formatter.Serialize(stream, configuration[user.Get_ID()].Count);
+                    foreach (KeyValuePair<string, Configuration> cnf in configuration[user.Get_ID()])
+                    {
+                        formatter.Serialize(stream, cnf.Key);
+                        formatter.Serialize(stream, cnf.Value);
+                    }
+
+                }
+                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                Singleton.Show_MessageBox(ex.Message);
+            }
+        }
+
+
+        public void Load_Settings_With_Password(string path)
         {
             try
             {
                 IFormatter formatter = new BinaryFormatter();
                 Stream stream = File.Open(path, FileMode.Open);
+
+                password = (string)formatter.Deserialize(stream);
 
                 int users_count = (int)formatter.Deserialize(stream);
 
@@ -339,12 +437,12 @@ namespace SMS_EMAIL_PLC
 
                 Add_Lines_To_Windows();
 
-                //System.Windows.MessageBox.Show("wczytano pomyślnie");
+                //Singleton.Show_MessageBox("wczytano pomyślnie");
                    
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
             }
         }
 
@@ -352,26 +450,39 @@ namespace SMS_EMAIL_PLC
 
         public void Add_Lines_To_Windows()
         {
-            users_window.Window_Clear();
+            users_page.Window_Clear();
             foreach (User user in users)
-                users_window.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
+                users_page.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
 
-            configuration_window.Refresh();
+            configuration_page.Refresh();
         }
 
         private void Set_Statuses()
         {
             if (sms_manager.connected)
             {
-                main_window.sms_status_text.Text = "POŁĄCZONO";
-                main_window.sms_status_text.Background = Brushes.LawnGreen;
-                main_window.sms_status_text.Foreground = Brushes.Black;
+                status_page.sms_status_text.Text = "Połączono";
+                status_page.sms_status_text.Background = Brushes.LawnGreen;
+                status_page.sms_status_text.Foreground = Brushes.Black;
             }
             else
             {
-                main_window.sms_status_text.Text = "NIE POŁĄCZONO";
-                main_window.sms_status_text.Background = Brushes.Red;
-                main_window.sms_status_text.Foreground = Brushes.Black;
+                status_page.sms_status_text.Text = "Niepołączono";
+                status_page.sms_status_text.Background = Brushes.Red;
+                status_page.sms_status_text.Foreground = Brushes.Black;
+            }
+
+            if(email_manager.status)
+            {
+                status_page.email_status_text.Text = "Połączono";
+                status_page.email_status_text.Background = Brushes.LawnGreen;
+                status_page.email_status_text.Foreground = Brushes.Black;
+            }
+            else
+            {
+                status_page.email_status_text.Text = "Niepołączono";
+                status_page.email_status_text.Background = Brushes.Red;
+                status_page.email_status_text.Foreground = Brushes.Black;
             }
         }
 
@@ -381,6 +492,7 @@ namespace SMS_EMAIL_PLC
             while (!application_shutdown)
             {
                 sms_manager.Check_Connection(port);
+                email_manager.Handshake();
 
                 Thread.Sleep(5000);
             }
@@ -390,16 +502,16 @@ namespace SMS_EMAIL_PLC
         {
             //if (sms_manager.connected)
             //{
-                System.Windows.MessageBox.Show("Wysłano sms na nr: " + number + " o treści: " + msg);
-                last_message = "treść: " + msg + ", data: " + System.DateTime.Now.ToString();
-                //sms_manager.Send(msg, number);
+                Singleton.Show_MessageBox("Wysłano sms na nr: " + number + " o treści: " + msg);
+            
+            //sms_manager.Send(msg, number);
             //}
         }
 
         private void Send_Email(string msg, string adress)
         {
-            System.Windows.MessageBox.Show("Wysłano email na adres: " + adress + " o treści: " + msg);
-            email_manager.Send(adress, "ALERT", msg);
+            Singleton.Show_MessageBox("Wysłano email na adres: " + adress + " o treści: " + msg);
+            //email_manager.Send(adress, "ALERT", msg);
         }
 
 
@@ -412,7 +524,7 @@ namespace SMS_EMAIL_PLC
                 //{ }
                 //if (application_shutdown)
                   //  return;
-                File.AppendAllText(Path.Combine(docPath, "SMS_EMAIL_PLC\\DEBUG_LOG.txt"), msg.id + " " + msg.text + Environment.NewLine);
+                File.AppendAllText("DEBUG_LOG.txt", msg.id + " " + msg.text + Environment.NewLine);
             }
             catch(Exception ex)
             {
@@ -453,6 +565,7 @@ namespace SMS_EMAIL_PLC
                                 if (configuration[user.Get_ID()][message_id].email_down)
                                     Send_Email(message_text, user.Get_Email());
                             }
+                            last_message = "treść: " + message_id + ", data: " + System.DateTime.Now.ToString();
                         }
                     }
                 }

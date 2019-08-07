@@ -57,13 +57,13 @@
                         <StackPanel Name="Toolbar_Panel"/>
                         
                         <StackPanel Name="windowToolbar_Panel" HorizontalAlignment="Center">
-                            <TextBlock Height="2" Background="#1a1a1a" Margin="0,5,0,5"/>
+                            <TextBlock Height="2" Background="#151515" Margin="0,5,0,5"/>
                             <Button Name="SaveUsers_Button" Click="SaveButton_Click" Height="20" Width="120" Content="eksportuj" Margin="0,0,0,5" FontSize="12"/>
                             <Button Name="LoadUsers_Button" Click="LoadButton_Click" Height="20" Width="120" Content="importuj" Margin="0,0,0,5" FontSize="12"/>
                             <Button Content="wczytaj z bazy" Click="LoadBase_Click" Height="20" Width="120" VerticalAlignment="Top" FontSize="12"/>
                         </StackPanel>
                     </StackPanel>
-                    <TextBlock Width="5" Background="#1a1a1a" Margin="5,0,10,0" />
+                    <TextBlock Width="5" Background="#151515" Margin="5,0,10,0" />
 
                     <StackPanel HorizontalAlignment="Center" Margin="150, 40, 0 , 0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">

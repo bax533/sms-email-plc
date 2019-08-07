@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -30,6 +31,21 @@ namespace SMS_EMAIL_PLC
 
         public bool Login(string username, string password, string serveradres, string database)
         {
+            Thread thread = new Thread(() =>
+            {
+                Wait_Dialog w = new Wait_Dialog("proszę czekać");
+                w.Show();
+
+                w.Closed += (sender2, e2) =>
+                w.Dispatcher.InvokeShutdown();
+
+                System.Windows.Threading.Dispatcher.Run();
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+            Thread.Sleep(1000);
             string connetionString = null;
             connetionString = $"Server={serveradres};" + $" Database={database};" + $"User Id={ username };" + $"Password = { password }; ";
             cnn = new SqlConnection(connetionString);
@@ -37,12 +53,17 @@ namespace SMS_EMAIL_PLC
             {
                 cnn.Open();
                 status = true;
+                Singleton.Instance.main_window.Activate();
             }
             catch(Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                thread.Abort();
+                Singleton.Instance.main_window.Activate();
+                Singleton.Show_MessageBox("Nie można połączyć się z serwerem SQL");
                 status = false;
+                return status;
             }
+            thread.Abort();
             return status;
         }
 
@@ -51,7 +72,7 @@ namespace SMS_EMAIL_PLC
             try
             {
                 Singleton.Instance.Clear_Users();
-                Singleton.Instance.users_window.Window_Clear();
+                Singleton.Instance.users_page.Window_Clear();
 
                 cmd.CommandText = "select * from users_table";
                 cmd.Connection = cnn;
@@ -66,12 +87,12 @@ namespace SMS_EMAIL_PLC
                     string phone_number = reader["numer telefonu"].ToString();
                     string email = reader["adres email"].ToString();
 
-                    Singleton.Instance.users_window.Add_Line(user_id, username, phone_number, email);
+                    Singleton.Instance.users_page.Add_Line(user_id, username, phone_number, email);
                 }
             }
             catch(Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
             }
 
             try
@@ -80,6 +101,11 @@ namespace SMS_EMAIL_PLC
             }
             catch(Exception ex)
             { }
+        }
+
+        public bool GetStatus()
+        {
+            return status;
         }
 
         public void Load_Messages()
@@ -107,7 +133,7 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
             }
 
             try

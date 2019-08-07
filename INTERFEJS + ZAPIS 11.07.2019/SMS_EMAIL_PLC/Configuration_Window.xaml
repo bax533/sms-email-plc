@@ -1,94 +1,48 @@
-﻿<Window x:Class="SMS_EMAIL_PLC.Configuration_Window"
+﻿<Page x:Class="SMS_EMAIL_PLC.Configuration_Page"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
-        Closing="ConfigurationWindow_Closing"
-        Title="Configuration_Window" Height="450" Width="800"
-        WindowState ="Maximized"
+        Title="Configuration_Window" Height="450" Width="500"
         Foreground="WhiteSmoke"
-        Background="#373737"
+
         >
-
-    <Window.Resources>
-        <Style TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="#4d4d4d" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border CornerRadius="4" Background="{TemplateBinding Background}">
-                            <Grid>
-                                <Path x:Name="PathIcon" Width="15" Height="25" Stretch="Fill" Fill="White" HorizontalAlignment="Left" Margin="17,0,0,0" />
-                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" />
-                            </Grid>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E59400" />
-                                <Setter Property="Foreground" Value="White" />
-                                <Setter TargetName="PathIcon" Property="Fill" Value="Black" />
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="OrangeRed" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Width="840" Height="450">
-                <StackPanel Orientation="Horizontal">
+            <Grid Width="500" Height="450">
+                <StackPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0, 10, 0, 0">
+                        <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                            <StackPanel Name="ID_Panel" Width="50">
+                                <Border BorderThickness="1" BorderBrush="Black">
+                                    <TextBlock Text="ID" Width="50" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
-                    <StackPanel Margin="5,0,0,0" Width="150">
-                        <StackPanel Name="Toolbar_Panel"/>
-                    </StackPanel>
-                    <TextBlock Width="5" Background="#1a1a1a" Margin="5,0,200,0" />
-
-                    <StackPanel HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0, 10, 0, 0">
-                            <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                <StackPanel Name="ID_Panel" Width="50">
-                                    <Border BorderThickness="1" BorderBrush="Black">
-                                        <TextBlock Text="ID" Width="50" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-
-                            <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                <StackPanel Name="Users_Panel" Width="150">
-                                    <Border BorderThickness="1" BorderBrush="Black">
-                                        <TextBlock Text="Nazwa Użytkownika" Width="150" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
+                        <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                            <StackPanel Name="Users_Panel" Width="150">
+                                <Border BorderThickness="1" BorderBrush="Black">
+                                    <TextBlock Text="Nazwa Użytkownika" Width="150" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
 
-                            <Border CornerRadius="2"  Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                <StackPanel Name="Config_Panel" Width="90">
-                                    <Border BorderThickness="1" >
-                                        <TextBlock Text="Wiadomości" Width="90" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                        <Border CornerRadius="2"  Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
+                            <StackPanel Name="Config_Panel" Width="90">
+                                <Border BorderThickness="1" >
+                                    <TextBlock Text="" Width="90" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
             </Grid>
             
         </ScrollViewer>
     </Viewbox>
-</Window>
+</Page>

@@ -39,7 +39,7 @@ namespace SMS_EMAIL_PLC
 
                 if (!comm.IsConnected())
                 {
-                    System.Windows.MessageBox.Show("błąd portu");
+                    Singleton.Show_MessageBox("błąd portu");
                     return;
                 }
 
@@ -54,10 +54,10 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
                 return;
             }
-            //System.Windows.MessageBox.Show("wysyłam " + message + "na numer: " + nr);
+            //Singleton.Show_MessageBox("wysyłam " + message + "na numer: " + nr);
         }
 
         public void Check_Connection( string port )

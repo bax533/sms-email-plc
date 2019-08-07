@@ -35,13 +35,13 @@ namespace SMS_EMAIL_PLC
                 string name = Name_text.Text;
                 string phone_number = Nr_text.Text;
                 string email = Email_text.Text;
-                Singleton.Instance.users_window.Add_Line(id, name, phone_number, email);
+                Singleton.Instance.users_page.Add_Line(id, name, phone_number, email);
                 Singleton.Instance.Add_User(new User(id, name, phone_number, email));
-                Singleton.Instance.configuration_window.Refresh();
+                Singleton.Instance.configuration_page.Refresh();
                 this.Close();
             }
             else
-                System.Windows.MessageBox.Show("ID nie mogą się powtarzać!");
+                Singleton.Show_MessageBox("ID nie mogą się powtarzać!");
         }
     }
 }

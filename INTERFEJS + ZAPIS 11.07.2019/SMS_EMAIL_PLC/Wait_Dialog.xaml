@@ -1,0 +1,21 @@
+﻿
+    <Window x:Class="SMS_EMAIL_PLC.Wait_Dialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SMS_EMAIL_PLC"
+        mc:Ignorable="d"
+        Title="Wait_Dialog" Height="100" Width="200"
+        Background="#2d2d2d"
+        Foreground="WhiteSmoke"
+        ResizeMode="NoResize"
+        Focusable="False"
+        >
+    <Border BorderThickness="2" BorderBrush="Aquamarine">
+        <Grid>
+            <TextBlock Name="Waiting_Text" Text="proszę czekać" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+        </Grid>
+    </Border>
+</Window>
+

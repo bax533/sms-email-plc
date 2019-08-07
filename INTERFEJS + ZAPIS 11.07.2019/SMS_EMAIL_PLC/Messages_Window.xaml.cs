@@ -44,14 +44,14 @@ namespace SMS_EMAIL_PLC
 
             /*if (content.Length > 160)
             {
-                System.Windows.MessageBox.Show("przekroczono limit (160 znaków)");
+                Singleton.Show_MessageBox("przekroczono limit (160 znaków)");
             }
             else
             {
                 ((TextBlock)((StackPanel)Messages_Panel.Children[it]).Children[1]).Text = content;
                // Singleton.Instance.Set_SMS(number, content);
             }*/
-            //System.Windows.MessageBox.Show(it.ToString());
+            //Singleton.Show_MessageBox(it.ToString());
         }
 
         private void Email_Click(object sender, EventArgs e)
@@ -61,7 +61,7 @@ namespace SMS_EMAIL_PLC
             //string content = Get_Dialog(Singleton.Instance.Get_Email(number));
 
             //Singleton.Instance.Set_Email(number, content);
-            //System.Windows.MessageBox.Show(it.ToString());
+            //Singleton.Show_MessageBox(it.ToString());
         }
 
         private void AddButton_Click(object sender, EventArgs e)
@@ -153,7 +153,7 @@ namespace SMS_EMAIL_PLC
                 }
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
 
         public void Window_Clear()
@@ -199,14 +199,14 @@ namespace SMS_EMAIL_PLC
                             formatter.Serialize(stream, msg.Value);
                         }*/
 
-                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        Singleton.Show_MessageBox("zapisano pomyślnie!");
                         stream.Close();
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+                Singleton.Show_MessageBox(ex.Message + "\nspróbuj ponownie za chwilę");
             }
         }
 
@@ -258,8 +258,8 @@ namespace SMS_EMAIL_PLC
                             Add_Line(msg.Key);
 
 
-                        Singleton.Instance.configuration_window.Refresh();
-                        System.Windows.MessageBox.Show("wczytano pomyślnie");
+                        Singleton.Instance.configuration_page.Refresh();
+                        Singleton.Show_MessageBox("wczytano pomyślnie");
                     }
                 }
 
@@ -267,7 +267,7 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
             }
         }
     }

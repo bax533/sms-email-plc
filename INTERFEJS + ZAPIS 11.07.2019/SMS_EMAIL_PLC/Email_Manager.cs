@@ -13,6 +13,8 @@ namespace SMS_EMAIL_PLC
     class Email_Manager
     {
         SmtpClient smtp;
+        public bool status;
+
         public Email_Manager()
         {
             smtp = new SmtpClient("mail.pro-control.pl");//995, 465
@@ -40,6 +42,20 @@ namespace SMS_EMAIL_PLC
             {
                 Console.WriteLine(ex.Message + "\n");
                 return false;
+            }
+        }
+
+        public void Handshake()
+        {
+            try
+            {
+                TcpClient tcp = new TcpClient();
+                tcp.Connect("mail.pro-control.pl", 465);
+                status = true;
+            }
+            catch(Exception ex)
+            {
+                status = false;
             }
         }
     }

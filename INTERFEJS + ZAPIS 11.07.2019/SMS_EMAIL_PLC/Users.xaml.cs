@@ -19,18 +19,52 @@ using System.Windows.Shapes;
 
 namespace SMS_EMAIL_PLC
 {
-    public partial class Users_Window : Window
+    public partial class Users_Page : Page
     {
-        public Users_Window()
+        Button save_users_button = new Button {
+            Name = "SaveUsers_Button",
+            Content = "eksportuj",
+            Margin = new Thickness(0, 0, 0, 5),
+            Width = 120,
+            ToolTip = "Eksportuj użytkowników do pliku"
+        };
+
+
+        Button load_users_button = new Button {
+            Name = "LoadUsers_Button",
+            Content = "importuj",
+            Margin = new Thickness(0, 0, 0, 5),
+            Width = 120,
+            ToolTip = "Wczytaj użytkowników z pliku"
+        };
+
+
+
+        Button load_users_from_database_button = new Button {
+            Content = "wczytaj z bazy",
+            Margin = new Thickness(0, 0, 0, 5),
+            Width = 120,
+            ToolTip = "Wczytaj użytkowników z Bazy SQL"
+        };
+            
+
+        public Users_Page()
         {
             InitializeComponent();
-            Toolbar_Panel.Children.Add(new My_Toolbar());
+            save_users_button.Click += SaveButton_Click;
+            load_users_button.Click += LoadButton_Click;
+            load_users_from_database_button.Click += LoadDatabase_Click;
         }
 
-        void UsersWindow_Closing(object sender, CancelEventArgs e)
+
+        public void AddToolbarButtons()
         {
-            Singleton.Instance.Close_Application();
+            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(save_users_button);
+            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(load_users_button);
+            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(load_users_from_database_button);
         }
+
+
 
         public void Window_Clear()
         {
@@ -84,14 +118,24 @@ namespace SMS_EMAIL_PLC
             };
             Email_Panel.Children.Add(EmailBox);
 
+            Border border = new Border
+            {
+                BorderThickness = new Thickness(1, 1, 1, 1),
+                BorderBrush = Brushes.Black,
+                CornerRadius = new CornerRadius(4)
+            };
+           
             Button removeButton = new Button
             {
                 Height = 20,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString(),
                 Content = "-"
             };
-            removeButton.Click += RemoveButton_Click; 
-            RemoveButtons_Panel.Children.Add(removeButton);
+            removeButton.Click += RemoveButton_Click;
+            border.Child = removeButton;
+            RemoveButtons_Panel.Children.Add(border);
         }
 
         private void AddButton_Click(object sender, EventArgs e)
@@ -102,35 +146,38 @@ namespace SMS_EMAIL_PLC
                 dialog.Show();
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
+
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
             if (Singleton.Instance.Admin)
             {
-                Button thisButton = (Button)sender;
-                int it = Singleton.Get_Nr_From_Object(thisButton);
-                string id = ((TextBlock)ID_Panel.Children[it]).Text;
-                ID_Panel.Children.RemoveAt(it);
-                Name_Panel.Children.RemoveAt(it);
-                PhoneNumber_Panel.Children.RemoveAt(it);
-                Email_Panel.Children.RemoveAt(it);
-                RemoveButtons_Panel.Children.RemoveAt(it);
-
-                for (int i = it; i < ID_Panel.Children.Count; i++)
+                if (Singleton.Show_MessageBox("Czy napewno chcesz usunąć użytkownika?", true))
                 {
-                    ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                    Button thisButton = (Button)sender;
+                    int it = Singleton.Get_Nr_From_Object(thisButton);
+                    string id = ((TextBlock)ID_Panel.Children[it]).Text;
+                    ID_Panel.Children.RemoveAt(it);
+                    Name_Panel.Children.RemoveAt(it);
+                    PhoneNumber_Panel.Children.RemoveAt(it);
+                    Email_Panel.Children.RemoveAt(it);
+                    RemoveButtons_Panel.Children.RemoveAt(it);
+
+                    for (int i = it; i < ID_Panel.Children.Count; i++)
+                    {
+                        ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                    }
+                    Singleton.Instance.Remove_User(id);
+                    Singleton.Instance.Remove_User_From_Configuration(id);
+                    Singleton.Instance.configuration_page.Refresh();
                 }
-                Singleton.Instance.Remove_User(id);
-                Singleton.Instance.Remove_User_From_Configuration(id);
-                Singleton.Instance.configuration_window.Refresh();
+                
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
-
-
 
 
         void Save_Users()
@@ -140,8 +187,6 @@ namespace SMS_EMAIL_PLC
                 Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
             }
 
-
-
             Dictionary<string, bool> visited = new Dictionary<string, bool>();
 
             for (int i = 1; i < ID_Panel.Children.Count; i++) //sprawdzam powtórzenia
@@ -149,7 +194,7 @@ namespace SMS_EMAIL_PLC
                 string id = ((TextBlock)ID_Panel.Children[i]).Text;
                 if (visited.ContainsKey(id))
                 {
-                    System.Windows.MessageBox.Show("ID nie mogą się powtarzać!");
+                    Singleton.Show_MessageBox("ID nie mogą się powtarzać!");
                     return;
                 }
                 else
@@ -157,7 +202,7 @@ namespace SMS_EMAIL_PLC
             }
 
 
-            Singleton.Instance.configuration_window.Clear_Window();
+            Singleton.Instance.configuration_page.Clear_Window();
             Singleton.Instance.Clear_Users();
 
             for (int i = 1; i < ID_Panel.Children.Count; i++)
@@ -169,20 +214,25 @@ namespace SMS_EMAIL_PLC
 
                 Singleton.Instance.Add_User(new User(id, name, phone_number, email));
             }
-            Singleton.Instance.configuration_window.Add_Users();
+            Singleton.Instance.configuration_page.Add_Users();
         }
 
         private void LoadDatabase_Click(Object sender, EventArgs e)
         {
             if (Singleton.Instance.Admin)
             {
-                Singleton.Instance.sql_manager.Load_Users();
-                Save_Users();
-                Singleton.Instance.Clear_Configuration();
-                Singleton.Instance.configuration_window.Refresh();
+                if (Singleton.Instance.sql_manager.GetStatus())
+                {
+                    Singleton.Instance.sql_manager.Load_Users();
+                    Save_Users();
+                    Singleton.Instance.Clear_Configuration();
+                    Singleton.Instance.configuration_page.Refresh();
+                }
+                else
+                    Singleton.Show_MessageBox("Brak połączenia z serwerem SQL");
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
 
         private void SaveButton_Click(Object sender, EventArgs e)
@@ -212,14 +262,14 @@ namespace SMS_EMAIL_PLC
                         foreach (User user in Singleton.Instance.users)
                             formatter.Serialize(stream, user);
 
-                        System.Windows.MessageBox.Show("zapisano pomyślnie!");
+                        Singleton.Show_MessageBox("zapisano pomyślnie!");
                         stream.Close();
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message + "\nspróbuj ponownie za chwilę");
+                Singleton.Show_MessageBox(ex.Message + "\nspróbuj ponownie za chwilę");
             }
         }
 
@@ -260,22 +310,22 @@ namespace SMS_EMAIL_PLC
                             foreach (User user in Singleton.Instance.users)
                                 Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
 
-                            System.Windows.MessageBox.Show("wczytano pomyślnie");
+                            Singleton.Show_MessageBox("wczytano pomyślnie");
                         }
                     }
 
                     Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-                    Singleton.Instance.configuration_window.Refresh();
+                    Singleton.Instance.configuration_page.Refresh();
 
 
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show(ex.Message);
+                    Singleton.Show_MessageBox(ex.Message);
                 }
             }
             else
-                System.Windows.MessageBox.Show("Niewystarczające uprawnienia!");
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
     }
 }

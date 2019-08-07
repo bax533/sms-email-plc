@@ -15,12 +15,11 @@ using System.Windows.Shapes;
 
 namespace SMS_EMAIL_PLC
 {
-    public partial class Configuration_Window : Window
+    public partial class Configuration_Page : Page
     {
-        public Configuration_Window()
+        public Configuration_Page()
         {
             InitializeComponent();
-            Toolbar_Panel.Children.Add(new My_Toolbar());
         }
 
         void ConfigurationWindow_Closing(object sender, CancelEventArgs e)
@@ -38,7 +37,7 @@ namespace SMS_EMAIL_PLC
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                Singleton.Show_MessageBox(ex.Message);
             }
         }
 
