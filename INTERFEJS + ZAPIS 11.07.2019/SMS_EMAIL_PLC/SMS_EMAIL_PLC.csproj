@@ -26,7 +26,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationRevision>15</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -76,9 +76,6 @@
     <Reference Include="PDUConverter, Version=1.21.0.0, Culture=neutral, PublicKeyToken=515d87df384dcc81, processorArchitecture=MSIL">
       <HintPath>..\packages\GSMComm.1.21.1\lib\PDUConverter.dll</HintPath>
     </Reference>
-    <Reference Include="S7.Net, Version=0.3.0.0, Culture=neutral, PublicKeyToken=d5812d469e84c693, processorArchitecture=MSIL">
-      <HintPath>..\packages\S7netplus.0.3.0\lib\net452\S7.Net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -95,10 +92,17 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="AddMessage_Dialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
+    <Compile Include="AddMessage_Dialog.xaml.cs">
+      <DependentUpon>AddMessage_Dialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Configuration_Panel.xaml.cs">
       <DependentUpon>Configuration_Panel.xaml</DependentUpon>
     </Compile>
@@ -107,6 +111,9 @@
     </Compile>
     <Compile Include="Driver.cs" />
     <Compile Include="Email_Manager.cs" />
+    <Compile Include="ImportExportPage.xaml.cs">
+      <DependentUpon>ImportExportPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Messages_Window.xaml.cs">
       <DependentUpon>Messages_Window.xaml</DependentUpon>
     </Compile>
@@ -116,7 +123,6 @@
     <Compile Include="MyYesNoBox.xaml.cs">
       <DependentUpon>MyYesNoBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PLC_Manager.cs" />
     <Compile Include="Singleton.cs" />
     <Compile Include="SMS_Dialog.xaml.cs">
       <DependentUpon>SMS_Dialog.xaml</DependentUpon>
@@ -140,6 +146,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Configuration_Window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportExportPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

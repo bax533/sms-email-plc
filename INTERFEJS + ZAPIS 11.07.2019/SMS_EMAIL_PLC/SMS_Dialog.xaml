@@ -7,13 +7,15 @@
         mc:Ignorable="d"
         Foreground="WhiteSmoke"
         Background="#373737"
-        Title="Input_Dialog" Height="200" Width="400">
+        Title="Input_Dialog" Height="200" Width="400"
+        Closing="Dialog_Closing"
+        >
     
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid Height="180" Width="400">
             <StackPanel Width="300" VerticalAlignment="Center">
                 <Border BorderThickness="1" BorderBrush="Black">
-                    <TextBox Name="Input_Box" Height="100" Width="300" TextWrapping="Wrap" AcceptsReturn="True" Background="Gray"/>
+                    <TextBox Name="Input_Box" Height="100" Width="300" TextWrapping="Wrap" AcceptsReturn="True" Background="#656565"/>
                 </Border>
                 <Button Content="zapisz" Height="45" Click="Return_Click"/>
             </StackPanel>

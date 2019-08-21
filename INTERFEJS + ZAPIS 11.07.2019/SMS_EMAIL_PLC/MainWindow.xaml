@@ -12,86 +12,27 @@
         WindowState ="Maximized"
         Foreground="WhiteSmoke"
         Background="#252527"
-        WindowStyle="None"
         >
     
     <Viewbox StretchDirection="Both" Stretch="Uniform">
         <Grid  Height="450" Width="800">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="2.5*"/>
-                <RowDefinition Height="50*"/>
-            </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0, 0, 5, 0" RenderOptions.EdgeMode="Aliased">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="110*"/>
+                <ColumnDefinition Width="700*"/>
+            </Grid.ColumnDefinitions>
 
-                <Border CornerRadius="2" BorderBrush="#fffd59" BorderThickness="2">
-                    <Button Content="-" VerticalContentAlignment="Top" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="17" FontWeight="Bold" Height="18" Width="38" HorizontalContentAlignment="Left" Click="Minimize_Click">
-                        <Button.Style>
-                            <Style TargetType="{x:Type Button}">
-                                <Setter Property="Background" Value="#252527"/>
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type Button}">
-                                            <Border Background="{TemplateBinding Background}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#fffd59"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Border>
-
-
-                <Border CornerRadius="2" BorderBrush="IndianRed" BorderThickness="2">
-                    <Button Content="X" VerticalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Height="18" Width="38" HorizontalContentAlignment="Left" Click="Exit_Click">
-                        <Button.Style>
-                            <Style TargetType="{x:Type Button}">
-                                <Setter Property="Background" Value="#252527"/>
-                                <Setter Property="Foreground" Value="WhiteSmoke"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type Button}">
-                                            <Border Background="{TemplateBinding Background}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="IndianRed"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Border>
+            <StackPanel Name="Toolbar_Panel" Grid.Column="0">
+                <Button Content = "Strona Główna" Width ="100" FontSize = "12" Margin = "0,3,0,0" Click="Main_Click" Height="25"/>
+                <Button Content = "Komunikaty" Width ="100" FontSize = "12" Margin = "0,3,0,0" Click="Messages_Click" Height="25"/>
+                <Button Content = "Użytkownicy" Width ="100" FontSize = "12" Margin = "0,3,0,0" Click="Users_Click" Height="25"/>
+                <Button Content = "Konfiguracja" Width ="100" FontSize = "12" Margin = "0,3,0,0" Click="Configuration_Click" Height="25"/>
+                <Button Content = "Import/Export" Width="100" FontSize = "12" Margin = "0, 3, 0, 0" Click="ImportExport_Click" Height="25"/>
             </StackPanel>
-            
-            <StackPanel Orientation="Horizontal" Grid.Row="1">
-                <StackPanel Margin="5,0,0,0" Width="150" Height="450">
-                    <StackPanel Name="Toolbar_Panel">
-                        <Button Content = "strona główna" Width ="120" FontSize = "12" Margin = "0,3,0,0" Click="Main_Click"/>
-                        <Button Content = "odbiorcy" Width ="120" FontSize = "12" Margin = "0,3,0,0" Click="Users_Click"/>
-                        <Button Content = "konfiguracja" Width ="120" FontSize = "12" Margin = "0,3,0,0" Click="Configuration_Click"/>
-                    </StackPanel>
-                    <StackPanel Name="PageToolbar_Panel" HorizontalAlignment="Center" Width="150" VerticalAlignment="Bottom">
-                        <TextBlock Height="2" Background="#151515" Margin="0,5,0,5"/>
-                    </StackPanel>
-                </StackPanel>
-                <TextBlock Width="5" Background="#151515" Margin="5,0,10,0" Height="10000"/>
 
-                <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
-
-            </StackPanel>
+            <Border BorderBrush="#111111" BorderThickness="2, 0, 0, 0" Grid.Column="1">
+                <Frame Name="MainFrame" NavigationUIVisibility="Hidden" Margin="5, 0, 0, 0"/>
+            </Border>
         </Grid>
     </Viewbox>
 </Window>

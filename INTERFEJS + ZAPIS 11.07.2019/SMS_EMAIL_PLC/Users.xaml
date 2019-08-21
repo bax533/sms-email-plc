@@ -5,56 +5,68 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
-        Title="Users" Height="440" Width="550"
+        Title="Users" Height="440" Width="580"
         Foreground="WhiteSmoke"
 
         >
 
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
-        <Grid Height="450" Width="550">
-            <StackPanel Orientation="Horizontal">
+        <Grid Height="450" Width="580">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="40*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Name="Toolbar_Buttons" Orientation="Horizontal" Grid.Row="0"/>
+            <Button Content="Dodaj Użytkownika" FontSize="15" Click="AddButton_Click" Grid.Row="1" Width="150" HorizontalAlignment="Right" Margin="0, 0, 40, 0"
+                    ToolTipService.InitialShowDelay="5000" 
+                    ToolTipService.BetweenShowDelay="10000" 
+                    ToolTip="dodaj użytkownika"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="2">
                 <StackPanel HorizontalAlignment="Center" Height="370" VerticalAlignment="Top" Margin="0, 30, 0,0">
-
                     <StackPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Height="370">
                             <StackPanel Orientation="Horizontal" Grid.RowSpan="2" Grid.ColumnSpan="2" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}">
 
-                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                    <StackPanel Name= "ID_Panel" >
-                                        <Border BorderThickness="1" BorderBrush="Black">
-                                            <TextBlock Text="ID" FontSize="15" Width="50" TextAlignment="Center"/>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel Background="#555555">
+                                    <Border BorderThickness="1" BorderBrush="Black">
+                                         <TextBlock Text="ID" FontSize="15" Width="50" TextAlignment="Center"/>
+                                    </Border>
+                                    <Border BorderBrush="Black" BorderThickness="1, 0, 1, 1">
+                                        <StackPanel Name= "ID_Panel"/>
+                                    </Border>
+                                </StackPanel>
 
-                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                    <StackPanel Name= "Name_Panel">
-                                        <Border BorderThickness="1" BorderBrush="Black">
-                                            <TextBlock Text="NAZWA" FontSize="15" Width="150" TextAlignment="Center"/>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel Background="#555555">
+                                    <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                        <TextBlock Text="NAZWA" FontSize="15" Width="150" TextAlignment="Center"/>
+                                    </Border>
+                                    <Border BorderBrush="Black" BorderThickness="0, 0, 1, 1">
+                                        <StackPanel Name= "Name_Panel"/>
+                                    </Border>
+                                </StackPanel>
 
-                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                    <StackPanel Name= "PhoneNumber_Panel">
-                                        <Border BorderThickness="1" BorderBrush="Black">
-                                            <TextBlock Text="NUMER" FontSize="15" Width="100" TextAlignment="Center"/>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel Background="#555555">
+                                    <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                        <TextBlock Text="NUMER" FontSize="15" Width="100" TextAlignment="Center"/>
+                                    </Border>
+                                    <Border BorderBrush="Black" BorderThickness="0, 0, 1, 1">
+                                        <StackPanel Name= "PhoneNumber_Panel"/>
+                                    </Border>
+                                </StackPanel>
 
-                                <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                                    <StackPanel Name= "Email_Panel">
-                                        <Border BorderThickness="1" BorderBrush="Black">
-                                            <TextBlock Text="EMAIL" FontSize="15" Width="140" TextAlignment="Center"/>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-                                <StackPanel Name="RemoveButtons_Panel" Width="80">
-                                    <Button Content="dodaj" FontSize="15" Click="AddButton_Click" ToolTipService.InitialShowDelay="5000" 
-                                    ToolTipService.BetweenShowDelay="10000" 
-                                    ToolTip="dodaj użytkownika"/>
+                                <StackPanel Background="#555555">
+                                    <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                        <TextBlock Text="EMAIL" FontSize="15" Width="140" TextAlignment="Center"/>
+                                    </Border>
+                                    <Border BorderBrush="Black" BorderThickness="0, 0, 1, 1">
+                                        <StackPanel Name= "Email_Panel"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel>
+                                    <Button Name="RemoveExpand_Button" Content="Usuwanie v" FontSize="15" Click="RemoveExpand_Click"/>
+                                    <StackPanel Name="RemoveButtons_Panel" Width="80"/>
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>

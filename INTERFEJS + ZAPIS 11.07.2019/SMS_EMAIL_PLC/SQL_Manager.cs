@@ -53,12 +53,10 @@ namespace SMS_EMAIL_PLC
             {
                 cnn.Open();
                 status = true;
-                Singleton.Instance.main_window.Activate();
             }
             catch(Exception ex)
             {
                 thread.Abort();
-                Singleton.Instance.main_window.Activate();
                 Singleton.Show_MessageBox("Nie można połączyć się z serwerem SQL");
                 status = false;
                 return status;
@@ -110,38 +108,41 @@ namespace SMS_EMAIL_PLC
 
         public void Load_Messages()
         {
-            /*try
+            if (status)
             {
-                Singleton.Instance.Clear_Messages();
-                Singleton.Instance.messages_window.Window_Clear();
-
-                cmd.CommandText = "select * from messages_table";
-                cmd.Connection = cnn;
-                cmd.CommandType = System.Data.CommandType.Text;
-
-                reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                try
                 {
-                    string msg_id = reader["id wiadomości"].ToString();
-                    string sms_text = reader["treść sms"].ToString();
-                    string email_text = reader["treść email"].ToString();
+                    Singleton.Instance.Clear_Messages();
+                    Singleton.Instance.messages_page.Window_Clear();
 
-                    Singleton.Instance.messages_window.Add_Line(msg_id);
-                    Singleton.Instance.messages[msg_id] = new Message(sms_text, email_text);
+                    cmd.CommandText = "select * from messages_table";
+                    cmd.Connection = cnn;
+                    cmd.CommandType = System.Data.CommandType.Text;
+
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string msg_id = reader["id wiadomości"].ToString();
+                        string description = reader["opis"].ToString();
+                        bool active = reader["aktywność"].ToString() == "TRUE";
+
+                        Singleton.Instance.messages_page.Add_Line(msg_id, description, active);
+                        Singleton.Instance.Add_Message(msg_id,new Message_Add(description, active));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Singleton.Show_MessageBox(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    Singleton.Show_MessageBox(ex.Message);
+                }
 
-            try
-            {
-                reader.Close();
+                try
+                {
+                    reader.Close();
+                }
+                catch (Exception ex)
+                { }
             }
-            catch (Exception ex)
-            { }*/
         }
 
 

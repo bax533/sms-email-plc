@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -23,47 +24,71 @@ namespace SMS_EMAIL_PLC
     /// <summary>
     /// Logika interakcji dla klasy Status_Page.xaml
     /// </summary>
-    public partial class Status_Page : Page
+    public partial class Status_Page : Page, INotifyPropertyChanged
     {
-        Button export_settings_button = new Button {
-            Content = "Eksportuj Ustawienia",
-            FontSize = 12, Width = 120, Margin = new Thickness(0, 0, 0, 5),
-            ToolTip = "Eksportuj obecną konfigurację do pliku"
-        };
+        public bool sms_status = false;
+        public bool email_status = false;
+        public bool sql_status = false;
+        public string _last_message;
+       
+        public string Last_Message
+        {
+            get { return _last_message; }
+            set
+            {
+                _last_message = value;
+                RaisePropertyChanged("Last_Message");
+            }
+        }
 
-        Button load_settings_button = new Button {
-            Content = "Wczytaj Ustawienie",
-            FontSize = 12,
-            Width = 120,
-            ToolTip = "Wczytaj konfigurację z pliku"
-        };
+        public string SMS_Status
+        {
+            get { return sms_status ? "Połączono" : "Niepołączono"; }
+            set
+            {
+                sms_status = value == "true";
+                RaisePropertyChanged("SMS_Status");
+                if (sms_status)
+                    sms_status_text.Background = Brushes.Green;
+                else
+                    sms_status_text.Background = Brushes.Red;
+            }
+        }
+
+        public string Email_Status
+        {
+            get { return email_status ? "Połączono" : "Niepołączono"; }
+            set
+            {
+                email_status = value == "true";
+                RaisePropertyChanged("Email_Status");
+                if (email_status)
+                    email_status_text.Background = Brushes.Green;
+                else
+                    email_status_text.Background = Brushes.Red;
+            }
+        }
+
+        public string SQL_Status
+        {
+            get { return sql_status ? "Połączono" : "Niepołączono"; }
+            set
+            {
+                sql_status = value == "true";
+                RaisePropertyChanged("SQL_Status");
+                if (sql_status)
+                    sql_status_text.Background = Brushes.Green;
+                else
+                    sql_status_text.Background = Brushes.Red;
+            }
+        }
+
              
         public Status_Page()
         {
+            DataContext = this;
             InitializeComponent();
-            export_settings_button.Click += Save_Settings_Click;
-            load_settings_button.Click += Load_Settings_Click;
         }
-
-
-        public void AddToolbarButtons()
-        {
-            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(export_settings_button);
-            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(load_settings_button);
-        }
-
-
-
-        private void DatabaseLogin_Click(Object sender, EventArgs e)
-        {
-            bool status = Singleton.Instance.sql_manager.Login(Login_Box.Text, Password_Box.Password.ToString(), DBServer_Box.Text, Base_Box.Text);
-
-
-            sql_status_text.Foreground = Brushes.Black;
-            sql_status_text.Text = status ? "Połączono" : "Niepołączono";
-            sql_status_text.Background = status ? Brushes.LawnGreen : Brushes.Red;
-        }
-
         
 
         private void CredentialLogin_Click(object sender, RoutedEventArgs e)
@@ -112,119 +137,22 @@ namespace SMS_EMAIL_PLC
 
         private void Save_Settings_Click(Object sender, EventArgs e)
         {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog
-                {
-                    Filter = "config files (*.cnf)|*.cnf",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-
-                bool? result = saveFileDialog.ShowDialog();
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = saveFileDialog.OpenFile()) != null)
-                    {
-                        formatter.Serialize(stream, Singleton.Instance.users.Count);
-
-                        foreach (User user in Singleton.Instance.users)
-                            formatter.Serialize(stream, user);
-
-
-                        foreach (User user in Singleton.Instance.users)
-                        {
-                            formatter.Serialize(stream, Singleton.Instance.configuration[user.Get_ID()].Count);
-                            foreach (KeyValuePair<string, Configuration> cnf in Singleton.Instance.configuration[user.Get_ID()])
-                            {
-                                formatter.Serialize(stream, cnf.Key);
-                                formatter.Serialize(stream, cnf.Value);
-                            }
-
-                        }
-                        Singleton.Show_MessageBox("zapisano pomyślnie!");
-                        stream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Singleton.Show_MessageBox(ex.Message);
-            }
+            
         }
 
 
         private void Load_Settings_Click(Object sender, EventArgs e)
         {
-            if (Singleton.Instance.Admin)
-            {
-                try
-                {
-                    IFormatter formatter = new BinaryFormatter();
+            
+        }
 
-                    OpenFileDialog openFileDialog = new OpenFileDialog
-                    {
-                        InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                        Filter = "config files (*.cnf)|*.cnf",
-                        FilterIndex = 2,
-                        RestoreDirectory = true
-                    };
-                    bool? result = openFileDialog.ShowDialog();
+        public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
-                    Stream stream;
+        private void RaisePropertyChanged(string propertyName)
+        {
+            var handlers = PropertyChanged;
 
-                    if (result == true)
-                    {
-                        if ((stream = openFileDialog.OpenFile()) != null)
-                        {
-
-                            int users_count = (int)formatter.Deserialize(stream);
-
-                            Singleton.Instance.Clear_Users();
-
-                            for (int i = 0; i < users_count; i++)
-                            {
-                                User user = (User)formatter.Deserialize(stream);
-                                Singleton.Instance.Add_User(user);
-                            }
-
-                            Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-
-                            foreach (User user in Singleton.Instance.users)
-                            {
-                                Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-                            }
-
-
-                            foreach (User user in Singleton.Instance.users)
-                            {
-                                int n = (int)formatter.Deserialize(stream);
-                                for (int i = 0; i < n; i++)
-                                {
-                                    string msg_id = (string)formatter.Deserialize(stream);
-                                    Configuration load = (Configuration)formatter.Deserialize(stream);
-                                    Singleton.Instance.Add_To_Config(user.Get_ID(), msg_id, load);
-                                }
-                            }
-
-                            Singleton.Instance.Add_Lines_To_Windows();
-
-                            Singleton.Show_MessageBox("wczytano pomyślnie");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Singleton.Show_MessageBox(ex.Message);
-                }
-            }
-            else
-                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
+            handlers(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

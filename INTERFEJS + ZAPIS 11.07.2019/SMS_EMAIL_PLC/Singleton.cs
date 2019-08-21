@@ -17,12 +17,49 @@ using System.ComponentModel;
 namespace SMS_EMAIL_PLC
 {
     [Serializable]
-    public class Message
+    public class Message_Add
+    {
+        private string _comment;
+        private bool active;
+
+        public Message_Add(string comment)
+        {
+            _comment = comment;
+            active = true;
+        }
+        public Message_Add(string comment, bool active)
+        {
+            _comment = comment;
+            this.active = active;
+        }
+
+        public string Comment
+        {
+            get
+            {
+                return _comment;
+            }
+        }
+
+        public void SetActive(bool val)
+        {
+            active = val;
+        }
+
+        public bool IsActive()
+        {
+            return active;
+        }
+    }
+
+
+    [Serializable]
+    public class Message_Read
     {
         public string id;
         public string text;
         public string status;
-        public Message(string id, string text, string status)
+        public Message_Read(string id, string text, string status)
         {
             this.id = id;
             this.text = text;
@@ -98,17 +135,13 @@ namespace SMS_EMAIL_PLC
 
     class Singleton
     {
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         public bool application_shutdown = false;
-        string last_message = "";
 
         private string filePath = "";
 
         private DispatcherTimer timer = new DispatcherTimer();
-        private DispatcherTimer statusTimer = new DispatcherTimer();
+        //private DispatcherTimer statusTimer = new DispatcherTimer();
 
-        public List<Driver> toControlUP = new List<Driver>();
-        public List<Driver> toControlDown = new List<Driver>();
         public SMS_Manager sms_manager = new SMS_Manager();
         public Email_Manager email_manager = new Email_Manager();
         public SQL_Manager sql_manager = new SQL_Manager();
@@ -117,18 +150,22 @@ namespace SMS_EMAIL_PLC
         public Users_Page users_page = new Users_Page();
         public Configuration_Page configuration_page = new Configuration_Page();
         public Status_Page status_page = new Status_Page();
+        public Messages_Page messages_page = new Messages_Page();
+        public ImportExportPage importexport_page = new ImportExportPage();
 
         public List<User> users = new List<User>();
+        public Dictionary<string, Message_Add> messages_dict = new Dictionary<string,Message_Add>();
         public Dictionary<string, Dictionary<string, Configuration>> configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-        public Dictionary<int, bool> already_alarmed = new Dictionary<int, bool>();
+
+
         public Thread Checker_Thread;
         public Thread Alarm_Thread;
 
         public string password = "admin1";
-        public string backup_password = "95FPTM7XTXVD";
+        public string backup_password = "1Admin10";
         public bool Admin = false;
 
-        private Queue<Message> messages = new Queue<Message>();
+        private Queue<Message_Read> messages_queue = new Queue<Message_Read>();
 
         public string port = "COM1";
 
@@ -180,6 +217,13 @@ namespace SMS_EMAIL_PLC
                     nr += button.Name[i];
                 return Int16.Parse(nr);
             }
+            else if(obj is CheckBox checkBox)
+            {
+                string nr = "";
+                for (int i = 3; i < checkBox.Name.Length; i++)
+                    nr += checkBox.Name[i];
+                return Int16.Parse(nr);
+            }
             return 0;
         }
 
@@ -209,25 +253,6 @@ namespace SMS_EMAIL_PLC
             catch (Exception ex)
             { }
 
-            Thread thread = new Thread(() =>
-            {
-                Wait_Dialog w = new Wait_Dialog("zamykanie");
-                w.Show();
-
-                w.Closed += (sender2, e2) =>
-                w.Dispatcher.InvokeShutdown();
-
-                System.Windows.Threading.Dispatcher.Run();
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-
-
-            Thread.Sleep(5000);
-
-            thread.Abort();
-
             try
             {
                 Checker_Thread.Abort();
@@ -235,21 +260,6 @@ namespace SMS_EMAIL_PLC
             catch(Exception ex)
             { }
             System.Windows.Application.Current.Shutdown();
-        }
-
-        public void Clear_PageToolbar(int page)
-        {
-            main_window.PageToolbar_Panel.Children.RemoveRange(1, main_window.PageToolbar_Panel.Children.Count);
-            ToolTip tol = new ToolTip();
-            switch(page)
-            {
-                case 1:
-                    status_page.AddToolbarButtons();
-                    break;
-                case 2:
-                    users_page.AddToolbarButtons();
-                    break;
-            }
         }
 
         public void ChangePassword(string newPassword)
@@ -260,24 +270,29 @@ namespace SMS_EMAIL_PLC
 
         public void Set_Start(int interval)
         {
-            using (StreamReader sr = new StreamReader("settings.txt"))
+            try
             {
-                try
+                using (StreamReader sr = new StreamReader("settings.txt"))
                 {
-                    filePath = sr.ReadLine();
-                }
-                catch (Exception ex)
-                {
-                    Singleton.Show_MessageBox("BŁĄD WCZYTYWANIA USTAWIEŃ!", "FATAL ERROR");
-                }
+                    try
+                    {
+                        filePath = sr.ReadLine();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show("BŁĄD WCZYTYWANIA USTAWIEŃ!", "FATAL ERROR");
+                    }
 
-                try
-                {
-                    Load_Settings_With_Password(Path.Combine("default.cnf"));
+                    try
+                    {
+                        Load_Settings_With_Password();
+                    }
+                    catch (Exception ex)
+                    { Singleton.Show_MessageBox(ex.Message + "nie można wczytać ustawień"); }
                 }
-                catch(Exception ex)
-                { }
             }
+            catch(Exception eee)
+            { }
 
             timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
             timer.Tick += new EventHandler(OnTimedEvent);
@@ -342,7 +357,7 @@ namespace SMS_EMAIL_PLC
                                     }
                                     while (it < ln.Length && ln[it] != '<');
                                 }
-                                messages.Enqueue(new Message(data[0], data[1], data[2]));
+                                messages_queue.Enqueue(new Message_Read(data[0], data[1], data[2]));
                             }
                             catch(Exception ex)
                             { }
@@ -365,23 +380,30 @@ namespace SMS_EMAIL_PLC
 
         public void Save_Settings_With_Password()
         {
+            File.Delete("default.cnf");
             try
             {
                 IFormatter formatter = new BinaryFormatter();
 
-                Stream stream = File.Open(Path.Combine(docPath, "SMS_EMAIL_PLC\\default.cnf"), FileMode.Open);
+                Stream stream = File.Open("default.cnf", FileMode.OpenOrCreate);
 
                 formatter.Serialize(stream, password);
                 formatter.Serialize(stream, users.Count);
+                formatter.Serialize(stream, messages_dict.Count);
 
-                foreach (User user in users)
+                foreach (User user in Singleton.Instance.users)
                     formatter.Serialize(stream, user);
 
+                foreach (KeyValuePair<string, Message_Add> msg_in in Singleton.Instance.messages_dict)
+                {
+                    formatter.Serialize(stream, msg_in.Key);
+                    formatter.Serialize(stream, msg_in.Value);
+                }
 
-                foreach (User user in users)
+                foreach (User user in Singleton.Instance.users)
                 {
                     formatter.Serialize(stream, configuration[user.Get_ID()].Count);
-                    foreach (KeyValuePair<string, Configuration> cnf in configuration[user.Get_ID()])
+                    foreach (KeyValuePair<string, Configuration> cnf in Singleton.Instance.configuration[user.Get_ID()])
                     {
                         formatter.Serialize(stream, cnf.Key);
                         formatter.Serialize(stream, cnf.Value);
@@ -397,16 +419,17 @@ namespace SMS_EMAIL_PLC
         }
 
 
-        public void Load_Settings_With_Password(string path)
+        public void Load_Settings_With_Password()
         {
             try
             {
                 IFormatter formatter = new BinaryFormatter();
-                Stream stream = File.Open(path, FileMode.Open);
+                Stream stream = File.Open("default.cnf", FileMode.Open);
 
                 password = (string)formatter.Deserialize(stream);
 
                 int users_count = (int)formatter.Deserialize(stream);
+                int msgs_count  = (int)formatter.Deserialize(stream);
 
                 Clear_Users();
 
@@ -416,15 +439,26 @@ namespace SMS_EMAIL_PLC
                     Add_User(user);
                 }
 
-                configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+                Singleton.Instance.messages_dict = new Dictionary<string, Message_Add>();
 
-                foreach (User user in users)
+                for (int i = 0; i < msgs_count; i++)
                 {
-                    configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                    string id = (string)formatter.Deserialize(stream);
+                    Message_Add msg = (Message_Add)formatter.Deserialize(stream);
+                    Add_Message(id, msg);
                 }
 
 
-                foreach (User user in users)
+
+                Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
+
+                foreach (User user in Singleton.Instance.users)
+                {
+                    Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+                }
+
+
+                foreach (User user in Singleton.Instance.users)
                 {
                     int n = (int)formatter.Deserialize(stream);
                     for (int i = 0; i < n; i++)
@@ -454,6 +488,10 @@ namespace SMS_EMAIL_PLC
             foreach (User user in users)
                 users_page.Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
 
+            messages_page.Window_Clear();
+            foreach (KeyValuePair<string, Message_Add> msg in messages_dict)
+                messages_page.Add_Line(msg.Key, msg.Value.Comment, msg.Value.IsActive());
+
             configuration_page.Refresh();
         }
 
@@ -461,28 +499,20 @@ namespace SMS_EMAIL_PLC
         {
             if (sms_manager.connected)
             {
-                status_page.sms_status_text.Text = "Połączono";
-                status_page.sms_status_text.Background = Brushes.LawnGreen;
-                status_page.sms_status_text.Foreground = Brushes.Black;
+                status_page.SMS_Status = "true";
             }
             else
             {
-                status_page.sms_status_text.Text = "Niepołączono";
-                status_page.sms_status_text.Background = Brushes.Red;
-                status_page.sms_status_text.Foreground = Brushes.Black;
+                status_page.SMS_Status = "false";
             }
 
             if(email_manager.status)
             {
-                status_page.email_status_text.Text = "Połączono";
-                status_page.email_status_text.Background = Brushes.LawnGreen;
-                status_page.email_status_text.Foreground = Brushes.Black;
+                status_page.Email_Status = "true";
             }
             else
             {
-                status_page.email_status_text.Text = "Niepołączono";
-                status_page.email_status_text.Background = Brushes.Red;
-                status_page.email_status_text.Foreground = Brushes.Black;
+                status_page.Email_Status = "false";
             }
         }
 
@@ -515,7 +545,7 @@ namespace SMS_EMAIL_PLC
         }
 
 
-        void Log_Msg(Message msg)
+        void Log_Msg(Message_Read msg)
         {
             
             try
@@ -534,9 +564,9 @@ namespace SMS_EMAIL_PLC
 
         public void Send_Messages()
         {
-            while (messages.Count > 0)
+            while (messages_queue.Count > 0)
             {
-                Message peek = messages.Dequeue();
+                Message_Read peek = messages_queue.Dequeue();
                 string message_id = peek.id;
                 string message_text = peek.text;
                 string status = peek.status;
@@ -544,6 +574,17 @@ namespace SMS_EMAIL_PLC
                 Log_Msg(peek);
 
                 bool up = status.Equals("2") ? false : true;
+
+
+                if(messages_dict.ContainsKey(message_id))
+                {
+                    if (!messages_dict[message_id].IsActive())
+                        continue;
+                }
+                else
+                {
+                    continue;
+                }
 
                 foreach (User user in users)
                 {
@@ -565,16 +606,21 @@ namespace SMS_EMAIL_PLC
                                 if (configuration[user.Get_ID()][message_id].email_down)
                                     Send_Email(message_text, user.Get_Email());
                             }
-                            last_message = "treść: " + message_id + ", data: " + System.DateTime.Now.ToString();
+                            status_page.Last_Message = "id: " + message_id + ", data: " + System.DateTime.Now.ToString();
                         }
                     }
                 }
             }
         }
 
+        public void Clear_Messages_Dict()
+        {
+            messages_dict.Clear();
+        }
+
         public void Clear_Messages()
         {
-            messages.Clear();
+            messages_queue.Clear();
         }
 
 
@@ -589,17 +635,52 @@ namespace SMS_EMAIL_PLC
                 configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
         }
 
-
-        public void Add_User(User user)
+        public bool Add_Message(string id, Message_Add msg)
         {
-            users.Add(user);
+            if(messages_dict.ContainsKey(id))
+            {
+                Singleton.Show_MessageBox("id nie mogą się powtarzać");
+                return false;
+            }
+
+            messages_dict[id] = msg;
+            return true;
+        }
+
+        public void Remove_Message_From_Dict(string nr)
+        {
+            if (messages_dict.ContainsKey(nr))
+                messages_dict.Remove(nr);
+        }
+
+        public void SetMessageActive(string id, bool active)
+        {
+            if (messages_dict.ContainsKey(id))
+                messages_dict[id].SetActive(active);
+            else
+                Singleton.Show_MessageBox("nie ma takiej wiadomości");
         }
 
         
+        public void Add_User(User user)
+        {
+            users.Add(user);
+            configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
+        }
+
+        public void Copy_Config(string from_id, string to_id)
+        {
+            if (Singleton.Instance.configuration.ContainsKey(from_id))
+            {
+                Singleton.Instance.configuration[to_id] = Singleton.Instance.configuration[from_id];
+            }
+            else
+                Singleton.Show_MessageBox("Nie przypisano konfiguracji do użytkownika wyjściowego!");
+        }
 
         public void Add_To_Config(string user_id, string key, Configuration config)
         {
-            configuration[user_id][key] = config;
+            Singleton.Instance.configuration[user_id][key] = config;
         }
 
         public bool Is_User_ID_Repeated(string id)

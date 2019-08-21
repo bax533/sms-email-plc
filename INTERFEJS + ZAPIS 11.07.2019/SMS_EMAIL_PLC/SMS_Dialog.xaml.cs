@@ -17,11 +17,12 @@ namespace SMS_EMAIL_PLC
     public partial class SMS_Dialog : Window
     {
         private string _result = "";
-
+        string starting;
 
         public SMS_Dialog(string starting)
         {
             InitializeComponent();
+            this.starting = starting;
             _result = starting;
             Input_Box.Text = starting;
         }
@@ -37,7 +38,13 @@ namespace SMS_EMAIL_PLC
         private void Return_Click(object sender, EventArgs e)
         {
             Result = Input_Box.Text;
-            this.Hide();
+            this.Close();
+        }
+
+        void Dialog_Closing(Object sender, EventArgs e)
+        {
+            if (Result == starting)
+                Result = Singleton.Instance.password;
         }
     }
 }

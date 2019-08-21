@@ -1,85 +1,163 @@
-﻿<Window x:Class="SMS_EMAIL_PLC.Configuration_Panel"
+﻿<Page x:Class="SMS_EMAIL_PLC.Configuration_Panel"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMS_EMAIL_PLC"
         mc:Ignorable="d"
-                Foreground="WhiteSmoke"
+        Foreground="WhiteSmoke"
         Background="#373737"
-        Title="Configuration_Panel" Height="450" Width="560"
+        Title="Configuration_Panel" Height="450" Width="750"
         >
 
 
     <Viewbox StretchDirection="Both" Stretch="Uniform">
-        
-            <Grid Width="600" Height="450">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="400" VerticalAlignment="Top">
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="ID_Panel" Width="100">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="ID Wiadomości" Width="100" TextAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
 
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_UP_Panel" Width="110">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="SMS przekroczono" TextAlignment="Center" Width="110"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+        <Grid Width="750" Height="450">
 
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="SMS_DOWN_Panel" Width="80">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="SMS powrót" TextAlignment="Center" Width="80"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50*"/>
+                <RowDefinition Height="200*"/>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="190*"/>
+            </Grid.RowDefinitions>
 
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="EMAIL_UP_Panel" Width="110">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="EMAIL przekroczono" TextAlignment="Center" Width="110"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="EMAIL_DOWN_Panel" Width="80">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="EMAIL powrót" TextAlignment="Center" Width="80"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="2" BorderBrush="Black" Background="#555555" BorderThickness="1" DockPanel.Dock="Top">
-                        <StackPanel Name="Remove_Panel" Width="70">
-                            <Border BorderThickness="1" BorderBrush="Black">
-                                <TextBlock Text="usuń" TextAlignment="Center" Width="70"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                </StackPanel>
-            </ScrollViewer>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                <TextBox Name="msgID_AddBox" Width="100" Height="50" Background="#555555"/>
-                <TextBlock Width="20"/>
-                <CheckBox Height="50" Name="SMSup_AddBox" VerticalContentAlignment="Center" Content="sms góra" Foreground="WhiteSmoke"/>
-                <TextBlock Width="20"/>
-                <CheckBox Height="50" Name="SMSdown_AddBox" VerticalContentAlignment="Center" Content="sms powrót" Foreground="WhiteSmoke"/>
-                <TextBlock Width="20"/>
-                <CheckBox Height="50" Name="EMAILup_AddBox" VerticalContentAlignment="Center" Content="email góra" Foreground="WhiteSmoke"/>
-                <TextBlock Width="20"/>
-                <CheckBox Height="50" Name="EMAILdown_AddBox" VerticalContentAlignment="Center" Content="email powrót" Foreground="WhiteSmoke"/>
-                <TextBlock Width="20"/>
-                <Button Content="Zapisz" Height="50" Click="Save_Click"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Powrót" Click="Back_Click" Width="100" Height="35" Margin="0,0, 50, 0"/>
+                <TextBlock Name="TitleBlock" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
             </StackPanel>
-            
+
+
+            <StackPanel Height="250"  Grid.Row="1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}" VerticalAlignment="Top">
+
+                        <StackPanel Name="SELECT_P" Background="#555555">
+                            <Border BorderThickness="1, 1, 0, 1" BorderBrush="Black">
+                                <TextBlock Text="Edycja" Width="50" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,9,0,0" Height="24"/>
+                            </Border>
+                            <Border BorderThickness="1, 0, 0, 1" BorderBrush="Black">
+                                <StackPanel x:Name="Select_Panel" Width="50"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Name="ID_P" Background="#555555">
+                            <Border BorderThickness="1, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="ID Wiadomości" Width="100" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,9,0,0" Height="24"/>
+                            </Border>
+                            <Border BorderThickness="1, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel x:Name="ID_Panel" Width="100"/>
+                            </Border>
+                        </StackPanel>
+
+
+                        <StackPanel Name="CONFIG_P">
+                            <Grid Width="375" Background="#555555" Height="35">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border BorderBrush="Black" BorderThickness="0, 1, 1, 1" Grid.Row="0" Grid.ColumnSpan="2" >
+                                    <TextBlock Text="SMS" Width="185" TextAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="0, 1, 0, 1" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" >
+                                    <TextBlock Text="EMAIL" Width="185" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black" Grid.Row="1" Grid.Column="0">
+                                    <TextBlock Text="Przychodzący"  HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black"  Grid.Row="1" Grid.Column="1">
+                                    <TextBlock Text="Wychodzący" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black" Grid.Row="1" Grid.Column="2">
+                                    <TextBlock Text="Przychodzący"  HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <Border BorderThickness="0, 0, 0,1" BorderBrush="Black" Grid.Row="1" Grid.Column="3">
+                                    <TextBlock Text="Wychodzący" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                            <Border BorderBrush="Black" BorderThickness="0, 0, 0, 1">
+                                <StackPanel x:Name="ConfigurationCur_Panel" Width="375" Grid.Row="1" Grid.Column="0" Background="#555555"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="1, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="" TextAlignment="Center" Width="70" Height="24" Margin="0, 9, 0, 0"/>
+                            </Border>
+                            <Border BorderThickness="1, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel x:Name="Remove_Panel" Width="70"/>
+                            </Border>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </StackPanel>
+            <TextBlock Grid.Row="2" Background="#222222"/>
+
+            <StackPanel Background="#555555" Name="BackgroundSample_Panel" Width="1" Height="1" Grid.Row="0" HorizontalAlignment="Right"/>
+
+            <StackPanel Grid.Row="3" Height="190">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}, Path=Height}" VerticalAlignment="Top" Background="Black">
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="1" BorderBrush="Black">
+                                <TextBlock Text="Edycja" Width="50" TextAlignment="Center" HorizontalAlignment="Center" Height="18"/>
+                            </Border>
+                            <Border BorderThickness="1, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel Name="SelectNew_Panel" Width="50"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="ID" Width="50" TextAlignment="Center" HorizontalAlignment="Center" Height="18"/>
+                            </Border>
+                            <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel Name="IDNew_Panel" Width="50"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="Opis wiadomości" Width="100" TextAlignment="Center" HorizontalAlignment="Center" Height="18"/>
+                            </Border>
+                            <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel Name="DescriptionNew_Panel" Width="100"/>
+                            </Border>
+                        </StackPanel>
+                        
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="sms przekroczono    sms powrót    email przekroczono    email powrót" Width="375" TextAlignment="Center" HorizontalAlignment="Center" Height="18"/>
+                            </Border>
+                            <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel Name="ConfigurationNew_Panel" Width="375"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Background="#555555">
+                            <Border BorderThickness="0, 1, 1, 1" BorderBrush="Black">
+                                <TextBlock Text="" Width="50" TextAlignment="Center" HorizontalAlignment="Center" Height="18"/>
+                            </Border>
+                            <Border BorderThickness="0, 0, 1, 1" BorderBrush="Black">
+                                <StackPanel Name="AddNew_Panel" Width="50"/>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </StackPanel>
         </Grid>
     </Viewbox>
-</Window>
+</Page>

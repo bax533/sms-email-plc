@@ -13,34 +13,37 @@
         <StackPanel>
             <Border BorderThickness="3" BorderBrush="#151515" Margin="0, 0, 0, 1">
                 <StackPanel Margin="5">
-                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Modem" FontSize="18"/>
+                    <StackPanel Name="Toolbar_Buttons" Orientation="Horizontal"/>
+                    <!--StackPanel Orientation="Horizontal">
                         <TextBlock Text="Baza danych: " FontSize="20"/>
                         <TextBox Text="login" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Login_Box" Background="#404040" Foreground="LightGray"/>
                         <PasswordBox PasswordChar="*" Width="100" VerticalAlignment="Center" FontSize="15" Name="Password_Box" Background="#404040" Foreground="LightGray" />
                         <TextBox Text="baza" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="Base_Box" Background="#404040" Foreground="LightGray" />
                         <TextBox Text="adres serwera" Width="100" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" Name="DBServer_Box" Background="#404040" Foreground="LightGray" />
-                        <Button Width="72" Click="DatabaseLogin_Click" Content="ZALOGUJ"/>
-                    </StackPanel>
+                        <Button Width="72" Click="DatabaseLogin_Click" Content="Zaloguj" Height="22" Margin="5, 0, 0, 0"/>
+                    </-->
 
                     <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="0, 5, 0, 5">
                         <TextBlock Text="Adres portu dla modemu" Margin="0,0,10,0"/>
-                        <TextBox Width="50" Name="COM_Box" Text="COM NR" TextAlignment="Center" Background="#404040" Foreground="WhiteSmoke"/>
-                        <Button Name="SetPort_Button" Click="SetPort_Click" Content="ustaw" Height="20" Margin="5, 0, 0, 0"/>
+                        <TextBox Width="75" Name="COM_Box" Text="COM NR" TextAlignment="Center" Background="#404040" Foreground="WhiteSmoke"/>
+                        <Button Name="SetPort_Button" Click="SetPort_Click" Content="Ustaw" Height="22" Width="60" Margin="5, 0, 0, 0"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <Border BorderBrush="#151515" BorderThickness="3">
                 <StackPanel Margin="5">
+                    <TextBlock Text="Logowanie" FontSize="20" Margin="0, 0, 0, 5"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Uprawnienia:" FontSize="14"/>
-                        <PasswordBox Name="Credential_Box" PasswordChar="*" Width="150" Background="#404040"/>
-                        <Button Name="CredentialLogin_Button" Content="zaloguj" Click="CredentialLogin_Click" Width="60" Margin="5,0,0,0"/>
-                        <Button Name="CredentialLogout_Button" Content="wyloguj" Click="CredentialLogout_Click" Width="60" Margin="5,0,0,0"/>
-                        <Button Name="ChangePassword_Button" Content="zmień hasło" Click="ChangePassword_Click" Margin="5,0,0,0" Width="90"/>
+                        <TextBlock Text="Hasło:" FontSize="14"/>
+                        <PasswordBox Name="Credential_Box" PasswordChar="*" Width="150" Background="#404040" Margin="10, 0, 0, 0"/>
+                        <Button Name="CredentialLogin_Button" Content="Zaloguj" Click="CredentialLogin_Click" Width="60" Margin="5,0,0,0"/>
+                        <Button Name="CredentialLogout_Button" Content="Wyloguj" Click="CredentialLogout_Click" Width="60" Margin="5,0,0,0"/>
+                        <Button Name="ChangePassword_Button" Content="Zmień Hasło" Click="ChangePassword_Click" Margin="5,0,0,0" Width="90"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Stan użytkownika:" FontSize="14" />
+                        <TextBlock Text="Uprawnienia:" FontSize="14" />
                         <TextBlock Text="Gość" Name="CredentialStatus_Block" Margin="5, 0,0, 0" FontSize="14" Foreground="DarkGray"/>
                     </StackPanel>
                 </StackPanel>
@@ -49,35 +52,37 @@
             <Border BorderBrush="#151515" BorderThickness="3" Margin="0, 1, 0, 0">
                 <StackPanel Name="Statusy" Margin="5">
 
-                    
+                    <TextBlock Text="Statusy" FontSize="25" Margin="0, 0, 0, 5"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Status SQL:" FontSize="20"/>
+                        <TextBlock Text="Status SQL:" FontSize="15"/>
                         <TextBlock Width="10"/>
-                        <TextBlock Name="sql_status_text" Text="niepołączono" FontSize="18" Foreground="DimGray"/>
+                        <TextBlock Name="sql_status_text" Text="{Binding SQL_Status}" FontSize="18" Foreground="White"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Email Status:" FontSize="18"/>
+                        <TextBlock Text="Email Status:" FontSize="15"/>
                         <TextBlock Width="8"/>
-                        <TextBlock Name="email_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
+                        <TextBlock Name="email_status_text" Text="{Binding Email_Status}" FontSize="18" Foreground="White"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="SMS Status:" FontSize="18"/>
+                        <TextBlock Text="SMS Status:" FontSize="15"/>
                         <TextBlock Width="15"/>
-                        <TextBlock Name="sms_status_text" Text="brak" FontSize="18" Foreground="DimGray"/>
+                        <TextBlock Name="sms_status_text" Text="{Binding SMS_Status}" FontSize="18" Foreground="White"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="status aplikacji:" FontSize="18"/>
+                        <TextBlock Text="Status Aplikacji:" FontSize="15"/>
                         <TextBlock Width="10" FontSize="18"/>
                         <TextBlock Name="app_status_text" Text="Debug" FontSize="18" Foreground="DimGray"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
-            <StackPanel Name="last_message_panel">
-                    <TextBlock HorizontalAlignment="Center" Text="ostatnia wiadomość:" FontSize="20"/>
-                    <TextBlock Name="last_message_text" HorizontalAlignment="Center" Text="dane... data..." FontSize="15" Foreground="DimGray"/>
+            <Border BorderBrush="Black" BorderThickness="2">
+                <StackPanel Name="last_message_panel" Height="250">
+                    <TextBlock HorizontalAlignment="Center" Text="Ostatnia Wiadomość:" FontSize="20"/>
+                    <TextBlock Name="last_message_text" HorizontalAlignment="Center" Text="{Binding Last_Message}" FontSize="15" Foreground="DimGray"/>
                 </StackPanel>
-                <TextBlock Margin="10"/>
+            </Border>
+            <TextBlock Margin="10"/>
 
         </StackPanel>
         

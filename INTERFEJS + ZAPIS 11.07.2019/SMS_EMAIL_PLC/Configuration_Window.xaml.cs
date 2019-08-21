@@ -15,10 +15,34 @@ using System.Windows.Shapes;
 
 namespace SMS_EMAIL_PLC
 {
-    public partial class Configuration_Page : Page
+    public partial class Configuration_Page : Page, INotifyPropertyChanged
     {
+        private string _copyFrom_id, _copyTo_id;
+
+        public string copyFrom_id
+        {
+            get { return _copyFrom_id; }
+            set
+            {
+                _copyFrom_id = value;
+                RaisePropertyChanged("copyFrom_id");
+            }
+        }
+
+        public string copyTo_id
+        {
+            get { return _copyTo_id; }
+            set
+            {
+                _copyTo_id = value;
+                RaisePropertyChanged("copyTo_id");
+            }
+        }
+
+
         public Configuration_Page()
         {
+            DataContext = this;
             InitializeComponent();
         }
 
@@ -27,13 +51,19 @@ namespace SMS_EMAIL_PLC
             Singleton.Instance.Close_Application();
         }
 
+        private void Copy_Click(Object sender, EventArgs e)
+        {
+            Singleton.Instance.Copy_Config(_copyFrom_id, _copyTo_id);
+            Singleton.Show_MessageBox(_copyFrom_id + " " + copyTo_id);
+        }
+
         public void Clear_Window()
         {
             try
             {
-                ID_Panel.Children.RemoveRange(1, ID_Panel.Children.Count - 1);
-                Users_Panel.Children.RemoveRange(1, Users_Panel.Children.Count - 1);
-                Config_Panel.Children.RemoveRange(1, Config_Panel.Children.Count - 1);
+                ID_Panel.Children.RemoveRange(0, ID_Panel.Children.Count);
+                Users_Panel.Children.RemoveRange(0, Users_Panel.Children.Count);
+                Config_Panel.Children.RemoveRange(0, Config_Panel.Children.Count);
             }
             catch (Exception ex)
             {
@@ -51,12 +81,13 @@ namespace SMS_EMAIL_PLC
         {
             int it = Singleton.Get_Nr_From_Object(sender);
             string user_id = ((TextBlock)ID_Panel.Children[it]).Text;
+            string user_name = ((TextBlock)Users_Panel.Children[it]).Text;
 
             if (!Singleton.Instance.configuration.ContainsKey(user_id))
                 Singleton.Instance.configuration[user_id] = new Dictionary<string, Configuration>();
 
-            Configuration_Panel panel = new Configuration_Panel(user_id, Singleton.Instance.configuration[user_id]);
-            panel.Show();
+            Configuration_Panel panel = new Configuration_Panel(user_id, user_name, Singleton.Instance.configuration[user_id]);
+            Singleton.Instance.main_window.MainFrame.Content = panel;
         }
 
         public void Add_Line(string user_id, string username)
@@ -92,6 +123,16 @@ namespace SMS_EMAIL_PLC
         {
             Clear_Window();
             Add_Users();
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            var handlers = PropertyChanged;
+
+            handlers(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

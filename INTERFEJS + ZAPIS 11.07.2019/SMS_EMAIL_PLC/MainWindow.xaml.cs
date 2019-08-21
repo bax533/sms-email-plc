@@ -23,12 +23,12 @@ namespace SMS_EMAIL_PLC
 {
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
             Singleton.Instance.main_window = this;
-            Singleton.Instance.Set_Start(10000);
-            this.Activate();
+            //this.Activate();
         }
 
         void Minimize_Click(Object sender, EventArgs e)
@@ -48,20 +48,27 @@ namespace SMS_EMAIL_PLC
 
         private void Main_Click(Object sender, RoutedEventArgs e)
         {
-            Singleton.Instance.main_window.MainFrame.Content = Singleton.Instance.status_page;
-            Singleton.Instance.Clear_PageToolbar(1);
+            MainFrame.Content = Singleton.Instance.status_page;
         }
 
         private void Users_Click(object sender, EventArgs e)
         {
-            Singleton.Instance.main_window.MainFrame.Content = Singleton.Instance.users_page;
-            Singleton.Instance.Clear_PageToolbar(2);
+            MainFrame.Content = Singleton.Instance.users_page;
         }
 
         private void Configuration_Click(object sender, EventArgs e)
         {
-            Singleton.Instance.main_window.MainFrame.Content = Singleton.Instance.configuration_page;
-            Singleton.Instance.Clear_PageToolbar(3);
+            MainFrame.Content = Singleton.Instance.configuration_page;
+        }
+
+        private void Messages_Click(Object sender, EventArgs e)
+        {
+            MainFrame.Content = Singleton.Instance.messages_page;
+        }
+
+        private void ImportExport_Click(Object sender, EventArgs e)
+        {
+            MainFrame.Content = Singleton.Instance.importexport_page;
         }
 
         private void Driver_Click(Object sender, EventArgs e)

@@ -23,12 +23,16 @@ namespace SMS_EMAIL_PLC
 {
     
     
-    public partial class Messages_Window : Window
+    public partial class Messages_Page : Page
     {
-        public Messages_Window()
+
+        /*Button SaveUsers_Button = new Button { Height=20, Width=120, Content="eksportuj", Margin = new Thickness(0, 0, 7.5, 0), FontSize=12, HorizontalAlignment=HorizontalAlignment.Center};
+        Button LoadUsers_Button = new Button { Height = 20, Width = 120, Content = "wczytaj", Margin = new Thickness(0, 0, 7.5, 0), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Center };
+        Button LoadBase_Button = new Button { Height = 20, Width = 120, Content = "wczytaj z bazy", Margin = new Thickness(0, 0, 0, 0), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Center };
+        */
+        public Messages_Page()
         {
             InitializeComponent();
-            Toolbar_Panel.Children.Add(new My_Toolbar());
         }
 
         void MessagesWindow_Closing(object sender, CancelEventArgs e)
@@ -66,17 +70,30 @@ namespace SMS_EMAIL_PLC
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            string content = Singleton.Get_Dialog("podaj numer wiadomości");
-            Add_Line(content);
+            if (Singleton.Instance.Admin)
+            {
+                AddMessage_Dialog msg_dialog = new AddMessage_Dialog();
+                msg_dialog.ShowDialog();
+                string id = msg_dialog.ID;
+                if (msg_dialog.closed)
+                    return;
+                string comment = msg_dialog.Comment;
+
+                if (Singleton.Instance.Add_Message(id, new Message_Add(comment)))
+                {
+                    Add_Line(id, comment, true);
+                }
+            }
+            else
+                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
 
-        public void Add_Line(string nr)
+        public void Add_Line(string nr, string comment, bool active)
         {
            // Singleton.Instance.Create_Message(nr);
 
-            TextBox NumberBox = new TextBox
+            TextBlock NumberBox = new TextBlock
             {
-                IsReadOnly = true,
                 Text = nr,
                 Width = 50,
                 Height = 20,
@@ -84,72 +101,88 @@ namespace SMS_EMAIL_PLC
             };
             Number_Panel.Children.Add(NumberBox);
 
-            StackPanel Buttons_Panel = new StackPanel
+            TextBlock Comment_Block = new TextBlock
             {
-                Orientation = Orientation.Horizontal
+                Name = "CMT" + Comments_Panel.Children.Count.ToString(),
+                TextWrapping = TextWrapping.Wrap,
+                Text = comment,
+                Width = 125,
+                Height = 20
             };
-                Button SMS_Button = new Button
-                {
-                    Name = "SMS" + Messages_Panel.Children.Count.ToString(),
-                    Content = "SMS",
-                    Height = 20,
-                    Width = 75
-                };
-                SMS_Button.Click += SMS_Click;
+            Comments_Panel.Children.Add(Comment_Block);
 
-                TextBlock Message_Block = new TextBlock
-                {
-                    Name = "MSG" + Messages_Panel.Children.Count.ToString(),
-                    //Text = Singleton.Instance.messages[nr].sms,
-                    Width = 125,
-                    Height = 20
-                };
-                
-                Button Email_Button = new Button
-                {
-                    Name = "EML" + Messages_Panel.Children.Count.ToString(),
-                    Content = "Email",
-                    Height = 20,
-                    Width = 75
-                };
-                Email_Button.Click += Email_Click;
-                Buttons_Panel.Children.Add(SMS_Button);
-                Buttons_Panel.Children.Add(Message_Block);
-                //Buttons_Panel.Children.Add(Email_Button);
-            Messages_Panel.Children.Add(Buttons_Panel);
+            CheckBox Active_Box = new CheckBox
+            {
+                Name = "ACT" + Active_Panel.Children.Count.ToString(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Width = 50,
+                Height = 20,
+                IsChecked = active
+            };
+            Active_Box.Click += ActiveBox_Click;
+            Active_Panel.Children.Add(Active_Box);
 
             Button removeButton = new Button
             {
                 Height = 20,
                 Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString(),
-                Content = "-"
+                Content = "-",
+                Visibility = Visibility.Hidden
             };
             removeButton.Click += RemoveButton_Click;
             RemoveButtons_Panel.Children.Add(removeButton);
+        }
+
+        void ActiveBox_Click(Object sender, EventArgs e)
+        {
+            int it = Singleton.Get_Nr_From_Object(sender);
+            bool newActive = (bool)((CheckBox)sender).IsChecked;
+            string id = ((TextBlock)Number_Panel.Children[it]).Text;
+
+            Singleton.Instance.SetMessageActive(id, newActive);
+        }
+
+
+        private void RemoveExpand_Click(Object sender, EventArgs e)
+        {
+            if (RemoveExpand_Button.Content.Equals("Usuwanie v"))
+                RemoveExpand_Button.Content = "Usuwanie ^";
+            else
+                RemoveExpand_Button.Content = "Usuwanie v";
+
+            for (int i=0; i<RemoveButtons_Panel.Children.Count; i++)
+            {
+                Button current = ((Button)RemoveButtons_Panel.Children[i]);
+                current.Visibility = current.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+            }
         }
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
             if (Singleton.Instance.Admin)
             {
-                Button thisButton = (Button)sender;
-                int it = Singleton.Get_Nr_From_Object(thisButton);
-
-                string nr = ((TextBox)Number_Panel.Children[it]).Text;
-
-                //Singleton.Instance.Remove_Message(nr);
-                Singleton.Instance.Remove_Msg_From_Configuration(nr);
-
-                Number_Panel.Children.RemoveAt(it);
-                //Description_Panel.Children.RemoveAt(it);
-                Messages_Panel.Children.RemoveAt(it);
-                RemoveButtons_Panel.Children.RemoveAt(it);
-
-                for (int i = it; i < Number_Panel.Children.Count; i++)
+                if (Singleton.Show_MessageBox("Czy na pewno chcesz usunąć tą wiadomość?", true))
                 {
-                    ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
-                    ((Button)((StackPanel)Messages_Panel.Children[i]).Children[0]).Name = "SMS" + i.ToString();
-                    //((Button)((StackPanel)Messages_Panel.Children[i]).Children[1]).Name = "EML" + i.ToString();
+                    Button thisButton = (Button)sender;
+                    int it = Singleton.Get_Nr_From_Object(thisButton);
+
+                    string nr = ((TextBlock)Number_Panel.Children[it]).Text;
+
+                    Singleton.Instance.Remove_Message_From_Dict(nr);
+                    Singleton.Instance.Remove_Msg_From_Configuration(nr);
+
+                    Number_Panel.Children.RemoveAt(it);
+                    //Description_Panel.Children.RemoveAt(it);
+                    Comments_Panel.Children.RemoveAt(it);
+                    Active_Panel.Children.RemoveAt(it);
+                    RemoveButtons_Panel.Children.RemoveAt(it);
+
+                    for (int i = it; i < Number_Panel.Children.Count; i++)
+                    {
+                        ((Button)RemoveButtons_Panel.Children[i]).Name = "rmv" + i.ToString();
+                        ((TextBlock)Comments_Panel.Children[i]).Name = "CMT" + i.ToString();
+                        ((CheckBox)Active_Panel.Children[i]).Name = "ACT" + i.ToString();
+                    }
                 }
             }
             else
@@ -158,117 +191,12 @@ namespace SMS_EMAIL_PLC
 
         public void Window_Clear()
         {
-            Number_Panel.Children.RemoveRange(1, Number_Panel.Children.Count - 1);
+            Number_Panel.Children.RemoveRange(0, Number_Panel.Children.Count);
             //Description_Panel.Children.RemoveRange(1, Description_Panel.Children.Count - 1);
-            Messages_Panel.Children.RemoveRange(1, Messages_Panel.Children.Count - 1);
-            RemoveButtons_Panel.Children.RemoveRange(1, RemoveButtons_Panel.Children.Count - 1);
+            Comments_Panel.Children.RemoveRange(0, Comments_Panel.Children.Count);
+            Active_Panel.Children.RemoveRange(0, Active_Panel.Children.Count);
+            RemoveButtons_Panel.Children.RemoveRange(0, RemoveButtons_Panel.Children.Count);
         }
 
-        private void LoadBase_Click(Object sender, EventArgs e)
-        {
-            Singleton.Instance.Clear_Configuration();
-            Singleton.Instance.sql_manager.Load_Messages();
-        }
-
-        private void SaveButton_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog
-                {
-                    Filter = "mes files (*.mes)|*.mes",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-
-                bool? result = saveFileDialog.ShowDialog();
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = saveFileDialog.OpenFile()) != null)
-                    {
-                       // formatter.Serialize(stream, Singleton.Instance.messages.Count);
-
-                        /*foreach (KeyValuePair<string, Message> msg in Singleton.Instance.messages)
-                        {
-                            formatter.Serialize(stream, msg.Key);
-                            formatter.Serialize(stream, msg.Value);
-                        }*/
-
-                        Singleton.Show_MessageBox("zapisano pomyślnie!");
-                        stream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Singleton.Show_MessageBox(ex.Message + "\nspróbuj ponownie za chwilę");
-            }
-        }
-
-        private void LoadButton_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                OpenFileDialog openFileDialog = new OpenFileDialog
-                {
-                    InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                    Filter = "mes files (*.mes)|*.mes",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-                bool? result = openFileDialog.ShowDialog();
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = openFileDialog.OpenFile()) != null)
-                    {
-                        int msgs_count = (int)formatter.Deserialize(stream);
-
-                        Singleton.Instance.Clear_Messages();
-
-                        Dictionary<string, Message> new_msgs = new Dictionary<string, Message>();
-
-                        for (int i = 0; i < msgs_count; i++)
-                        {
-                            string key = (string)formatter.Deserialize(stream);
-                            Message new_msg = (Message)formatter.Deserialize(stream);
-                            new_msgs[key] = new_msg;
-                        }
-
-                        Thread.Sleep(200);
-
-                        foreach (KeyValuePair<string, Message> msg in new_msgs)
-                        {
-                            //Singleton.Instance.Set_Message(msg.Key, msg.Value);
-                        }
-
-                        Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-
-                        Window_Clear();
-                        foreach (KeyValuePair<string, Message> msg in new_msgs)
-                            Add_Line(msg.Key);
-
-
-                        Singleton.Instance.configuration_page.Refresh();
-                        Singleton.Show_MessageBox("wczytano pomyślnie");
-                    }
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                Singleton.Show_MessageBox(ex.Message);
-            }
-        }
     }
 }

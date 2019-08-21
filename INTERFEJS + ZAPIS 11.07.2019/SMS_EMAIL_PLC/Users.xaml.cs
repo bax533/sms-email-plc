@@ -21,58 +21,55 @@ namespace SMS_EMAIL_PLC
 {
     public partial class Users_Page : Page
     {
-        Button save_users_button = new Button {
+        /*Button save_users_button = new Button
+        {
             Name = "SaveUsers_Button",
             Content = "eksportuj",
-            Margin = new Thickness(0, 0, 0, 5),
+            Margin = new Thickness(0, 0, 5, 0),
+            Height = 20,
             Width = 120,
+            VerticalContentAlignment = VerticalAlignment.Center,
             ToolTip = "Eksportuj użytkowników do pliku"
         };
 
 
-        Button load_users_button = new Button {
+        Button load_users_button = new Button
+        {
             Name = "LoadUsers_Button",
             Content = "importuj",
-            Margin = new Thickness(0, 0, 0, 5),
+            Margin = new Thickness(0, 0, 5, 0),
+            Height = 20,
             Width = 120,
+            VerticalContentAlignment = VerticalAlignment.Center,
             ToolTip = "Wczytaj użytkowników z pliku"
         };
 
 
 
-        Button load_users_from_database_button = new Button {
+        Button load_users_from_database_button = new Button
+        {
             Content = "wczytaj z bazy",
-            Margin = new Thickness(0, 0, 0, 5),
+            Margin = new Thickness(0, 0, 5, 0),
+            Height = 20,
             Width = 120,
+            VerticalContentAlignment = VerticalAlignment.Center,
             ToolTip = "Wczytaj użytkowników z Bazy SQL"
         };
-            
+        */
 
         public Users_Page()
         {
             InitializeComponent();
-            save_users_button.Click += SaveButton_Click;
-            load_users_button.Click += LoadButton_Click;
-            load_users_from_database_button.Click += LoadDatabase_Click;
         }
-
-
-        public void AddToolbarButtons()
-        {
-            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(save_users_button);
-            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(load_users_button);
-            Singleton.Instance.main_window.PageToolbar_Panel.Children.Add(load_users_from_database_button);
-        }
-
 
 
         public void Window_Clear()
         {
-            ID_Panel.Children.RemoveRange(1, ID_Panel.Children.Count - 1);
-            Name_Panel.Children.RemoveRange(1, Name_Panel.Children.Count - 1);
-            PhoneNumber_Panel.Children.RemoveRange(1, PhoneNumber_Panel.Children.Count - 1);
-            Email_Panel.Children.RemoveRange(1, Email_Panel.Children.Count - 1);
-            RemoveButtons_Panel.Children.RemoveRange(1, RemoveButtons_Panel.Children.Count - 1);
+            ID_Panel.Children.RemoveRange(0, ID_Panel.Children.Count);
+            Name_Panel.Children.RemoveRange(0, Name_Panel.Children.Count);
+            PhoneNumber_Panel.Children.RemoveRange(0, PhoneNumber_Panel.Children.Count);
+            Email_Panel.Children.RemoveRange(0, Email_Panel.Children.Count);
+            RemoveButtons_Panel.Children.RemoveRange(0, RemoveButtons_Panel.Children.Count);
         }
 
 
@@ -118,24 +115,39 @@ namespace SMS_EMAIL_PLC
             };
             Email_Panel.Children.Add(EmailBox);
 
-            Border border = new Border
+            /*Border border = new Border
             {
                 BorderThickness = new Thickness(1, 1, 1, 1),
                 BorderBrush = Brushes.Black,
                 CornerRadius = new CornerRadius(4)
-            };
-           
+            };*/
+
             Button removeButton = new Button
             {
                 Height = 20,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Name = "rmv" + RemoveButtons_Panel.Children.Count.ToString(),
-                Content = "-"
+                Content = "-",
+                Visibility = Visibility.Hidden
             };
             removeButton.Click += RemoveButton_Click;
-            border.Child = removeButton;
-            RemoveButtons_Panel.Children.Add(border);
+            //border.Child = removeButton;
+            RemoveButtons_Panel.Children.Add(removeButton);
+        }
+
+        private void RemoveExpand_Click(Object sender, EventArgs e)
+        {
+            if (RemoveExpand_Button.Content.Equals("Usuwanie v"))
+                RemoveExpand_Button.Content = "Usuwanie ^";
+            else
+                RemoveExpand_Button.Content = "Usuwanie v";
+
+            for (int i = 0; i < RemoveButtons_Panel.Children.Count; i++)
+            {
+                Button current = ((Button)RemoveButtons_Panel.Children[i]);
+                current.Visibility = current.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+            }
         }
 
         private void AddButton_Click(object sender, EventArgs e)
@@ -173,159 +185,11 @@ namespace SMS_EMAIL_PLC
                     Singleton.Instance.Remove_User_From_Configuration(id);
                     Singleton.Instance.configuration_page.Refresh();
                 }
-                
-            }
-            else
-                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
-        }
 
-
-        void Save_Users()
-        {
-            foreach (User user in Singleton.Instance.users)
-            {
-                Singleton.Instance.configuration[user.Get_ID()] = new Dictionary<string, Configuration>();
-            }
-
-            Dictionary<string, bool> visited = new Dictionary<string, bool>();
-
-            for (int i = 1; i < ID_Panel.Children.Count; i++) //sprawdzam powtórzenia
-            {
-                string id = ((TextBlock)ID_Panel.Children[i]).Text;
-                if (visited.ContainsKey(id))
-                {
-                    Singleton.Show_MessageBox("ID nie mogą się powtarzać!");
-                    return;
-                }
-                else
-                    visited[id] = true;
-            }
-
-
-            Singleton.Instance.configuration_page.Clear_Window();
-            Singleton.Instance.Clear_Users();
-
-            for (int i = 1; i < ID_Panel.Children.Count; i++)
-            {
-                string id = ((TextBlock)ID_Panel.Children[i]).Text;
-                string name = ((TextBlock)Name_Panel.Children[i]).Text;
-                string phone_number = ((TextBlock)PhoneNumber_Panel.Children[i]).Text;
-                string email = ((TextBlock)Email_Panel.Children[i]).Text;
-
-                Singleton.Instance.Add_User(new User(id, name, phone_number, email));
-            }
-            Singleton.Instance.configuration_page.Add_Users();
-        }
-
-        private void LoadDatabase_Click(Object sender, EventArgs e)
-        {
-            if (Singleton.Instance.Admin)
-            {
-                if (Singleton.Instance.sql_manager.GetStatus())
-                {
-                    Singleton.Instance.sql_manager.Load_Users();
-                    Save_Users();
-                    Singleton.Instance.Clear_Configuration();
-                    Singleton.Instance.configuration_page.Refresh();
-                }
-                else
-                    Singleton.Show_MessageBox("Brak połączenia z serwerem SQL");
-            }
-            else
-                Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
-        }
-
-        private void SaveButton_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                IFormatter formatter = new BinaryFormatter();
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog
-                {
-                    Filter = "usr files (*.usr)|*.usr",
-                    FilterIndex = 2,
-                    RestoreDirectory = true
-                };
-                bool? result = saveFileDialog.ShowDialog();
-
-                
-
-                Stream stream;
-
-                if (result == true)
-                {
-                    if ((stream = saveFileDialog.OpenFile()) != null)
-                    {
-                        formatter.Serialize(stream, Singleton.Instance.users.Count);
-
-                        foreach (User user in Singleton.Instance.users)
-                            formatter.Serialize(stream, user);
-
-                        Singleton.Show_MessageBox("zapisano pomyślnie!");
-                        stream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Singleton.Show_MessageBox(ex.Message + "\nspróbuj ponownie za chwilę");
-            }
-        }
-
-        private void LoadButton_Click(Object sender, EventArgs e)
-        {
-            if (Singleton.Instance.Admin)
-            {
-                try
-                {
-                    IFormatter formatter = new BinaryFormatter();
-
-                    OpenFileDialog openFileDialog = new OpenFileDialog
-                    {
-                        InitialDirectory = "c:\\Users\\Szymon\\Desktop",
-                        Filter = "usr files (*.usr)|*.usr",
-                        FilterIndex = 2,
-                        RestoreDirectory = true
-                    };
-                    bool? result = openFileDialog.ShowDialog();
-
-                    Stream stream;
-
-                    if (result == true)
-                    {
-                        if ((stream = openFileDialog.OpenFile()) != null)
-                        {
-
-                            int users_count = (int)formatter.Deserialize(stream);
-                            Singleton.Instance.Clear_Users();
-
-                            for (int i = 0; i < users_count; i++)
-                            {
-                                User user = (User)formatter.Deserialize(stream);
-                                Singleton.Instance.Add_User(user);
-                            }
-
-                            Window_Clear();
-                            foreach (User user in Singleton.Instance.users)
-                                Add_Line(user.Get_ID(), user.Get_Name(), user.Get_Number(), user.Get_Email());
-
-                            Singleton.Show_MessageBox("wczytano pomyślnie");
-                        }
-                    }
-
-                    Singleton.Instance.configuration = new Dictionary<string, Dictionary<string, Configuration>>();
-                    Singleton.Instance.configuration_page.Refresh();
-
-
-                }
-                catch (Exception ex)
-                {
-                    Singleton.Show_MessageBox(ex.Message);
-                }
             }
             else
                 Singleton.Show_MessageBox("Niewystarczające uprawnienia!");
         }
     }
 }
+     
